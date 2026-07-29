@@ -1,0 +1,6 @@
+[submodule "lib_skeleton"]
+	path = lib_skeleton
+	url = https://github.com/Tatakinov/lib_skeleton
+[submodule "libfontlist"]
+	path = libfontlist
+	url = https://github.com/Tatakinov/libfontlist
