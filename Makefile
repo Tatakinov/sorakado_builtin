@@ -1,0 +1,14 @@
+CXXFLAGS=-g -O2 -Wall -std=c++20 -I . -I libfontlist/include $(shell pkg-config --cflags fontconfig jsoncpp sdl3 sdl3-image sdl3-ttf wayland-client)
+LDFLAGS=-L . $(shell pkg-config --libs fontconfig jsoncpp sdl3 sdl3-image sdl3-ttf wayland-client)
+OBJ=$(shell find . -maxdepth 1 -name "*.cc" | sed -e 's/\.cc$$/.o/g') $(shell find sorakado -name "*.cc" | sed -e 's/\.cc$$/.o/g') $(shell find libfontlist/src -name "*.cpp" | sed -e 's/\.cpp$$/.o/g')
+TARGET=sorakado_builtin.exe
+
+.PHONY: all clean
+
+all: $(TARGET)
+
+$(TARGET): $(OBJ)
+	$(CXX) -o $@ $^ $(LDFLAGS)
+
+clean:
+	$(RM) $(TARGET) $(OBJ)
