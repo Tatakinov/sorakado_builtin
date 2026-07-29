@@ -6,8 +6,11 @@ set(CMAKE_PREFIX_PATH "${CMAKE_PREFIX_PATH}" "${PROJECT_SOURCE_DIR}/cmake")
 find_package(SDL3 REQUIRED)
 find_package(SDL3_image REQUIRED)
 find_package(SDL3_ttf REQUIRED)
-find_package(wayland-client REQUIRED)
 find_package(jsoncpp REQUIRED)
+
+if (UNIX)
+    find_package(wayland-client REQUIRED)
+endif()
 
 add_subdirectory(libfontlist)
 add_subdirectory(sorakado)
