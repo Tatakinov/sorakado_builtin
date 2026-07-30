@@ -391,6 +391,7 @@ namespace sorakado::ai::master {
             }
         }
         if (list != link_.hit_region_list) {
+            Logger::log("hit!");
             link_.hit_region_list = list;
             link_.content = content;
             change();

@@ -3,6 +3,12 @@
 #include "sorakado/sorakado.h"
 #include "sorakado/window_manager.h"
 
+#include "logger.h"
+
+#define MOUSE_BUTTON_LEFT 1
+#define MOUSE_BUTTON_MIDDLE 2
+#define MOUSE_BUTTON_RIGHT 3
+
 namespace sorakado::ai::master {
     namespace {
         std::unordered_map<key_t, std::string> key2s = {
@@ -79,6 +85,40 @@ namespace sorakado::ai::master {
     }
 
     void Character::hover(float x, float y) {
+        if (util::isWayland()) {
+            auto r = getRect();
+            x -= r.x;
+            y -= r.y;
+        }
+        info_.hit(x, y);
+        auto link = info_.getLink();
+        Logger::log("hover", x, y, link.content.event);
+        if (prev_link_ != link) {
+            prev_link_ = link;
+            if (link.content.event.empty()) {
+                if (link.content.is_anchor) {
+                    directsstp::Request anchor = {"NOTIFY", "OnAnchorEnter", {}};
+                    parent_->enqueueDirectSSTP({anchor});
+                }
+                else {
+                    directsstp::Request choice = {"NOTIFY", "OnChoiceEnter", {}};
+                    parent_->enqueueDirectSSTP({choice});
+                }
+            }
+            else {
+                auto args = link.content.args;
+                args.insert(args.begin(), link.content.event);
+                args.insert(args.begin(), link.content.text);
+                if (link.content.is_anchor) {
+                    directsstp::Request anchor = {"NOTIFY", "OnAnchorEnter", args};
+                    parent_->enqueueDirectSSTP({anchor});
+                }
+                else {
+                    directsstp::Request choice = {"NOTIFY", "OnChoiceEnter", args};
+                    parent_->enqueueDirectSSTP({choice});
+                }
+            }
+        }
     }
 
     void Character::scroll(float x, float y, float mouse_x, float mouse_y) {
@@ -173,6 +213,44 @@ namespace sorakado::ai::master {
             y -= r.y;
         }
         info_.hit(x, y);
+        if (button == MOUSE_BUTTON_LEFT && !down && !mouse_state_[button].drag) {
+            auto link = info_.getLink();
+            if (prev_link_ != link) {
+                prev_link_ = link;
+            }
+            if (!link.content.event.empty()) {
+                if (link.content.event.starts_with("On")) {
+                    directsstp::Request req = {"NOTIFY", link.content.event, link.content.args};
+                    parent_->enqueueDirectSSTP({req});
+                }
+                else if (link.content.event.starts_with("script:")) {
+                    // TODO stub
+                }
+                else {
+                    auto args = link.content.args;
+                    args.insert(args.begin(), link.content.event);
+                    args.insert(args.begin(), link.content.text);
+                    if (link.content.is_anchor) {
+                        Logger::log("anchor.", link.content.event);
+                        directsstp::Request anchor_ex = {"NOTIFY", "OnAnchorSelectEx", args};
+                        directsstp::Request anchor = {"NOTIFY", "OnAnchorSelect", {link.content.event}};
+                        parent_->enqueueDirectSSTP({anchor_ex, anchor});
+                    }
+                    else {
+                        Logger::log("choice.", link.content.event);
+                        directsstp::Request choice_ex = {"NOTIFY", "OnChoiceSelectEx", args};
+                        directsstp::Request choice = {"NOTIFY", "OnChoiceSelect", {link.content.event}};
+                        parent_->enqueueDirectSSTP({choice_ex, choice});
+                    }
+                }
+            }
+            else {
+                // FIXME button enum / click count
+                std::vector<std::string> args = {util::to_s(button), "1", util::to_s(side())};
+                directsstp::Request req = {"EXECUTE", "NotifyBalloonClick", args};
+                parent_->enqueueDirectSSTP({req});
+            }
+        }
     }
 
     void Character::appendText(const std::string &text) {

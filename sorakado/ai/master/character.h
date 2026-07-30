@@ -27,6 +27,7 @@ namespace sorakado::ai::master {
             RenderInfo info_;
             bool raise_on_talk_;
             region_t region_;
+            Link prev_link_;
         protected:
         public:
             Character(sorakado::Sorakado *parent, std::unique_ptr<WindowManager> window_manager, int side, const std::string &name, std::unique_ptr<ImageCache> &image_cache, std::unique_ptr<FontCache> &font_cache);
