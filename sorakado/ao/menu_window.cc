@@ -139,6 +139,9 @@ namespace sorakado::ao {
         else if (action == ActionType::ScriptInputBox) {
             parent_->enqueueDirectSSTP({{"EXECUTE", "OpenScriptInputBox", {}}});
         }
+        else if (action == ActionType::ScriptLog) {
+            parent_->enqueueDirectSSTP({{"EXECUTE", "OpenScriptLog", {}}});
+        }
         parent_->click(this, x, y, button, down, clicks);
         return true;
     }

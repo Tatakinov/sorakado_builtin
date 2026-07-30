@@ -24,7 +24,7 @@ namespace sorakado {
 namespace sorakado::ao {
     enum class ActionType {
         None, Site, StayOnTop, Preferences, Switch, Call, Shell, DressUp,
-        Balloon, BasewareVersion, Close, CloseAll, ScriptInputBox,
+        Balloon, BasewareVersion, Close, CloseAll, ScriptInputBox, ScriptLog,
     };
 
     struct MenuModelDataAction {

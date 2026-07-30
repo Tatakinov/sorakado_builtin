@@ -66,6 +66,14 @@ namespace sorakado::ao {
                 };
                 data.push_back(action);
             }
+            if (type == "scriptlog") {
+                MenuModelDataAction action = {
+                    .action = ActionType::ScriptLog,
+                    .valid = v["valid"].asBool(),
+                    .caption = v["caption"].asString(),
+                };
+                data.push_back(action);
+            }
             if (type == "switch") {
                 MenuModelDataActionWithArgs action = {
                     .action = ActionType::Switch,
