@@ -398,6 +398,10 @@ namespace sorakado::ao::master {
         return seriko_->active(id);
     }
 
+    std::unordered_set<int> Character::getActiveAnimationList() const {
+        return seriko_->getActiveAnimationList();
+    }
+
     void Character::startAnimation(const std::string &id) {
         seriko_->activate(From::User, id, 0);
     }

@@ -4,6 +4,7 @@
 #include <memory>
 #include <optional>
 #include <unordered_map>
+#include <unordered_set>
 
 #include "sorakado/misc.h"
 #include "sorakado/character.h"
@@ -40,6 +41,7 @@ namespace sorakado::ao::master {
 
             void setSurfaceID(const std::string &id);
             bool isPlayingAnimation(const std::string &id) const;
+            std::unordered_set<int> getActiveAnimationList() const;
             void startAnimation(const std::string &id);
             void bind(int id, std::string from, BindFlag flag);
 

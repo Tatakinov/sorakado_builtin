@@ -55,6 +55,16 @@ namespace sorakado::ao::master {
         return actors_.at(id).active();
     }
 
+    std::unordered_set<int> Seriko::getActiveAnimationList() {
+        std::unordered_set<int> list;
+        for (auto &[k, _]: actors_) {
+            if (active(k)) {
+                list.emplace(k);
+            }
+        }
+        return list;
+    }
+
     void Seriko::activate(From from, const std::string &id, int elapsed) {
         int tmp;
         util::to_x(id, tmp);

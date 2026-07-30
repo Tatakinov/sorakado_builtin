@@ -50,6 +50,7 @@ namespace sorakado::ao::master {
             bool draw() override;
 
             bool isPlayingAnimation(int side, std::string id) const override;
+            std::unordered_set<int> getActiveAnimationList(int side) const override;
             void create(int side) override;
             void show(int side) override;
             void raise(int side) override;

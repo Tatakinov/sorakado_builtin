@@ -56,6 +56,7 @@ namespace sorakado::ao::master {
             void push(int id, int elapsed);
             bool active(int id);
             bool active(const std::string &id);
+            std::unordered_set<int> getActiveAnimationList();
             void activate(From from, const std::string &id, int elapsed);
             void activate(From from, int id, int elapsed);
             void inactivate(const std::string &id);

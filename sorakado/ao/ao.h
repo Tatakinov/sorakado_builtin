@@ -3,6 +3,7 @@
 
 #include <memory>
 #include <string>
+#include <unordered_set>
 #include <vector>
 
 #include "sorakado/sorakado.h"
@@ -23,6 +24,7 @@ namespace sorakado::ao {
             void sorakadoEvent(const std::vector<std::string> &args) override;
 
             virtual bool isPlayingAnimation(int side, std::string id) const = 0;
+            virtual std::unordered_set<int> getActiveAnimationList(int side) const = 0;
             virtual void create(int side) = 0;
             virtual void show(int side) = 0;
             virtual void raise(int side) = 0;

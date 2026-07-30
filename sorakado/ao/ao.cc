@@ -14,6 +14,18 @@ namespace sorakado::ao {
             bool playing = isPlayingAnimation(side, req(1).value());
             res() = static_cast<int>(playing);
         }
+        if (req().value() == "GetActiveAnimationList" && req(0)) {
+            int side;
+            util::to_x(req(0).value(), side);
+            lib_skeleton::sorakado::Response res = {200, "OK"};
+            auto list = getActiveAnimationList(side);
+            std::ostringstream oss;
+            for (auto id : list) {
+                oss << id << ",";
+            }
+            auto s = oss.str();
+            res() = s.substr(0, s.length() - 1);
+        }
         return std::nullopt;
     }
 

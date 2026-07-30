@@ -282,6 +282,13 @@ a = b;
         return characters_.at(side)->isPlayingAnimation(id);
     }
 
+    std::unordered_set<int> Ao::getActiveAnimationList(int side) const {
+        if (!characters_.contains(side)) {
+            return {};
+        }
+        return characters_.at(side)->getActiveAnimationList();
+    }
+
     void Ao::bind(int side, std::string category, std::string parts, std::string from, BindFlag flag) {
         if (!characters_.contains(side)) {
             return;
