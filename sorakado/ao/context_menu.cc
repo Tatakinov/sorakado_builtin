@@ -27,6 +27,9 @@ namespace sorakado::ao {
         int x = pos.x, y = pos.y;
         auto menu = std::make_unique<SubMenu>(data, display_r_, font_);
         auto r = menu->rect();
+        if (r.w == 0 || r.h == 0) {
+            return;
+        }
         if (x + r.w > display_r_.x + display_r_.w) {
             x = parent_r.x - r.w;
         }
