@@ -197,6 +197,7 @@ namespace sorakado {
             SDL_BlendMode mode = SDL_ComposeCustomBlendMode(SDL_BLENDFACTOR_ONE, SDL_BLENDFACTOR_ONE_MINUS_SRC_ALPHA, SDL_BLENDOPERATION_ADD, SDL_BLENDFACTOR_ONE, SDL_BLENDFACTOR_ONE, SDL_BLENDOPERATION_ADD);
             SDL_SetTextureBlendMode(texture->texture(), mode);
             SDL_FRect r = { offset.x - m.x, offset.y - m.y, texture->width(), texture->height() };
+            Logger::log("window.draw", r.x, r.y, r.w, r.h);
             SDL_RenderTexture(renderer_, texture->texture(), nullptr, &r);
         }
         if (region) {

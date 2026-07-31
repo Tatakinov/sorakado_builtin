@@ -31,9 +31,12 @@ namespace sorakado {
 
     WrapTexture::WrapTexture(SDL_Renderer *renderer, SDL_Surface *surface, bool is_upconverted) : is_upconverted_(is_upconverted) {
         texture_ = SDL_CreateTextureFromSurface(renderer, surface);
-        std::string err(SDL_GetError());
-        if (!err.empty()) {
-            Logger::log("TextureError", err);
+        {
+            std::string err(SDL_GetError());
+            if (!err.empty()) {
+                Logger::log("TextureError", err);
+                assert(false);
+            }
         }
         assert(texture_);
     }
