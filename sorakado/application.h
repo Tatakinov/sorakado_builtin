@@ -47,7 +47,7 @@ namespace sorakado {
 
             void run();
 
-            std::string sendDirectSSTP(std::string method, std::string command, std::vector<std::string> args, std::string script = "");
+            std::string sendDirectSSTP(std::string method, std::string command, std::vector<std::string> args, std::string script = "", bool hide_on_204 = false);
             void enqueueDirectSSTP(std::vector<directsstp::Request> list);
     };
 }

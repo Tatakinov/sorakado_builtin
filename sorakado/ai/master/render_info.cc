@@ -262,7 +262,31 @@ namespace sorakado::ai::master {
             return invalid;
         }
         auto t = std::make_unique<WrapTexture>(renderer, s->surface(), true);
-        return t;
+        auto list = getHitRegion();
+        if (list.size() == 0) {
+            return t;
+        }
+        auto flip = std::make_unique<WrapTexture>(renderer, 1, 1, true);
+        SDL_SetRenderTarget(renderer, flip->texture());
+        SDL_SetRenderDrawColor(renderer, 0x7f, 0x7f, 0x7f, 0x7f);
+        SDL_RenderClear(renderer);
+        auto dst = std::make_unique<WrapTexture>(renderer, t->width(), t->height(), true);
+        SDL_SetRenderTarget(renderer, dst->texture());
+        SDL_SetRenderDrawColor(renderer, 0x00, 0x00, 0x00, 0x00);
+        SDL_RenderClear(renderer);
+        SDL_RenderTexture(renderer, t->texture(), nullptr, nullptr);
+        SDL_BlendMode old;
+        SDL_GetRenderDrawBlendMode(renderer, &old);
+        SDL_BlendMode m = SDL_ComposeCustomBlendMode(SDL_BLENDFACTOR_ONE_MINUS_DST_COLOR, SDL_BLENDFACTOR_ZERO, SDL_BLENDOPERATION_ADD, SDL_BLENDFACTOR_ZERO, SDL_BLENDFACTOR_ONE, SDL_BLENDOPERATION_ADD);
+        SDL_SetRenderDrawBlendMode(renderer, m);
+        for (auto &rect : list) {
+            SDL_FRect r = {rect.x, rect.y, rect.w, rect.h};
+            SDL_RenderTexture(renderer, flip->texture(), nullptr, &r);
+        }
+        SDL_SetRenderDrawBlendMode(renderer, old);
+
+        SDL_SetRenderTarget(renderer, nullptr);
+        return dst;
     }
 
     void RenderInfo::setID(int id) {

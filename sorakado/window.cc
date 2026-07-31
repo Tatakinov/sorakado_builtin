@@ -171,6 +171,12 @@ namespace sorakado {
         }
     }
 
+    void Window::resize(int w, int h) {
+        if (!util::isWayland()) {
+            SDL_SetWindowSize(window_, w, h);
+        }
+    }
+
     bool Window::focused() const {
         return focused_;
     }
@@ -187,13 +193,6 @@ namespace sorakado {
         if (texture) {
             Rect rect = {offset.x, offset.y, texture->width(), texture->height()};
             auto m = getMonitorRect(rect);
-            if (!util::isWayland()) {
-                SDL_SetWindowSize(window_, texture->width(), texture->height());
-            }
-            if (!shape_) {
-                parent_->resetPosition(true);
-            }
-            parent_->setSize(texture->width(), texture->height());
             SDL_SetRenderTarget(renderer_, nullptr);
             SDL_BlendMode mode = SDL_ComposeCustomBlendMode(SDL_BLENDFACTOR_ONE, SDL_BLENDFACTOR_ONE_MINUS_SRC_ALPHA, SDL_BLENDOPERATION_ADD, SDL_BLENDFACTOR_ONE, SDL_BLENDFACTOR_ONE, SDL_BLENDOPERATION_ADD);
             SDL_SetTextureBlendMode(texture->texture(), mode);

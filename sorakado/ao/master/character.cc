@@ -3,6 +3,7 @@
 #include "logger.h"
 #include "sorakado/sorakado.h"
 #include "sorakado/window_manager.h"
+#include "sorakado/ao/misc.h"
 #include "sorakado/ao/master/ao.h"
 
 #define MOUSE_BUTTON_LEFT 1
@@ -55,8 +56,8 @@ namespace sorakado::ao::master {
         seriko_->setParent(this);
     }
 
-    bool Character::setOffset(int x, int y) {
-        if (!sorakado::Character::setOffset(x, y)) {
+    bool Character::setPosition(int x, int y) {
+        if (!sorakado::Character::setPosition(x, y)) {
             return false;
         }
         change();
@@ -81,6 +82,16 @@ namespace sorakado::ao::master {
         args = {util::to_s(side())};
         req = {"EXECUTE", "ResetBalloonPosition", args};
         enqueueDirectSSTP({req});
+        return true;
+    }
+
+    bool Character::setOffset(int x, int y) {
+        if (!sorakado::Character::setOffset(x, y)) {
+            return false;
+        }
+        auto r = getRect();
+        window_manager_->position(r.x + x, r.y + y);
+        alignmentPosition();
         return true;
     }
 
@@ -141,7 +152,7 @@ namespace sorakado::ao::master {
             origin_y -= r.h;
         }
         Logger::log("resetPosition", initialize, origin_x, origin_y);
-        setOffset(origin_x, origin_y);
+        setPosition(origin_x, origin_y);
         alignmentPosition();
     }
 
@@ -189,15 +200,24 @@ namespace sorakado::ao::master {
             auto id = util::getNearestDisplay(rect.x + rect.w / 2, rect.y + rect.h / 2);
             SDL_GetDisplayBounds(id, &r);
         }
+        auto o = getOffset();
         switch (align) {
             case Alignment::Bottom:
                 Logger::log("alignmentPosition.surface", rect.x, rect.y, rect.w, rect.h);
                 Logger::log("alignmentPosition.monitor", r.x, r.y, r.w, r.h);
                 Logger::log("alignmentPosition", side(), rect.x, r.y + r.h - rect.h);
-                setOffset(rect.x, r.y + r.h - rect.h);
+                if (o.y > 0) {
+                    setPosition(rect.x, r.y + r.h + o.y - rect.h);
+                }
+                else if (o.y + rect.h < 0) {
+                    setPosition(rect.x, r.y + r.h + o.y - rect.h);
+                }
+                else {
+                    setPosition(rect.x, r.y + r.h - rect.h);
+                }
                 break;
             case Alignment::Top:
-                setOffset(rect.x, r.y);
+                setPosition(rect.x, r.y);
                 break;
             case Alignment::Free:
                 // nop
@@ -251,14 +271,14 @@ namespace sorakado::ao::master {
             auto r = getRect();
             auto [dx, dy] = drag_.value();
             if (util::isWayland()) {
-                setOffset(r.x + x - dx, r.y + y - dy);
+                setPosition(r.x + x - dx, r.y + y - dy);
                 drag_ = {x, y};
             }
             else {
                 auto r = getRect();
                 float mouse_x, mouse_y;
                 SDL_GetGlobalMouseState(&mouse_x, &mouse_y);
-                setOffset(r.x + mouse_x - drag_->x, r.y + mouse_y - drag_->y);
+                setPosition(r.x + mouse_x - drag_->x, r.y + mouse_y - drag_->y);
                 drag_ = {mouse_x, mouse_y};
             }
         }
@@ -381,6 +401,11 @@ namespace sorakado::ao::master {
         if (!prev_info_ || prev_info_.value() != info) {
             prev_info_ = info;
             current_surface_ = info.getSurface(image_cache);
+            if (current_surface_) {
+                setSize(current_surface_->width(), current_surface_->height());
+                auto o = info.getRect(image_cache);
+                setOffset(o.x, o.y);
+            }
         }
         if (util::isWayland()) {
             window_manager_->draw(image_cache, getRect(), info, current_surface_);
@@ -390,8 +415,14 @@ namespace sorakado::ao::master {
         }
     }
 
+    int Character::getSurfaceID() const {
+        return seriko_->getSurfaceID();
+    }
+
     void Character::setSurfaceID(const std::string &id) {
-        seriko_->setSurfaceID(id);
+        if (seriko_->setSurfaceID(id)) {
+            static_cast<Ao *>(parent_)->surfaceChanged(side(), getSurfaceID());
+        }
     }
 
     bool Character::isPlayingAnimation(const std::string &id) const {

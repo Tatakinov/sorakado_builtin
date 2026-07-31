@@ -59,6 +59,7 @@ namespace sorakado::ao::master {
             void clearCache() override;
             void createMenu(const std::vector<MenuModelData> &data) override;
             std::vector<MenuModelData> getDressUpList() override;
+            void surfaceChanged(int side, int id);
             void setSurfaceID(int side, std::string id) override;
             void startAnimation(int side, std::string id) override;
             void bind(int side, std::string category, std::string parts, std::string from, BindFlag flag) override;

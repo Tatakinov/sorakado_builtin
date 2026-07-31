@@ -46,7 +46,7 @@ namespace sorakado {
             Rect getRect() const override {
                 return rect_;
             }
-            virtual bool setOffset(int x, int y);
+            virtual bool setPosition(int x, int y);
             virtual bool setSize(int w, int h);
             virtual void resetPosition(bool initialize) = 0;
 

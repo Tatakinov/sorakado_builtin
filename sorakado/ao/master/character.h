@@ -28,6 +28,7 @@ namespace sorakado::ao::master {
 
             void draw(std::unique_ptr<ImageCache> &cache) override;
 
+            bool setPosition(int x, int y) override;
             bool setOffset(int x, int y) override;
             bool setSize(int w, int h) override;
             void resetPosition(bool initialize) override;
@@ -39,6 +40,7 @@ namespace sorakado::ao::master {
             void click(Window *window, float x, float y, button_t button, bool down, Uint8 clicks) override;
             void scroll(float x, float y, float mouse_x, float mouse_y) override;
 
+            int getSurfaceID() const;
             void setSurfaceID(const std::string &id);
             bool isPlayingAnimation(const std::string &id) const;
             std::unordered_set<int> getActiveAnimationList() const;

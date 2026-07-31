@@ -54,6 +54,14 @@ namespace sorakado::ao::master {
         return dst;
     }
 
+    Rect Element::getRect(std::unique_ptr<ImageCache> &image_cache) const {
+        auto &info = image_cache->get(filename, index);
+        if (!info) {
+            return {0, 0, 0, 0};
+        }
+        return {x, y, info->width(), info->height()};
+    }
+
     std::unique_ptr<WrapSurface> Element::getSurface(std::unique_ptr<ImageCache> &image_cache) const {
         auto &info = image_cache->get(filename, index);
         if (!info) {

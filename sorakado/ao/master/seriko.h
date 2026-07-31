@@ -61,8 +61,9 @@ namespace sorakado::ao::master {
             void activate(From from, int id, int elapsed);
             void inactivate(const std::string &id);
             void inactivate(int id);
-            void setSurfaceID(const std::string &id);
-            void setSurfaceID(int id);
+            int getSurfaceID() const;
+            bool setSurfaceID(const std::string &id);
+            bool setSurfaceID(int id);
             bool getBindDefault(int id);
             std::unordered_set<int> getBindAddIDs(int id);
             ElementWithChildren get();

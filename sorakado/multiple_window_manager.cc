@@ -80,6 +80,12 @@ namespace sorakado {
         }
     }
 
+    void MultipleWindowManager::resize(int w, int h) {
+        for (auto &[_, window] : windows_) {
+            window->position(w, h);
+        }
+    }
+
     void MultipleWindowManager::key(window_id_t id, key_t key, bool down) {
         for (auto &[_, window] : windows_) {
             window->key(id, key, down);

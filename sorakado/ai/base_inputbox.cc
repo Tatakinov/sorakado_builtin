@@ -31,7 +31,7 @@ namespace sorakado::ai {
     void BaseInputbox::resetPosition(bool initialize) {
         auto rect = window_manager_->getMonitorRect(getRect());
         auto r = getRect();
-        setOffset((rect.w - r.w) / 2, (rect.h - r.h) / 2);
+        setPosition((rect.w - r.w) / 2, (rect.h - r.h) / 2);
         change();
     }
 
@@ -81,14 +81,14 @@ namespace sorakado::ai {
             auto r = getRect();
             auto [dx, dy] = drag_.value();
             if (util::isWayland()) {
-                setOffset(r.x + x - dx, r.y + y - dy);
+                setPosition(r.x + x - dx, r.y + y - dy);
                 drag_ = {x, y};
             }
             else {
                 auto r = getRect();
                 float mouse_x, mouse_y;
                 SDL_GetGlobalMouseState(&mouse_x, &mouse_y);
-                setOffset(r.x + mouse_x - drag_->x, r.y + mouse_y - drag_->y);
+                setPosition(r.x + mouse_x - drag_->x, r.y + mouse_y - drag_->y);
                 drag_ = {mouse_x, mouse_y};
             }
         }

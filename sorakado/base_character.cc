@@ -1,8 +1,17 @@
 #include "sorakado/base_character.h"
 
 #include "sorakado/sorakado.h"
+#include "logger.h"
 
 namespace sorakado {
+    bool BaseCharacter::setOffset(int x, int y) {
+        if (offset_.x == x && offset_.y == y) {
+            return false;
+        }
+        Logger::log("offset", x, y);
+        offset_ = {x, y};
+        return true;
+    }
     void BaseCharacter::press(key_t key, bool down) {
     }
 
@@ -21,8 +30,8 @@ namespace sorakado {
     void BaseCharacter::editText(const std::string &text) {
     }
 
-    std::string BaseCharacter::sendDirectSSTP(std::string method, std::string command, std::vector<std::string> args) {
-        return parent_->sendDirectSSTP(method, command, args);
+    std::string BaseCharacter::sendDirectSSTP(std::string method, std::string command, std::vector<std::string> args, std::string script, bool hide_on_204) {
+        return parent_->sendDirectSSTP(method, command, args, script, hide_on_204);
     }
 
     void BaseCharacter::enqueueDirectSSTP(std::vector<directsstp::Request> list) {

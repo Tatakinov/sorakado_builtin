@@ -261,6 +261,27 @@ a = b;
         menu_->createSubMenu(data, menu_initializer_.pos, parent_r);
     }
 
+    void Ao::surfaceChanged(int side, int id) {
+        std::vector<std::string> args;
+
+        if (characters_.contains(0)) {
+            args.push_back(util::to_s(characters_.at(0)->getSurfaceID()));
+        }
+        else {
+            args.push_back("-1");
+        }
+        if (characters_.contains(1)) {
+            args.push_back(util::to_s(characters_.at(1)->getSurfaceID()));
+        }
+        else {
+            args.push_back("-1");
+        }
+        // FIXME w, h
+        args.push_back(util::to_s(side) + "," + util::to_s(id) + ",0,0");
+        directsstp::Request req = {"NOTIFY", "OnSurfaceChange", args};
+        enqueueDirectSSTP({req});
+    }
+
     void Ao::setSurfaceID(int side, std::string id) {
         if (!characters_.contains(side)) {
             return;

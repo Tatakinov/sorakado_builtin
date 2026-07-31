@@ -40,6 +40,7 @@ namespace sorakado {
             virtual void clearCache() = 0;
 
             virtual void position(int x, int y) = 0;
+            virtual void resize(int w, int h) = 0;
             virtual void key(window_id_t id, key_t key, bool down) = 0;
             virtual void input(window_id_t id, const std::string &text) = 0;
             virtual void edit(window_id_t id, const std::string &text) = 0;

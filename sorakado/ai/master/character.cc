@@ -135,6 +135,9 @@ namespace sorakado::ai::master {
         update();
         if (info_.changed()) {
             region_ = info_.getSurface(image_cache);
+            if (region_) {
+                window_manager_->resize(region_->width(), region_->height());
+            }
         }
         info_.update();
         if (util::isWayland()) {
@@ -175,7 +178,7 @@ namespace sorakado::ai::master {
         raise_on_talk_ = true;
     }
 
-    bool Character::setOffset(int x, int y) {
+    bool Character::setPosition(int x, int y) {
         auto r = getRect();
         if (r.x + offset_.x == x && r.y + offset_.y == y) {
             return false;
@@ -220,7 +223,7 @@ namespace sorakado::ai::master {
             }
             if (!link.content.event.empty()) {
                 if (link.content.event.starts_with("On")) {
-                    directsstp::Request req = {"NOTIFY", link.content.event, link.content.args};
+                    directsstp::Request req = {"NOTIFY", link.content.event, link.content.args, {}, true};
                     parent_->enqueueDirectSSTP({req});
                 }
                 else if (link.content.event.starts_with("script:")) {
@@ -233,13 +236,13 @@ namespace sorakado::ai::master {
                     if (link.content.is_anchor) {
                         Logger::log("anchor.", link.content.event);
                         directsstp::Request anchor_ex = {"NOTIFY", "OnAnchorSelectEx", args};
-                        directsstp::Request anchor = {"NOTIFY", "OnAnchorSelect", {link.content.event}};
+                        directsstp::Request anchor = {"NOTIFY", "OnAnchorSelect", {link.content.event}, {}, true};
                         parent_->enqueueDirectSSTP({anchor_ex, anchor});
                     }
                     else {
                         Logger::log("choice.", link.content.event);
                         directsstp::Request choice_ex = {"NOTIFY", "OnChoiceSelectEx", args};
-                        directsstp::Request choice = {"NOTIFY", "OnChoiceSelect", {link.content.event}};
+                        directsstp::Request choice = {"NOTIFY", "OnChoiceSelect", {link.content.event}, {}, true};
                         parent_->enqueueDirectSSTP({choice_ex, choice});
                     }
                 }

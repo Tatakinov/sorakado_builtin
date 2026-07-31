@@ -27,8 +27,41 @@ namespace sorakado::ao::master {
         return true;
     }
 
+    Rect ElementWithChildren::getRect(std::unique_ptr<ImageCache> &image_cache) const {
+        Rect r = {kInf, kInf, -kInf, -kInf};
+        std::vector<std::optional<std::unique_ptr<WrapSurface>>> list;
+        for (auto &element : children) {
+            std::visit([&](const auto &e) {
+                auto t = e.getSurface(image_cache);
+                if (!t) {
+                    return;
+                }
+                if (r.x > e.x) {
+                    r.x = e.x;
+                }
+                if (r.y > e.y) {
+                    r.y = e.y;
+                }
+                if (r.w < e.x + t->width()) {
+                    r.w = e.x + t->width();
+                }
+                if (r.h < e.y + t->height()) {
+                    r.h = e.y + t->height();
+                }
+            }, element);
+        }
+        r.w -= r.x;
+        r.h -= r.y;
+        return r;
+    }
+
     std::unique_ptr<WrapSurface> ElementWithChildren::getSurface(std::unique_ptr<ImageCache> &image_cache) const {
-        int w = 0, h = 0;
+        auto r = getRect(image_cache);
+        if (r.w <= 0 || r.h <= 0) {
+            std::unique_ptr<WrapSurface> invalid;
+            //Logger::log("no valid children");
+            return invalid;
+        }
         std::vector<std::optional<std::unique_ptr<WrapSurface>>> list;
         for (auto &element : children) {
             std::visit([&](const auto &e) {
@@ -37,21 +70,10 @@ namespace sorakado::ao::master {
                     list.push_back(std::nullopt);
                     return;
                 }
-                if (w < e.x + t->width()) {
-                    w = e.x + t->width();
-                }
-                if (h < e.y + t->height()) {
-                    h = e.y + t->height();
-                }
                 list.push_back(std::move(t));
             }, element);
         }
-        if (w == 0 || h == 0) {
-            std::unique_ptr<WrapSurface> invalid;
-            //Logger::log("no valid children");
-            return invalid;
-        }
-        auto surface = std::make_unique<WrapSurface>(w, h);
+        auto surface = std::make_unique<WrapSurface>(r.w, r.h);
         SDL_ClearSurface(surface->surface(), 0, 0, 0, 0);
         for (int i = 0; i < list.size(); i++) {
             if (!list[i]) {
@@ -60,7 +82,9 @@ namespace sorakado::ao::master {
             std::visit([&](const auto &e) {
                 auto &t = list[i].value();
                 SDL_SetSurfaceBlendMode(t->surface(), SDL_BLENDMODE_BLEND);
-                SDL_Rect r = { e.x, e.y, t->width(), t->height() };
+                assert(e.x >= r.x);
+                assert(e.y >= r.y);
+                SDL_Rect r = { e.x - r.x, e.y - r.y, t->width(), t->height() };
                 SDL_BlitSurface(t->surface(), nullptr, surface->surface(), &r);
             }, children[i]);
         }
@@ -68,7 +92,12 @@ namespace sorakado::ao::master {
     }
 
     std::unique_ptr<WrapTexture> ElementWithChildren::getTexture(std::unique_ptr<ImageCache> &image_cache, renderer_t *renderer, std::unique_ptr<TextureCache> &texture_cache) const {
-        int w = 0, h = 0;
+        auto r = getRect(image_cache);
+        if (r.w <= 0 || r.h <= 0) {
+            std::unique_ptr<WrapTexture> invalid;
+            //Logger::log("no valid children");
+            return invalid;
+        }
         bool upconverted = true;
         std::vector<std::optional<std::unique_ptr<WrapTexture>>> list;
         for (auto &element : children) {
@@ -79,21 +108,10 @@ namespace sorakado::ao::master {
                     return;
                 }
                 upconverted = upconverted && t->isUpconverted();
-                if (w < e.x + t->width()) {
-                    w = e.x + t->width();
-                }
-                if (h < e.y + t->height()) {
-                    h = e.y + t->height();
-                }
                 list.push_back(std::move(t));
             }, element);
         }
-        if (w == 0 || h == 0) {
-            std::unique_ptr<WrapTexture> invalid;
-            //Logger::log("no valid children");
-            return invalid;
-        }
-        auto texture = std::make_unique<WrapTexture>(renderer, w, h, upconverted);
+        auto texture = std::make_unique<WrapTexture>(renderer, r.w, r.h, upconverted);
         SDL_SetRenderTarget(renderer, texture->texture());
         SDL_SetRenderDrawColor(renderer, 0x00, 0x00, 0x00, 0x00);
         SDL_RenderClear(renderer);
@@ -130,7 +148,9 @@ namespace sorakado::ao::master {
                 }
                 auto &t = list[i].value();
                 SDL_SetTextureBlendMode(t->texture(), mode);
-                SDL_FRect r = { e.x, e.y, t->width(), t->height() };
+                assert(e.x >= r.x);
+                assert(e.y >= r.y);
+                SDL_FRect r = { e.x - r.x, e.y - r.y, t->width(), t->height() };
                 SDL_RenderTexture(renderer, t->texture(), nullptr, &r);
             }, children[i]);
         }

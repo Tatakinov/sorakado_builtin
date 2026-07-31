@@ -85,14 +85,15 @@ namespace sorakado {
         return window_manager_->focused();
     }
 
-    bool Character::setOffset(int x, int y) {
-        Logger::log("offset", rect_.x, rect_.y, x, y, side());
+    bool Character::setPosition(int x, int y) {
+        Logger::log("position", rect_.x, rect_.y, x, y, side());
         if (rect_.x == x && rect_.y == y) {
             return false;
         }
         rect_.x = x;
         rect_.y = y;
-        window_manager_->position(x, y);
+        auto offset = getOffset();
+        window_manager_->position(x + offset.x, y + offset.y);
         change();
         return true;
     }
@@ -105,6 +106,7 @@ namespace sorakado {
         rect_.w = w;
         rect_.h = h;
         change();
+        window_manager_->resize(w, h);
         resetPosition(false);
         return true;
     }

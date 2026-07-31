@@ -9,9 +9,9 @@
 #include <unordered_set>
 #include <vector>
 
-#include "sorakado/ao/misc.h"
 #include "sorakado/render_info.h"
 #include "sorakado/texture.h"
+#include "sorakado/ao/master/misc.h"
 
 namespace sorakado {
     class ImageCache;
@@ -25,6 +25,7 @@ namespace sorakado::ao::master {
         int x, y;
         std::filesystem::path filename;
         std::optional<int> index;
+        Rect getRect(std::unique_ptr<ImageCache> &image_cache) const override;
         std::unique_ptr<WrapSurface> getSurface(std::unique_ptr<ImageCache> &image_cache) const override;
         std::unique_ptr<WrapTexture> getTexture(std::unique_ptr<ImageCache> &image_cache, renderer_t *renderer, std::unique_ptr<TextureCache> &texture_cache) const override;
         bool equals(const RenderInfo &rhs) const override;

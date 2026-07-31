@@ -94,7 +94,7 @@ namespace sorakado::ao {
             }
             if (type == "shell") {
                 MenuModelDataActionWithArgs action = {
-                    .action = ActionType::Call,
+                    .action = ActionType::Shell,
                     .valid = v["valid"].asBool(),
                     .caption = v["caption"].asString(),
                     .args = toList(v["list"])

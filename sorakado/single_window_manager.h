@@ -39,6 +39,7 @@ namespace sorakado {
             void clearCache() override;
 
             void position(int x, int y) override;
+            void resize(int w, int h) override;
             void key(window_id_t id, key_t key, bool down) override;
             void input(window_id_t id, const std::string &text) override;
             void edit(window_id_t id, const std::string &text) override;

@@ -83,6 +83,13 @@ namespace sorakado {
         window_->position(x, y);
     }
 
+    void SingleWindowManager::resize(int w, int h) {
+        if (!window_) {
+            return;
+        }
+        window_->resize(w, h);
+    }
+
     void SingleWindowManager::key(window_id_t id, key_t key, bool down) {
         if (!window_) {
             return;

@@ -28,6 +28,7 @@ namespace sorakado::directsstp {
         std::string command;
         std::vector<std::string> args;
         std::string script;
+        bool hide_on_204;
     };
 }
 

@@ -62,6 +62,12 @@ namespace sorakado::ao::master {
                 list.emplace(k);
             }
         }
+        for (auto &[k, v]: binds_) {
+            if (v) {
+                list.emplace(k);
+            }
+        }
+        Logger::log("seriko.active.num", list.size());
         return list;
     }
 
@@ -99,27 +105,33 @@ namespace sorakado::ao::master {
         actor.inactivate();
     }
 
-    void Seriko::setSurfaceID(const std::string &id) {
-        int tmp;
-        util::to_x(id, tmp);
-        setSurfaceID(tmp);
+    int Seriko::getSurfaceID() const {
+        return current_id_;
     }
 
-    void Seriko::setSurfaceID(int id) {
-        if (current_id_ != id) {
-            current_id_ = id;
-            if (!surfaces_.contains(id)) {
-                return;
-            }
-            auto &surface = surfaces_.at(id);
-            actors_.clear();
-            for (auto &[k, v] : surface.animation) {
-                Actor actor = {k, v, this};
-                actors_.emplace(k, actor);
-            }
-            updateBind();
-            update(true);
+    bool Seriko::setSurfaceID(const std::string &id) {
+        int tmp;
+        util::to_x(id, tmp);
+        return setSurfaceID(tmp);
+    }
+
+    bool Seriko::setSurfaceID(int id) {
+        if (current_id_ == id) {
+            return false;
         }
+        current_id_ = id;
+        if (!surfaces_.contains(id)) {
+            return true;
+        }
+        auto &surface = surfaces_.at(id);
+        actors_.clear();
+        for (auto &[k, v] : surface.animation) {
+            Actor actor = {k, v, this};
+            actors_.emplace(k, actor);
+        }
+        updateBind();
+        update(true);
+        return true;
     }
 
     bool Seriko::getBindDefault(int id) {
@@ -308,6 +320,7 @@ namespace sorakado::ao::master {
         }
         binds_[id] = enable;
         if (enable) {
+            Logger::log("bind enable", id);
             actors_.at(id).activate(From::System);
         }
         else {

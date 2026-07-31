@@ -26,7 +26,7 @@ namespace sorakado {
             return descript_info_.at(key);
         }
         if (fallback) {
-            auto res = lib_skeleton::sstp::Response::parse(sendDirectSSTP("EXECUTE", "GetDescript", {key}));
+            auto res = lib_skeleton::sstp::Response::parse(sendDirectSSTP("EXECUTE", "GetDescript", {key}, {}, false));
             std::string content = res.getContent();
             if (content.empty()) {
                 Logger::log("info(", key, "): not found");
@@ -40,8 +40,8 @@ namespace sorakado {
     void Sorakado::run() {
     }
 
-    std::string Sorakado::sendDirectSSTP(std::string method, std::string command, std::vector<std::string> args) {
-        return parent_->sendDirectSSTP(method, command, args);
+    std::string Sorakado::sendDirectSSTP(std::string method, std::string command, std::vector<std::string> args, std::string script, bool hide_on_204) {
+        return parent_->sendDirectSSTP(method, command, args, script, hide_on_204);
     }
 
     void Sorakado::enqueueDirectSSTP(std::vector<directsstp::Request> list) {

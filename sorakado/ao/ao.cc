@@ -1,6 +1,7 @@
 #include "sorakado/ao/ao.h"
 
 #include "sorakado/util.h"
+#include "logger.h"
 
 namespace sorakado::ao {
     Ao::Ao(sorakado::Application *parent, std::filesystem::path dir) : sorakado::Sorakado(parent, dir) {
@@ -13,18 +14,26 @@ namespace sorakado::ao {
             lib_skeleton::sorakado::Response res = {200, "OK"};
             bool playing = isPlayingAnimation(side, req(1).value());
             res() = static_cast<int>(playing);
+            return res;
         }
         if (req().value() == "GetActiveAnimationList" && req(0)) {
             int side;
             util::to_x(req(0).value(), side);
-            lib_skeleton::sorakado::Response res = {200, "OK"};
             auto list = getActiveAnimationList(side);
             std::ostringstream oss;
             for (auto id : list) {
                 oss << id << ",";
             }
             auto s = oss.str();
-            res() = s.substr(0, s.length() - 1);
+            if (s.empty()) {
+                lib_skeleton::sorakado::Response res = {204, "No Content"};
+                return res;
+            }
+            else {
+                lib_skeleton::sorakado::Response res = {200, "OK"};
+                res() = s.substr(0, s.length() - 1);
+                return res;
+            }
         }
         return std::nullopt;
     }

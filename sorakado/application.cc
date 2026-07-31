@@ -81,11 +81,11 @@ namespace sorakado {
                     std::string type = req(1).value();
                     if (type == "AO") {
                         type_ = SorakadoType::Ao;
-                        //Logger::configure("ao.log");
+                        Logger::configure("ao.log");
                     }
                     else if (type == "AI") {
                         type_ = SorakadoType::Ai;
-                        //Logger::configure("ai.log");
+                        Logger::configure("ai.log");
                     }
                     else {
                         break;
@@ -161,7 +161,7 @@ namespace sorakado {
                     event_queue_.pop();
                 }
                 for (auto &request : list) {
-                    auto res = lib_skeleton::sstp::Response::parse(sendDirectSSTP(request.method, request.command, request.args, request.script));
+                    auto res = lib_skeleton::sstp::Response::parse(sendDirectSSTP(request.method, request.command, request.args, request.script, request.hide_on_204));
                     // not fallback unless 204
                     if (res.getStatusCode() != 204) {
                         break;
@@ -246,10 +246,12 @@ auto b = std::chrono::system_clock::now();
 //Logger::log("chrono", std::chrono::duration_cast<std::chrono::microseconds>(b - a));
 a = b;
         sorakado_instance_->run();
-        std::string err(SDL_GetError());
-        if (!err.empty()) {
-            Logger::log("Error", err);
-            assert(false);
+        {
+            std::string err(SDL_GetError());
+            if (!err.empty()) {
+                Logger::log("Error", err);
+                assert(false);
+            }
         }
         std::queue<std::vector<std::string>> queue;
         {
@@ -273,7 +275,7 @@ b = std::chrono::system_clock::now();
 a = b;
     }
 
-    std::string Application::sendDirectSSTP(std::string method, std::string command, std::vector<std::string> args, std::string script) {
+    std::string Application::sendDirectSSTP(std::string method, std::string command, std::vector<std::string> args, std::string script, bool hide_on_204) {
         lib_skeleton::sstp::Request req {method};
         lib_skeleton::sstp::Response res {500, "Internal Server Error"};
         req["Charset"] = "UTF-8";
@@ -292,7 +294,12 @@ a = b;
             return res;
         }
         req["Sender"] = "Sorakado_builtin";
-        req["Option"] = "nodescript";
+        if (hide_on_204) {
+            req["Option"] = "nodescript,hideon204";
+        }
+        else {
+            req["Option"] = "nodescript";
+        }
         if (req.getCommand() == "EXECUTE") {
             req["Command"] = command;
         }

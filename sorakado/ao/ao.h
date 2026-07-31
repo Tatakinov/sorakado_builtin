@@ -7,10 +7,9 @@
 #include <vector>
 
 #include "sorakado/sorakado.h"
-#include "sorakado/ao/misc.h"
-#include "sorakado/ao/menu.h"
-
 #include "sorakado/util.h"
+#include "sorakado/ao/menu.h"
+#include "sorakado/ao/misc.h"
 
 namespace sorakado::ao {
     class Ao : public sorakado::Sorakado {

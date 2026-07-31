@@ -14,22 +14,6 @@ namespace sorakado::ao {
         Default, Hand,
     };
 
-    enum class Method {
-        Base, Overlay, OverlayFast, OverlayMultiply, Replace,
-        Interpolate, Asis, Move, Bind, Add, Reduce, Insert,
-        Start, Stop, AlternativeStart, AlternativeStop,
-        ParallelStart, ParallelStop, Import,
-    };
-
-    enum class Interval {
-        Sometimes, Rarely, Random, Periodic, Always, Runonce,
-        Never, YenE, Talk, Bind,
-    };
-
-    enum class CollisionType {
-        Rect, Ellipse, Circle, Polygon, Region,
-    };
-
     enum class Alignment {
         Bottom, Top, Free,
     };

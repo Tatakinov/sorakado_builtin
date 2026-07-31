@@ -77,6 +77,7 @@ namespace sorakado {
             void raise();
 
             virtual void position(int x, int y);
+            virtual void resize(int w, int h);
             virtual bool key(window_id_t id, key_t key, bool down);
 
             virtual void clearCache();

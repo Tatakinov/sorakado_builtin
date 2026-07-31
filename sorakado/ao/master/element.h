@@ -5,7 +5,7 @@
 #include <variant>
 
 #include "sorakado/render_info.h"
-#include "sorakado/ao/misc.h"
+#include "sorakado/ao/master/misc.h"
 
 namespace sorakado::ao::master {
     struct Element;
@@ -17,6 +17,7 @@ namespace sorakado::ao::master {
         int x, y;
         std::vector<std::variant<Element, ElementWithChildren>> children;
         bool equals(const RenderInfo &rhs) const override;
+        Rect getRect(std::unique_ptr<ImageCache> &image_cache) const override;
         std::unique_ptr<WrapSurface> getSurface(std::unique_ptr<ImageCache> &image_cache) const override;
         std::unique_ptr<WrapTexture> getTexture(std::unique_ptr<ImageCache> &image_cache, renderer_t *renderer, std::unique_ptr<TextureCache> &texture_cache) const override;
     };
