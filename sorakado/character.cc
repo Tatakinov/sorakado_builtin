@@ -93,7 +93,9 @@ namespace sorakado {
         rect_.x = x;
         rect_.y = y;
         auto offset = getOffset();
-        window_manager_->position(x + offset.x, y + offset.y);
+        if (!util::isWayland()) {
+            window_manager_->position(x + offset.x, y + offset.y);
+        }
         change();
         return true;
     }
@@ -107,30 +109,6 @@ namespace sorakado {
         rect_.h = h;
         change();
         window_manager_->resize(w, h);
-        resetPosition(false);
-        return true;
-    }
-
-    bool Character::move(int x, int y) {
-        if (rect_.x == x && rect_.y == y) {
-            return false;
-        }
-        rect_.x = x;
-        rect_.y = y;
-        if (!util::isWayland()) {
-            window_manager_->position(x, y);
-        }
-        change();
-        return true;
-    }
-
-    bool Character::resize(int w, int h) {
-        if (rect_.w == w && rect_.h == h) {
-            return false;
-        }
-        rect_.w = w;
-        rect_.h = h;
-        change();
         resetPosition(false);
         return true;
     }

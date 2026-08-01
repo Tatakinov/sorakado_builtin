@@ -36,6 +36,7 @@ namespace sorakado::ao {
             virtual void startAnimation(int side, std::string id) = 0;
             virtual void bind(int side, std::string category, std::string parts, std::string from, BindFlag flag) = 0;
             virtual std::optional<Position> getCharacterPosition(int side) const = 0;
+            virtual void move(int side, bool is_async, const std::string &x, const std::string &y, int time, const std::string &base, const std::string &base_offset, const std::string &move_offset, const std::vector<std::string> &options) = 0;
     };
 }
 

@@ -56,6 +56,20 @@ namespace sorakado::ao::master {
         seriko_->setParent(this);
     }
 
+    void Character::create(display_t id) {
+        sorakado::Character::create(id);
+        if (!util::isWayland() || getenv("NINIX_ENABLE_MULTI_MONITOR")) {
+            displayChanged();
+        }
+    }
+
+    void Character::destroy(display_t id) {
+        sorakado::Character::destroy(id);
+        if (!util::isWayland() || getenv("NINIX_ENABLE_MULTI_MONITOR")) {
+            displayChanged();
+        }
+    }
+
     bool Character::setPosition(int x, int y) {
         if (!sorakado::Character::setPosition(x, y)) {
             return false;
@@ -154,6 +168,22 @@ namespace sorakado::ao::master {
         Logger::log("resetPosition", initialize, origin_x, origin_y);
         setPosition(origin_x, origin_y);
         alignmentPosition();
+    }
+
+    void Character::move(bool is_async, const std::string &x, const std::string &y, int time, const std::string &base, const std::string &base_offset, const std::string &move_offset, const std::vector<std::string> &options) {
+        auto src = getRect();
+        Position dst = {src.x, src.y};
+        auto f = [this](const std::string &arg, int &v) {
+            if (arg == "fix") {
+                return;
+            }
+            util::to_x(arg, v);
+        };
+        f(x, dst.x);
+        f(y, dst.y);
+        auto now = std::chrono::system_clock::now();
+        Logger::log("character.move.start");
+        move_info_ = {is_async, {dst.x - src.x, dst.y - src.y}, time, now, 0};
     }
 
     void Character::alignmentPosition() {
@@ -564,5 +594,79 @@ namespace sorakado::ao::master {
     void Character::setScale(int scale) {
         seriko_->setScale(scale);
         change();
+    }
+
+    void Character::displayChanged() {
+        std::vector<std::string> args = {"update"};
+        SDL_DisplayID primary = SDL_GetPrimaryDisplay();
+        if (!util::isWayland() || getenv("NINIX_ENABLE_MULTI_MONITOR")) {
+            int count = 0;
+            auto *displays = SDL_GetDisplays(&count);
+            for (int i = 0; i < count; i++) {
+                SDL_Rect r, usable;
+                SDL_GetDisplayBounds(displays[i], &r);
+                std::ostringstream oss;
+                oss << r.x << "," << r.y << "," << r.w << "," << r.h << ",32," << (primary == displays[i]) << ",";
+                SDL_GetDisplayUsableBounds(displays[i], &usable);
+                if (r.x != usable.x) {
+                    oss << "left," << usable.x;
+                }
+                else if (r.y != usable.y) {
+                    oss << "top," << usable.y;
+                }
+                else if (r.w != usable.w) {
+                    oss << "right," << usable.w;
+                }
+                else if (r.h != usable.h) {
+                    oss << "bottom," << usable.h;
+                }
+                else {
+                    oss << "unknown";
+                }
+                args.push_back(oss.str());
+            }
+            SDL_free(displays);
+        }
+        else {
+            auto r = window_manager_->getMonitorRect(getRect());
+            std::ostringstream oss;
+            oss << r.x << "," << r.y << "," << r.w << "," << r.h << ",32,1,unknown";
+            args.push_back(oss.str());
+        }
+        directsstp::Request req = {"NOTIFY", "OnDisplayChangeEx", args};
+        enqueueDirectSSTP({req});
+    }
+
+    void Character::run() {
+        if (move_info_) {
+            auto r = getRect();
+            auto now = std::chrono::system_clock::now();
+            auto diff = std::chrono::duration_cast<std::chrono::milliseconds>(now - move_info_->start).count();
+            if (diff >= move_info_->time || move_info_->time == 0) {
+                diff = move_info_->time;
+                int x = r.x + move_info_->dst.x;
+                int y = r.y + move_info_->dst.y;
+                if (diff > 0) {
+                    x -= move_info_->dst.x * move_info_->prev / move_info_->time;
+                    y -= move_info_->dst.y * move_info_->prev / move_info_->time;
+                }
+                setPosition(x, y);
+                if (!move_info_->is_async && diff > 0) {
+                    directsstp::Request req = {"EXECUTE", "ResumeScript", {}};
+                    enqueueDirectSSTP({req});
+                }
+                move_info_ = std::nullopt;
+            }
+            else {
+                int x = r.x + move_info_->dst.x * diff / move_info_->time;
+                int y = r.y + move_info_->dst.y * diff / move_info_->time;
+                x -= move_info_->dst.x * move_info_->prev / move_info_->time;
+                y -= move_info_->dst.y * move_info_->prev / move_info_->time;
+                setPosition(x, y);
+                move_info_->prev = diff;
+            }
+            auto post = getRect();
+            Logger::log("character.move: ", r.x, r.y , post.x, post.y);
+        }
     }
 }

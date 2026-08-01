@@ -136,7 +136,7 @@ namespace sorakado::ai::master {
         if (info_.changed()) {
             region_ = info_.getSurface(image_cache);
             if (region_) {
-                window_manager_->resize(region_->width(), region_->height());
+                setSize(region_->width(), region_->height());
             }
         }
         info_.update();
@@ -167,7 +167,7 @@ namespace sorakado::ai::master {
     }
 
     void Character::setBalloonPosition(int x, int y) {
-        move(x - offset_.x, y - offset_.y);
+        setPosition(x - offset_.x, y - offset_.y);
     }
 
     void Character::setBalloonDirection(int direction) {
@@ -178,7 +178,7 @@ namespace sorakado::ai::master {
         raise_on_talk_ = true;
     }
 
-    bool Character::setPosition(int x, int y) {
+    bool Character::setOffset(int x, int y) {
         auto r = getRect();
         if (r.x + offset_.x == x && r.y + offset_.y == y) {
             return false;

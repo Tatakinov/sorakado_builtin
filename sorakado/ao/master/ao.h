@@ -64,6 +64,8 @@ namespace sorakado::ao::master {
             void startAnimation(int side, std::string id) override;
             void bind(int side, std::string category, std::string parts, std::string from, BindFlag flag) override;
             std::optional<Position> getCharacterPosition(int side) const override;
+            void move(int side, bool is_async, const std::string &x, const std::string &y, int time, const std::string &base, const std::string &base_offset, const std::string &move_offset, const std::vector<std::string> &options) override;
+
             void reserveMenu(window_t parent, int side, Position pos, Rect r);
     };
 }

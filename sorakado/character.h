@@ -29,8 +29,8 @@ namespace sorakado {
             Character(Sorakado *parent, std::unique_ptr<WindowManager> manager, int side, const std::string &name);
             virtual ~Character();
             std::string getInfo(std::string key, bool fallback);
-            void create(display_t id);
-            void destroy(display_t id);
+            virtual void create(display_t id);
+            virtual void destroy(display_t id);
             virtual void draw(std::unique_ptr<ImageCache> &cache) = 0;
             bool swapBuffers();
             int side() const {
@@ -50,8 +50,6 @@ namespace sorakado {
             virtual bool setSize(int w, int h);
             virtual void resetPosition(bool initialize) = 0;
 
-            virtual bool move(int x, int y);
-            virtual bool resize(int w, int h);
             virtual void scroll(float x, float y, float mouse_x, float mouse_y);
 
             void key(window_id_t id, key_t key, bool down);

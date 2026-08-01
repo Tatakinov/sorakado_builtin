@@ -6,7 +6,7 @@
 #include <unordered_map>
 
 #include "logger.h"
-#include "sorakado/character.h"
+#include "sorakado/ao/master/character.h"
 #include "lib_skeleton/sstp.h"
 
 namespace {
@@ -59,6 +59,14 @@ namespace sorakado::ao::master {
             return false;
         }
         parent_->dnd(file_list);
+        return true;
+    }
+
+    bool AoMasterWindow::maximized(window_id_t id) {
+        if (!Window::maximized(id)) {
+            return false;
+        }
+        static_cast<Character *>(parent_)->displayChanged();
         return true;
     }
 }

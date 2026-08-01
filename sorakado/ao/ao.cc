@@ -115,5 +115,23 @@ namespace sorakado::ao {
             util::to_x(args[1], side);
             raise(side);
         }
+        else if (args[0] == "Move" && args.size() >= 9) {
+            int side = -1;
+            util::to_x(args[1], side);
+            bool is_async = args[2] == "true";
+            std::string x = args[3];
+            std::string y = args[4];
+            int time = 0;
+            util::to_x(args[5], time);
+            std::string base = args[6];
+            std::string base_offset = args[7];
+            std::string move_offset = args[8];
+            std::vector<std::string> options;
+            for (int i = 9; i < args.size(); i++) {
+                options.push_back(args[i]);
+            }
+            Logger::log("ao.move");
+            move(side, is_async, x, y, time, base, base_offset, move_offset, options);
+        }
     }
 }

@@ -116,12 +116,10 @@ namespace sorakado::ao::master {
     }
 
     bool Seriko::setSurfaceID(int id) {
-        if (current_id_ == id) {
-            return false;
-        }
+        bool changed = current_id_ != id;
         current_id_ = id;
         if (!surfaces_.contains(id)) {
-            return true;
+            return changed;
         }
         auto &surface = surfaces_.at(id);
         actors_.clear();
@@ -131,7 +129,7 @@ namespace sorakado::ao::master {
         }
         updateBind();
         update(true);
-        return true;
+        return changed;
     }
 
     bool Seriko::getBindDefault(int id) {

@@ -47,7 +47,7 @@ namespace sorakado::ai::master {
             void setBalloonPosition(int x, int y);
             void setBalloonDirection(int direction);
             void raiseOnTalk();
-            bool setPosition(int x, int y) override;
+            bool setOffset(int x, int y);
             bool setSize(int w, int h) override;
             void clearText(bool initialize);
             void appendText(const std::string &text);

@@ -219,6 +219,9 @@ namespace sorakado::ao::master {
         if (menu_) {
             menu_->run();
         }
+        for (auto &[_, v] : characters_) {
+            v->run();
+        }
     }
 
     bool Ao::draw() {
@@ -368,6 +371,17 @@ a = b;
             return std::nullopt;
         }
         return characters_.at(s)->getRect();
+    }
+
+    void Ao::move(int side, bool is_async, const std::string &x, const std::string &y, int time, const std::string &base, const std::string &base_offset, const std::string &move_offset, const std::vector<std::string> &options) {
+        Logger::log("master.ao.move", side, characters_.contains(side));
+        if (!characters_.contains(side)) {
+            return;
+        }
+        if (time < 0) {
+            time = 0;
+        }
+        characters_.at(side)->move(is_async, x, y, time, base, base_offset, move_offset, options);
     }
     
     void Ao::reserveMenu(window_t parent, int side, Position pos, Rect r) {

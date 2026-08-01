@@ -1,6 +1,7 @@
 #ifndef SORAKADO_AO_MASTER_CHARACTER_H_
 #define SORAKADO_AO_MASTER_CHARACTER_H_
 
+#include <chrono>
 #include <memory>
 #include <optional>
 #include <unordered_map>
@@ -18,14 +19,24 @@ namespace sorakado::ao::master {
                 bool press;
                 bool drag;
             };
+            struct MoveInfo {
+                bool is_async;
+                Position dst;
+                int time; // ms
+                std::chrono::system_clock::time_point start;
+                int prev;
+            };
             std::optional<DragPosition> drag_;
             std::unordered_map<button_t, State> mouse_state_;
             std::unique_ptr<Seriko> seriko_;
             std::optional<ElementWithChildren> prev_info_;
             region_t current_surface_;
+            std::optional<MoveInfo> move_info_;
         public:
             Character(sorakado::Sorakado *parent, std::unique_ptr<WindowManager> window_manager, int side, const std::string &name, std::unique_ptr<Seriko> seriko);
 
+            void create(display_t id) override;
+            void destroy(display_t id) override;
             void draw(std::unique_ptr<ImageCache> &cache) override;
 
             bool setPosition(int x, int y) override;
@@ -33,6 +44,7 @@ namespace sorakado::ao::master {
             bool setSize(int w, int h) override;
             void resetPosition(bool initialize) override;
             void alignmentPosition();
+            void move(bool is_async, const std::string &x, const std::string &y, int time, const std::string &base, const std::string &base_offset, const std::string &move_offset, const std::vector<std::string> &options);
 
             void press(key_t key, bool down) override;
             void dnd(const std::vector<std::string> &file_list) override;
@@ -49,6 +61,10 @@ namespace sorakado::ao::master {
 
             std::string getHitBoxName(int x, int y);
             void setScale(int scale);
+
+            void displayChanged();
+
+            void run();
     };
 }
 
