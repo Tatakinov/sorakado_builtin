@@ -28,7 +28,7 @@ namespace sorakado {
         public:
             Character(Sorakado *parent, std::unique_ptr<WindowManager> manager, int side, const std::string &name);
             virtual ~Character();
-            std::string getInfo(std::string key, bool fallback);
+            std::string getInfo(std::string key, bool fallback, bool freeze = true);
             virtual void create(display_t id);
             virtual void destroy(display_t id);
             virtual void draw(std::unique_ptr<ImageCache> &cache) = 0;

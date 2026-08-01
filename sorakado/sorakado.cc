@@ -21,13 +21,16 @@ namespace sorakado {
         }
     }
 
-    std::string Sorakado::getInfo(std::string key, bool fallback) {
+    std::string Sorakado::getInfo(std::string key, bool fallback, bool freeze) {
         if (descript_info_.contains(key)) {
             return descript_info_.at(key);
         }
         if (fallback) {
             auto res = lib_skeleton::sstp::Response::parse(sendDirectSSTP("EXECUTE", "GetDescript", {key}, {}, false));
             std::string content = res.getContent();
+            if (freeze) {
+                descript_info_[key] = content;
+            }
             if (content.empty()) {
                 Logger::log("info(", key, "): not found");
                 return "";

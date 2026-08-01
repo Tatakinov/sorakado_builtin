@@ -15,8 +15,8 @@ namespace sorakado {
     Character::~Character() {
     }
 
-    std::string Character::getInfo(std::string key, bool fallback) {
-        return parent_->getInfo(key, fallback);
+    std::string Character::getInfo(std::string key, bool fallback, bool freeze) {
+        return parent_->getInfo(key, fallback, freeze);
     }
 
     void Character::create(SDL_DisplayID id) {

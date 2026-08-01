@@ -23,7 +23,7 @@ namespace sorakado {
         public:
             Sorakado(Application *parent, std::filesystem::path dir);
             virtual ~Sorakado() {}
-            std::string getInfo(std::string key, bool fallback);
+            std::string getInfo(std::string key, bool fallback, bool freeze = true);
 
             // sorakado event
             virtual std::optional<lib_skeleton::sorakado::Response> sorakadoEventImmediately(const lib_skeleton::sorakado::Request &req) = 0;
