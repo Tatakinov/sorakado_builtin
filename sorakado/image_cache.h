@@ -44,8 +44,16 @@ namespace sorakado {
             std::vector<unsigned char> data_;
             int width_, height_;
             bool is_upconverted_;
+            bool is_empty_;
         public:
-            ImageInfo(const std::vector<unsigned char> &data, int width, int height, bool is_upconverted) : data_(data), width_(width), height_(height), is_upconverted_(is_upconverted) {}
+            ImageInfo(const std::vector<unsigned char> &data, int width, int height, bool is_upconverted) : data_(data), width_(width), height_(height), is_upconverted_(is_upconverted), is_empty_(true) {
+                for (int i = 0; i < width_ * height_; i++) {
+                    is_empty_ = (data[4 * i + 3] == 0);
+                    if (!is_empty_) {
+                        break;
+                    }
+                }
+            }
             ~ImageInfo() {}
             std::vector<unsigned char> &get() {
                 return data_;
@@ -58,6 +66,9 @@ namespace sorakado {
             }
             bool isUpconverted() const {
                 return is_upconverted_;
+            }
+            bool empty() const {
+                return is_empty_;
             }
     };
 

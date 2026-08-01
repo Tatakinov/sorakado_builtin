@@ -28,11 +28,23 @@ namespace sorakado::ao::master {
     }
 
     Rect ElementWithChildren::getRect(std::unique_ptr<ImageCache> &image_cache) const {
+        auto r = getRect(image_cache, false);
+        Logger::log("getRect.middle", r.x, r.y, r.w, r.h);
+        if (r.w == 0 || r.h == 0) {
+            return getRect(image_cache, true);
+        }
+        return r;
+    }
+
+    Rect ElementWithChildren::getRect(std::unique_ptr<ImageCache> &image_cache, bool include_empty_image) const {
         Rect r = {kInf, kInf, -kInf, -kInf};
         std::vector<std::optional<std::unique_ptr<WrapSurface>>> list;
         for (auto &element : children) {
             std::visit([&](const auto &e) {
-                auto cr = e.getRect(image_cache);
+                auto cr = e.getRect(image_cache, include_empty_image);
+                if (cr.w <= 0 || cr.h <= 0) {
+                    return;
+                }
                 if (r.x > cr.x) {
                     r.x = cr.x;
                 }
@@ -48,7 +60,13 @@ namespace sorakado::ao::master {
             }, element);
         }
         r.w -= r.x;
+        if (r.w < 0) {
+            r.w = 0;
+        }
         r.h -= r.y;
+        if (r.h < 0) {
+            r.h = 0;
+        }
         r.x += x;
         r.y += y;
         return r;
@@ -80,12 +98,13 @@ namespace sorakado::ao::master {
             }
             std::visit([&](const auto &e) {
                 auto &t = list[i].value();
+                SDL_Rect r = { e.x - rect.x + x, e.y - rect.y + y, t->width(), t->height() };
+                if (r.x + r.w < 0 || r.x > rect.w || r.y + r.h < 0 || r.y > rect.h) {
+                    return;
+                }
                 SDL_SetSurfaceBlendMode(t->surface(), SDL_BLENDMODE_BLEND);
                 Logger::log("getSurface.rect", rect.x, rect.y, rect.w, rect.h);
                 Logger::log("getSurface.e", e.x, e.y);
-                SDL_Rect r = { e.x - rect.x + x, e.y - rect.y + y, t->width(), t->height() };
-                assert(r.x >= 0);
-                assert(r.y >= 0);
                 SDL_BlitSurface(t->surface(), nullptr, surface->surface(), &r);
             }, children[i]);
         }
@@ -122,6 +141,11 @@ namespace sorakado::ao::master {
             }
             SDL_BlendMode mode = SDL_ComposeCustomBlendMode(SDL_BLENDFACTOR_ONE, SDL_BLENDFACTOR_ONE_MINUS_SRC_ALPHA, SDL_BLENDOPERATION_ADD, SDL_BLENDFACTOR_ONE, SDL_BLENDFACTOR_ONE, SDL_BLENDOPERATION_ADD);
             std::visit([&](const auto &e) {
+                auto &t = list[i].value();
+                SDL_FRect r = { e.x - rect.x + x, e.y - rect.y + y, t->width(), t->height() };
+                if (r.x + r.w < 0 || r.x > rect.w || r.y + r.h < 0 || r.y > rect.h) {
+                    return;
+                }
                 switch (e.method) {
                     case Method::Base:
                     case Method::Add:
@@ -147,11 +171,7 @@ namespace sorakado::ao::master {
                     default:
                         break;
                 }
-                auto &t = list[i].value();
                 SDL_SetTextureBlendMode(t->texture(), mode);
-                SDL_FRect r = { e.x - rect.x + x, e.y - rect.y + y, t->width(), t->height() };
-                assert(r.x >= 0);
-                assert(r.y >= 0);
                 SDL_RenderTexture(renderer, t->texture(), nullptr, &r);
             }, children[i]);
         }

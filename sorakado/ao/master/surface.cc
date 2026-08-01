@@ -5,8 +5,7 @@
 
 namespace sorakado::ao::master {
 
-    bool Element::equals(const RenderInfo &r) const {
-        const auto &rhs = static_cast<const Element &>(r);
+    bool Element::operator==(const Element &rhs) const {
         const auto &lhs = *this;
         return lhs.method == rhs.method && lhs.x == rhs.x && lhs.y == rhs.y && lhs.filename == rhs.filename && lhs.index == rhs.index;
     }
@@ -53,9 +52,12 @@ namespace sorakado::ao::master {
         return dst;
     }
 
-    Rect Element::getRect(std::unique_ptr<ImageCache> &image_cache) const {
+    Rect Element::getRect(std::unique_ptr<ImageCache> &image_cache, bool include_empty_image) const {
         auto &info = image_cache->get(filename, index);
         if (!info) {
+            return {0, 0, 0, 0};
+        }
+        if (!include_empty_image && info->empty()) {
             return {0, 0, 0, 0};
         }
         return {x, y, info->width(), info->height()};

@@ -236,15 +236,7 @@ namespace sorakado::ao::master {
                 Logger::log("alignmentPosition.surface", rect.x, rect.y, rect.w, rect.h);
                 Logger::log("alignmentPosition.monitor", r.x, r.y, r.w, r.h);
                 Logger::log("alignmentPosition", side(), rect.x, r.y + r.h - rect.h);
-                if (o.y > 0) {
-                    setPosition(rect.x, r.y + r.h + o.y - rect.h);
-                }
-                else if (o.y + rect.h < 0) {
-                    setPosition(rect.x, r.y + r.h + o.y - rect.h);
-                }
-                else {
-                    setPosition(rect.x, r.y + r.h - rect.h);
-                }
+                setPosition(rect.x, r.y + r.h + o.y - rect.h);
                 break;
             case Alignment::Top:
                 setPosition(rect.x, r.y);

@@ -18,17 +18,17 @@ namespace sorakado {
 }
 
 namespace sorakado::ao::master {
-    struct Element : public sorakado::RenderInfo {
+    struct Element {
         Element() : Element(Method::Overlay, 0, 0, "", std::nullopt) {}
         Element(Method _method, int _x, int _y, std::filesystem::path _filename, std::optional<int> _index) : method(_method), x(_x), y(_y), filename(_filename), index(_index) {}
         Method method;
         int x, y;
         std::filesystem::path filename;
         std::optional<int> index;
-        Rect getRect(std::unique_ptr<ImageCache> &image_cache) const override;
-        std::unique_ptr<WrapSurface> getSurface(std::unique_ptr<ImageCache> &image_cache) const override;
-        std::unique_ptr<WrapTexture> getTexture(std::unique_ptr<ImageCache> &image_cache, renderer_t *renderer, std::unique_ptr<TextureCache> &texture_cache) const override;
-        bool equals(const RenderInfo &rhs) const override;
+        Rect getRect(std::unique_ptr<ImageCache> &image_cache, bool include_empty_image) const;
+        std::unique_ptr<WrapSurface> getSurface(std::unique_ptr<ImageCache> &image_cache) const;
+        std::unique_ptr<WrapTexture> getTexture(std::unique_ptr<ImageCache> &image_cache, renderer_t *renderer, std::unique_ptr<TextureCache> &texture_cache) const;
+        bool operator==(const Element &rhs) const;
     };
 
     struct Pattern {
