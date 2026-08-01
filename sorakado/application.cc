@@ -31,8 +31,6 @@
 #include "lib_skeleton/sstp.h"
 #include "sorakado/sorakado.h"
 
-#include <chrono>
-
 namespace {
 #ifndef IS_WINDOWS
     inline int closesocket(int fd) {
@@ -186,7 +184,6 @@ namespace sorakado {
     void Application::run() {
         SDL_Event event;
         std::vector<std::string> filelist;
-auto a = std::chrono::system_clock::now();
         while ((is_idle_) ? (SDL_WaitEventTimeout(&event, 10)) : (SDL_PollEvent(&event))) {
             is_idle_ = false;
             switch (event.type) {
@@ -242,9 +239,6 @@ auto a = std::chrono::system_clock::now();
                     break;
             }
         }
-auto b = std::chrono::system_clock::now();
-//Logger::log("chrono", std::chrono::duration_cast<std::chrono::microseconds>(b - a));
-a = b;
         sorakado_instance_->run();
         {
             std::string err(SDL_GetError());
@@ -266,13 +260,7 @@ a = b;
             queue.pop();
             sorakado_instance_->sorakadoEvent(args);
         }
-b = std::chrono::system_clock::now();
-//Logger::log("chrono2", std::chrono::duration_cast<std::chrono::microseconds>(b - a));
-a = b;
         is_idle_ = !sorakado_instance_->draw();
-b = std::chrono::system_clock::now();
-//Logger::log("chrono3", std::chrono::duration_cast<std::chrono::microseconds>(b - a));
-a = b;
     }
 
     std::string Application::sendDirectSSTP(std::string method, std::string command, std::vector<std::string> args, std::string script, bool hide_on_204) {

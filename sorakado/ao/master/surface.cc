@@ -48,8 +48,7 @@ namespace sorakado::ao::master {
         SDL_SetRenderDrawColor(renderer, 0x00, 0x00, 0x00, 0x00);
         SDL_RenderClear(renderer);
         SDL_SetTextureBlendMode(src->texture(), mode);
-        SDL_FRect r = { 0, 0, src->width(), src->height() };
-        SDL_RenderTexture(renderer, src->texture(), nullptr, &r);
+        SDL_RenderTexture(renderer, src->texture(), nullptr, nullptr);
         SDL_SetRenderTarget(renderer, nullptr);
         return dst;
     }

@@ -11,7 +11,6 @@
 #include "sorakado/ao/master/window.h"
 
 #include "logger.h"
-#include <chrono>
 
 namespace sorakado::ao::master {
     Ao::Ao(Application *parent, std::filesystem::path dir) : sorakado::ao::Ao(parent, dir), menu_initializer_({nullptr, -1, {0, 0}, {0, 0, 0, 0}}) {
@@ -225,33 +224,19 @@ namespace sorakado::ao::master {
     }
 
     bool Ao::draw() {
-auto b = std::chrono::system_clock::now();
-auto a = b;
         if (menu_) {
             menu_->draw(image_cache_);
         }
-b = std::chrono::system_clock::now();
-//Logger::log("chrono.ao1", std::chrono::duration_cast<std::chrono::microseconds>(b - a));
-a = b;
         for (auto &[_, v] : characters_) {
             v->draw(image_cache_);
         }
-b = std::chrono::system_clock::now();
-//Logger::log("chrono.ao2", std::chrono::duration_cast<std::chrono::microseconds>(b - a));
-a = b;
         bool redrawn = false;
         if (menu_) {
             redrawn = menu_->swapBuffers() || redrawn;
         }
-b = std::chrono::system_clock::now();
-//Logger::log("chrono.ao3", std::chrono::duration_cast<std::chrono::microseconds>(b - a));
-a = b;
         for (auto &[_, v] : characters_) {
             redrawn = v->swapBuffers() || redrawn;
         }
-b = std::chrono::system_clock::now();
-//Logger::log("chrono.ao4", std::chrono::duration_cast<std::chrono::microseconds>(b - a));
-a = b;
         return redrawn;
     }
 
