@@ -79,11 +79,15 @@ namespace sorakado {
                     std::string type = req(1).value();
                     if (type == "AO") {
                         type_ = SorakadoType::Ao;
+#if defined(DEBUG_AO)
                         Logger::configure("ao.log");
+#endif // DEBUG_AO
                     }
                     else if (type == "AI") {
                         type_ = SorakadoType::Ai;
+#if defined(DEBUG_AI)
                         Logger::configure("ai.log");
+#endif // DEBUG_AI
                     }
                     else {
                         break;
