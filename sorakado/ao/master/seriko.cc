@@ -44,7 +44,7 @@ namespace sorakado::ao::master {
     bool Seriko::active(const std::string &id) {
         int tmp;
         util::to_x(id, tmp);
-        active(tmp);
+        return active(tmp);
     }
 
     bool Seriko::active(int id) {
