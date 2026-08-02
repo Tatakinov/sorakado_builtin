@@ -312,7 +312,7 @@ namespace sorakado::ao::master {
         parent_->hover(side(), x, y);
     }
 
-    void Character::click(Window *window, float x, float y, button_t button, bool down, Uint8 clicks) {
+    void Character::click(Window *window, float x, float y, button_t button, bool down, click_t clicks) {
         Logger::log("character.click");
         if (down) {
             directsstp::Request req = {"EXECUTE", "RaiseBalloon", {util::to_s(side())}};

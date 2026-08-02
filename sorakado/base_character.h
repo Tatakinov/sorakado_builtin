@@ -28,7 +28,7 @@ namespace sorakado {
             virtual void press(key_t key, bool down);
             virtual void dnd(const std::vector<std::string> &file_list);
             virtual void hover(float x, float y);
-            virtual void click(Window *window, float x, float y, button_t button, bool down, Uint8 clicks);
+            virtual void click(Window *window, float x, float y, button_t button, bool down, click_t clicks);
             virtual void inputText(const std::string &text);
             virtual void editText(const std::string &text);
 

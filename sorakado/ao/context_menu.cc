@@ -104,7 +104,7 @@ namespace sorakado::ao {
         }
     }
 
-    void ContextMenu::button(window_id_t id, float x, float y, button_t button, bool down, Uint8 clicks) {
+    void ContextMenu::button(window_id_t id, float x, float y, button_t button, bool down, click_t clicks) {
         for (auto &v : windows_) {
             if (v->button(id, x, y, button, down, clicks)) {
                 is_idle_ = false;

@@ -153,7 +153,7 @@ namespace sorakado::ai::master {
         }
     }
 
-    void Ai::button(sorakado::window_id_t id, float x, float y, sorakado::button_t button, bool down, Uint8 clicks) {
+    void Ai::button(sorakado::window_id_t id, float x, float y, sorakado::button_t button, bool down, click_t clicks) {
         if (script_inputbox_) {
             script_inputbox_->button(id, x, y, button, down, clicks);
         }
@@ -198,7 +198,7 @@ namespace sorakado::ai::master {
     void Ai::hover(int side, float x, float y) {
     }
 
-    void Ai::click(int side, float x, float y, button_t button, bool down, Uint8 clicks) {
+    void Ai::click(int side, float x, float y, button_t button, bool down, click_t clicks) {
     }
 
     void Ai::run() {

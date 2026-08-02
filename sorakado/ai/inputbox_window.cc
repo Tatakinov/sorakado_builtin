@@ -36,7 +36,7 @@ namespace sorakado::ai {
         return true;
     }
 
-    bool AiInputboxWindow::button(window_id_t id, float x, float y, button_t button, bool down, Uint8 clicks) {
+    bool AiInputboxWindow::button(window_id_t id, float x, float y, button_t button, bool down, click_t clicks) {
         if (!Window::button(id, x, y, button, down, clicks)) {
             return false;
         }

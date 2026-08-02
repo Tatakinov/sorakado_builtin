@@ -38,7 +38,7 @@ namespace sorakado::ai {
 
             void press(key_t key, bool down) override;
             void hover(float x, float y) override;
-            void click(Window *window, float x, float y, button_t button, bool down, Uint8 clicks) override;
+            void click(Window *window, float x, float y, button_t button, bool down, click_t clicks) override;
 
             void inputText(const std::string &text) override;
             void editText(const std::string &text) override;

@@ -34,14 +34,14 @@ namespace sorakado {
             virtual void input(window_id_t id, const std::string &text) = 0;
             virtual void edit(window_id_t id, const std::string &text) = 0;
             virtual void motion(sorakado::window_id_t id, float x, float y) = 0;
-            virtual void button(sorakado::window_id_t id, float x, float y, sorakado::button_t button, bool down, Uint8 clicks) = 0;
+            virtual void button(sorakado::window_id_t id, float x, float y, sorakado::button_t button, bool down, click_t clicks) = 0;
             virtual void wheel(sorakado::window_id_t id, float x, float y) = 0;
             virtual void drop(sorakado::window_id_t id, const std::vector<std::string> &list) = 0;
             virtual void maximized(sorakado::window_id_t id) = 0;
             virtual void focus(sorakado::window_id_t id, bool focused) = 0;
 
             virtual void hover(int side, float x, float y) = 0;
-            virtual void click(int side, float x, float y, button_t button, bool down, Uint8 clicks) = 0;
+            virtual void click(int side, float x, float y, button_t button, bool down, click_t clicks) = 0;
 
             virtual void run();
 

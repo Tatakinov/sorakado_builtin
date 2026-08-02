@@ -8,6 +8,8 @@
 namespace sorakado {
     class WrapSurface;
     using button_t = Uint8;
+    using click_t = Uint8;
+    using byte_t = Uint8;
     using display_t = SDL_DisplayID;
     using key_t = SDL_Keycode;
     using window_id_t = SDL_WindowID;

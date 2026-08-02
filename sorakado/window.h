@@ -88,7 +88,7 @@ namespace sorakado {
             virtual bool drop(window_id_t id, const std::vector<std::string> &list);
             virtual bool maximized(window_id_t id);
             virtual bool motion(window_id_t id, float x, float y);
-            virtual bool button(window_id_t id, float x, float y, button_t button, bool down, Uint8 clicks);
+            virtual bool button(window_id_t id, float x, float y, button_t button, bool down, click_t clicks);
             bool focus(window_id_t id, bool focused);
             bool focused() const;
 

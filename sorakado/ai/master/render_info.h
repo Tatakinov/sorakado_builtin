@@ -6,6 +6,7 @@
 #include <variant>
 #include <vector>
 
+#include "sorakado/compatible.h"
 #include "sorakado/font_cache.h"
 #include "sorakado/misc.h"
 #include "sorakado/render_info.h"
@@ -24,7 +25,7 @@ namespace sorakado::ai::master {
         };
 
         struct ColorInt {
-            int r, g, b, a;
+            byte_t r, g, b, a;
             bool operator==(const ColorInt &l) const {
                 return r == l.r && g == l.g && b == l.b && a == l.a;
             }

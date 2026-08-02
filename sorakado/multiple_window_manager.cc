@@ -110,7 +110,7 @@ namespace sorakado {
         }
     }
 
-    void MultipleWindowManager::button(window_id_t id, float x, float y, button_t button, bool down, Uint8 clicks) {
+    void MultipleWindowManager::button(window_id_t id, float x, float y, button_t button, bool down, click_t clicks) {
         for (auto &[_, window] : windows_) {
             window->button(id, x, y, button, down, clicks);
         }

@@ -209,7 +209,7 @@ namespace sorakado::ai::master {
         return true;
     }
 
-    void Character::click(Window *window, float x, float y, button_t button, bool down, Uint8 clicks) {
+    void Character::click(Window *window, float x, float y, button_t button, bool down, click_t clicks) {
         if (util::isWayland()) {
             auto r = getRect();
             x -= r.x;

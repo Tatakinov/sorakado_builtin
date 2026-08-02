@@ -100,7 +100,7 @@ namespace sorakado::ai {
         change();
     }
 
-    void BaseInputbox::click(Window *window, float x, float y, button_t button, bool down, Uint8 clicks) {
+    void BaseInputbox::click(Window *window, float x, float y, button_t button, bool down, click_t clicks) {
         mouse_state_[button].press = down;
         if (button == MOUSE_BUTTON_LEFT && !mouse_state_[button].press) {
             drag_ = std::nullopt;

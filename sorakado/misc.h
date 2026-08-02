@@ -4,6 +4,8 @@
 #include <string>
 #include <vector>
 
+#include "sorakado/compatible.h"
+
 namespace sorakado {
     struct Position {
         int x, y;
@@ -18,7 +20,7 @@ namespace sorakado {
     };
 
     struct Color {
-        int r, g, b, a;
+        byte_t r, g, b, a;
     };
 }
 

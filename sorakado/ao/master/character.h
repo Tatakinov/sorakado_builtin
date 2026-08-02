@@ -49,7 +49,7 @@ namespace sorakado::ao::master {
             void press(key_t key, bool down) override;
             void dnd(const std::vector<std::string> &file_list) override;
             void hover(float x, float y) override;
-            void click(Window *window, float x, float y, button_t button, bool down, Uint8 clicks) override;
+            void click(Window *window, float x, float y, button_t button, bool down, click_t clicks) override;
             void scroll(float x, float y, float mouse_x, float mouse_y) override;
 
             int getSurfaceID() const;

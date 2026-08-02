@@ -169,7 +169,7 @@ namespace sorakado::ao::master {
         }
     }
 
-    void Ao::button(sorakado::window_id_t id, float x, float y, sorakado::button_t button, bool down, Uint8 clicks) {
+    void Ao::button(sorakado::window_id_t id, float x, float y, sorakado::button_t button, bool down, click_t clicks) {
         if (menu_) {
             menu_->button(id, x, y, button, down, clicks);
         }
@@ -208,7 +208,7 @@ namespace sorakado::ao::master {
     void Ao::hover(int side, float x, float y) {
     }
 
-    void Ao::click(int side, float x, float y, button_t button, bool down, Uint8 clicks) {
+    void Ao::click(int side, float x, float y, button_t button, bool down, click_t clicks) {
     }
 
     void Ao::run() {

@@ -61,13 +61,13 @@ namespace sorakado::ao {
 
             void hover(float x, float y) override;
 
-            void click(Window *window, float x, float y, button_t button, bool down, Uint8 clicks) override {
+            void click(Window *window, float x, float y, button_t button, bool down, click_t clicks) override {
                 alive_ = false;
             }
 
             void key(window_id_t id, key_t key, bool down);
             void motion(window_id_t id, float x, float y);
-            void button(window_id_t id, float x, float y, button_t button, bool down, Uint8 clicks);
+            void button(window_id_t id, float x, float y, button_t button, bool down, click_t clicks);
             void wheel(window_id_t id, float x, float y);
             void focus(window_id_t id, bool focused);
             bool focused() const;

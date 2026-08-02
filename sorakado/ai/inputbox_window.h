@@ -35,7 +35,7 @@ namespace sorakado::ai {
             }
             bool maximized(window_id_t id) override;
             bool motion(window_id_t id, float x, float y) override;
-            bool button(window_id_t id, float x, float y, button_t button, bool down, Uint8 clicks) override;
+            bool button(window_id_t id, float x, float y, button_t button, bool down, click_t clicks) override;
 
             void resetInputArea();
     };

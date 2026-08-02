@@ -21,7 +21,7 @@ namespace sorakado {
     void BaseCharacter::hover(float x, float y) {
     }
 
-    void BaseCharacter::click(Window *window, float x, float y, button_t button, bool down, Uint8 clicks) {
+    void BaseCharacter::click(Window *window, float x, float y, button_t button, bool down, click_t clicks) {
     }
 
     void BaseCharacter::inputText(const std::string &text)  {

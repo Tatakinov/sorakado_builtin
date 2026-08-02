@@ -343,7 +343,7 @@ namespace sorakado {
         return true;
     }
 
-    bool Window::button(sorakado::window_id_t id, float x, float y, button_t button, bool down, Uint8 clicks) {
+    bool Window::button(sorakado::window_id_t id, float x, float y, button_t button, bool down, click_t clicks) {
         Logger::log("window.button");
         if (id != SDL_GetWindowID(window_)) {
             return false;

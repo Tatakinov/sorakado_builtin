@@ -62,7 +62,7 @@ namespace sorakado {
         window_manager_->motion(id, x, y);
     }
 
-    void Character::button(window_id_t id, float x, float y, button_t button, bool down, Uint8 clicks) {
+    void Character::button(window_id_t id, float x, float y, button_t button, bool down, click_t clicks) {
         window_manager_->button(id, x, y, button, down, clicks);
     }
 

@@ -75,7 +75,7 @@ namespace sorakado::ao {
         return true;
     }
 
-    bool AoMenuWindow::button(window_id_t id, float x, float y, button_t button, bool down, Uint8 clicks) {
+    bool AoMenuWindow::button(window_id_t id, float x, float y, button_t button, bool down, click_t clicks) {
         if (button != MOUSE_BUTTON_LEFT || down) {
             return false;
         }

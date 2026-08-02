@@ -118,7 +118,7 @@ namespace sorakado {
         window_->motion(id, x, y);
     }
 
-    void SingleWindowManager::button(window_id_t id, float x, float y, button_t button, bool down, Uint8 clicks) {
+    void SingleWindowManager::button(window_id_t id, float x, float y, button_t button, bool down, click_t clicks) {
         if (!window_) {
             return;
         }

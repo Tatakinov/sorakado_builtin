@@ -45,7 +45,7 @@ namespace sorakado {
             virtual void input(window_id_t id, const std::string &text) = 0;
             virtual void edit(window_id_t id, const std::string &text) = 0;
             virtual void motion(window_id_t id, float x, float y) = 0;
-            virtual void button(window_id_t id, float x, float y, button_t button, bool down, Uint8 clicks) = 0;
+            virtual void button(window_id_t id, float x, float y, button_t button, bool down, click_t clicks) = 0;
             virtual void wheel(window_id_t id, float x, float y) = 0;
             virtual void drop(window_id_t id, const std::vector<std::string> &list) = 0;
             virtual void maximized(window_id_t id) = 0;
