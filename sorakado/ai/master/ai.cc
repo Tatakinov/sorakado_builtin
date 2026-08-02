@@ -387,7 +387,7 @@ namespace sorakado::ai::master {
         else {
             util::to_x(s, b);
         }
-        Color color = {r, g, b, a};
+        Color color = {static_cast<byte_t>(r), static_cast<byte_t>(g), static_cast<byte_t>(b), static_cast<byte_t>(a)};
         int x, y, w, h;
         s = getInfo("communicatebox.x", false);
         if (s.empty()) {
@@ -473,7 +473,7 @@ namespace sorakado::ai::master {
         else {
             util::to_x(s, b);
         }
-        Color color = {r, g, b, a};
+        Color color = {static_cast<byte_t>(r), static_cast<byte_t>(g), static_cast<byte_t>(b), static_cast<byte_t>(a)};
         int x, y, w, h;
         s = getInfo("communicatebox.x", false);
         if (s.empty()) {
