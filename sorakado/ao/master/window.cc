@@ -9,10 +9,6 @@
 #include "sorakado/ao/master/character.h"
 #include "lib_skeleton/sstp.h"
 
-namespace {
-    std::unordered_map<key_t, int> key_count;
-}
-
 namespace sorakado::ao::master {
     std::unique_ptr<Window> AoMasterWindowFactory::create(sorakado::BaseCharacter *parent, display_t id, std::unique_ptr<BackendWindowFactory> &factory, const std::string &name) const {
         return std::make_unique<AoMasterWindow>(parent, id, factory, name);
