@@ -376,7 +376,7 @@ namespace sorakado::ao::master {
 #endif
                 Rect r = {x, y, 0, 0};
                 Logger::log("reserve", x, y);
-                static_cast<Ao *>(parent_)->reserveMenu(window->getBackendWindow(), side(), {static_cast<int>(x), static_cast<int>(y)}, window->getMonitorRect(r));
+                static_cast<Ao *>(parent_)->reserveMenu(window->getBackendWindow(), side(), r, window->getMonitorRect(r));
             }
         }
         else if (down) {
