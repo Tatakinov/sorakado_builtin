@@ -21,7 +21,7 @@ jobs:
       id: cache-ort
       uses: actions/cache@v6
       with:
-        path: ${{ github.workspace }}/onnxruntime-win-x64-${{ env.ORT_VERSION }}
+        path: ${{ github.workspace }}/onnxruntime-win-x64
         key: ort-win-x64-${{ env.ORT_VERSION }}
     - name: Download and Extract ONNX Runtime
       if: steps.cache-ort.outputs.cache-hit != 'true'
@@ -35,6 +35,7 @@ jobs:
         
         Write-Host "Extracting archive..."
         Expand-Archive -Path $ZipFile -DestinationPath ${{ github.workspace }}
+        Rename-Item -Path "${{ github.workspace }}\onnxruntime-win-x64-${env:ORT_VERSION}" -NewName "onnxruntime-win-x64"
         Remove-Item $ZipFile
     - name: Install Requirements
       run: |
@@ -43,9 +44,8 @@ jobs:
       env:
           BUILD_ARCH: "x86-64-v3"
           CL: "/utf-8 /DUNICODE /D_UNICODE"
-          CMAKE_PREFIX_PATH: ${{ github.workspace }}/onnxruntime-win-x64-${{ env.ORT_VERSION }}/lib
           CMAKE_TOOLCHAIN_FILE: C:/vcpkg/scripts/buildsystems/vcpkg.cmake
           VCPKG_ROOT: C:/vcpkg
       run: |
-          cmake -S . -B build
+          cmake -S . -B build -DORT_ROOT_DIR="${{ github.workspace }}/onnxruntime-win-x64"
           cmake --build build --config Release
