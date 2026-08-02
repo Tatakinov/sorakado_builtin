@@ -3,7 +3,16 @@ add_library(sorakado window.cc character.cc multiple_window_manager.cc single_wi
 target_compile_options(sorakado PUBLIC -O2 -Wall)
 target_compile_features(sorakado PUBLIC cxx_std_20)
 
+find_package(jsoncpp REQUIRED)
+
+set(INCLUDEDIRS ${PROJECT_SOURCE_DIR})
 set(DEPENDENCIES jsoncpp_lib)
+
+if (UNIX)
+    find_package(wayland-client REQUIRED)
+    set(INCLUDEDIRS ${INCLUDEDIRS} ${WAYLAND_CLIENT_INCLUDE})
+    set(DEPENDENCIES ${DEPENDENCIES} ${WAYLAND_CLIENT_LIBRARIES})
+endif()
 
 if (ENABLE_ONNXRUNTIME)
     find_package(onnxruntime QUIET)
@@ -16,5 +25,5 @@ if (ENABLE_ONNXRUNTIME)
     endif()
 endif()
 
-target_include_directories(sorakado PUBLIC ${PROJECT_SOURCE_DIR})
+target_include_directories(sorakado PUBLIC ${INCLUDEDIRS})
 target_link_libraries(sorakado ${DEPENDENCIES})
