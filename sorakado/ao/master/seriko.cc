@@ -243,7 +243,7 @@ namespace sorakado::ao::master {
                 auto ps = surface.animation[i].pattern;
                 for (auto &p : ps) {
                     if (!done.contains(p.id)) {
-                        ElementWithChildren e = { p.method, p.x * scale_ / 100.0, p.y * scale_ / 100.0, getElements(p.id, done) };
+                        ElementWithChildren e(p.method, p.x * scale_ / 100.0, p.y * scale_ / 100.0, getElements(p.id, done));
                         ret.emplace_back(e);
                     }
                 }
