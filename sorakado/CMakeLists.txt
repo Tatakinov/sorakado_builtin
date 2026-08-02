@@ -8,6 +8,10 @@ find_package(jsoncpp REQUIRED)
 set(INCLUDEDIRS ${PROJECT_SOURCE_DIR})
 set(DEPENDENCIES ${DEPENDENCIES} jsoncpp_lib)
 
+if (WIN32)
+    set(DEPENDENCIES ${DEPENDENCIES} ws2_32)
+endif()
+
 if (UNIX)
     find_package(wayland-client REQUIRED)
     set(INCLUDEDIRS ${INCLUDEDIRS} ${WAYLAND_CLIENT_INCLUDE})
