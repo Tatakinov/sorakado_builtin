@@ -1,6 +1,10 @@
 #include "sorakado/ao/master/ao.h"
 #include "os_preprocess.h"
 
+#if defined(IS_WINDOWS)
+#include <windows.h>
+#endif // IS_WINDOWS
+
 #include "libfontlist/include/fontlist.hpp"
 
 #include "sorakado/default_backend_window_factory.h"

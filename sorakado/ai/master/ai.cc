@@ -3,6 +3,10 @@
 
 #include <unordered_set>
 
+#if defined(IS_WINDOWS)
+#include <windows.h>
+#endif // IS_WINDOWS
+
 #include "sorakado/default_backend_window_factory.h"
 #include "sorakado/multiple_window_manager.h"
 #include "sorakado/single_window_manager.h"
