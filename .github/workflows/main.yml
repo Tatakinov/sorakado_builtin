@@ -49,3 +49,11 @@ jobs:
       run: |
           cmake -S . -B build -DORT_ROOT_DIR="${{ github.workspace }}/onnxruntime-win-x64"
           cmake --build build --config Release
+    - name: Upload artifact
+      uses: actions/upload-artifact@v7
+      with:
+          name: sorakado-builtin-windows
+          path: |
+              build/Release/*.dll
+              build/Release/*.exe
+              onnxruntime-win-x64/lib/*.dll
