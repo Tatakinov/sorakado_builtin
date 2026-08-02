@@ -42,9 +42,9 @@ jobs:
     - name: Build sorakado_builtin
       env:
           BUILD_ARCH: "x86-64-v3"
-          CL: "/utf-8"
+          CMAKE_PREFIX_PATH: ${{ github.workspace }}/onnxruntime-win-x64-${{ env.ORT_VERSION }}
           CMAKE_TOOLCHAIN_FILE: C:/vcpkg/scripts/buildsystems/vcpkg.cmake
           VCPKG_ROOT: C:/vcpkg
       run: |
-          cmake -S . -B build -DOnnxRuntime_DIR="${{ github.workspace }}/onnxruntime-win-x64-${{ env.ORT_VERSION }}"
+          cmake -S . -B build -Donnxruntime_DIR="${{ github.workspace }}/onnxruntime-win-x64-${{ env.ORT_VERSION }}"
           cmake --build build --config Release
