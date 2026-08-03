@@ -36,6 +36,7 @@ namespace sorakado {
             int scale_;
             bool loaded_;
             bool is_idle_;
+            bool is_debug_;
 
         public:
             Application();
