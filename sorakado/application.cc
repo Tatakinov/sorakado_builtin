@@ -41,7 +41,13 @@ namespace {
 }
 
 namespace sorakado {
-    Application::Application() : type_(SorakadoType::Unknown), alive_(true), loaded_(false), is_idle_(true) {
+    Application::Application(int argc, char *argv[]) : type_(SorakadoType::Unknown), alive_(true), loaded_(false), is_idle_(true), is_debug_(false) {
+        for (int i = 1; i < argc; i++) {
+            std::string arg = argv[i];
+            if (arg == "--debug") {
+                is_debug_ = true;
+            }
+        }
 #ifdef IS_WINDOWS
         WSADATA wsa;
         WSAStartup(MAKEWORD(2, 2), &wsa);
@@ -79,15 +85,15 @@ namespace sorakado {
                     std::string type = req(1).value();
                     if (type == "AO") {
                         type_ = SorakadoType::Ao;
-#if defined(DEBUG_AO)
-                        Logger::configure("ao.log");
-#endif // DEBUG_AO
+                        if (is_debug_) {
+                            Logger::configure("ao.log");
+                        }
                     }
                     else if (type == "AI") {
                         type_ = SorakadoType::Ai;
-#if defined(DEBUG_AI)
-                        Logger::configure("ai.log");
-#endif // DEBUG_AI
+                        if (is_debug_) {
+                            Logger::configure("ai.log");
+                        }
                     }
                     else {
                         break;
