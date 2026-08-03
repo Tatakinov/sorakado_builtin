@@ -39,7 +39,7 @@ namespace sorakado {
             bool is_debug_;
 
         public:
-            Application();
+            Application(int argc, char *argv[]);
             ~Application();
 
             operator bool() {
