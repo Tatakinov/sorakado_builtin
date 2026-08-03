@@ -39,7 +39,7 @@ jobs:
         Remove-Item $ZipFile
     - name: Install Requirements
       run: |
-          vcpkg install sdl3 sdl3-image sdl3-ttf jsoncpp
+          vcpkg install sdl3 sdl3-image[avif,jpeg,jxl,png,tiff,webp] sdl3-ttf jsoncpp
     - name: Build sorakado_builtin
       env:
           BUILD_ARCH: "x86-64-v3"
