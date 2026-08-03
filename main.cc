@@ -22,7 +22,7 @@ int main(int argc, char **argv) {
     }
     atexit(TTF_Quit);
 
-    sorakado::Application app;
+    sorakado::Application app(argc, argv);
 
     while (app) {
         app.run();
