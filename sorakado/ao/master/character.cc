@@ -56,6 +56,30 @@ namespace sorakado::ao::master {
         seriko_->setParent(this);
     }
 
+    void Character::notifyRectInfo() {
+        SDL_Rect r;
+        auto rect = getRect();
+        if (util::isWayland() && !getenv("NINIX_ENABLE_MULTI_MONITOR")) {
+            Rect monitor_rect = window_manager_->getMonitorRect(rect);
+            r = {monitor_rect.x, monitor_rect.y, monitor_rect.w, monitor_rect.h};
+        }
+        else {
+            auto id = util::getNearestDisplay(rect.x + rect.w / 2, rect.y + rect.h / 2);
+            SDL_GetDisplayBounds(id, &r);
+        }
+        Logger::log("monitor_rect:", r.x,",", r.y,",", r.w, ",",r.h);
+        Logger::log("surface_rect:", rect.x,",", rect.y,",", rect.w, ",",rect.h);
+        std::vector<std::string> args = {util::to_s(side()), util::to_s(r.x), util::to_s(r.y), util::to_s(r.w), util::to_s(r.h)};
+        directsstp::Request req = {"EXECUTE", "UpdateMonitorRect", args};
+        enqueueDirectSSTP({req});
+        args = {util::to_s(side()), util::to_s(rect.x), util::to_s(rect.y), util::to_s(rect.w), util::to_s(rect.h)};
+        req = {"EXECUTE", "UpdateSurfaceRect", args};
+        enqueueDirectSSTP({req});
+        args = {util::to_s(side())};
+        req = {"EXECUTE", "ResetBalloonPosition", args};
+        enqueueDirectSSTP({req});
+    }
+
     void Character::create(display_t id) {
         sorakado::Character::create(id);
         if (!util::isWayland() || getenv("NINIX_ENABLE_MULTI_MONITOR")) {
@@ -75,27 +99,6 @@ namespace sorakado::ao::master {
             return false;
         }
         change();
-        SDL_Rect r;
-        auto rect = getRect();
-        if (util::isWayland() && !getenv("NINIX_ENABLE_MULTI_MONITOR")) {
-            Rect monitor_rect = window_manager_->getMonitorRect(rect);
-            r = {monitor_rect.x, monitor_rect.y, monitor_rect.w, monitor_rect.h};
-        }
-        else {
-            auto id = util::getNearestDisplay(rect.x + rect.w / 2, rect.y + rect.h / 2);
-            SDL_GetDisplayBounds(id, &r);
-        }
-        Logger::log("monitor_rect:", r.x,",", r.y,",", r.w, ",",r.h);
-        Logger::log("surface_rect:", rect.x,",", rect.y,",", rect.w, ",",rect.h);
-        std::vector<std::string> args = {util::to_s(side()), util::to_s(r.x), util::to_s(r.y), util::to_s(r.w), util::to_s(r.h)};
-        directsstp::Request req = {"EXECUTE", "UpdateMonitorRect", args};
-        enqueueDirectSSTP({req});
-        args = {util::to_s(side()), util::to_s(rect.x), util::to_s(rect.y), util::to_s(rect.w), util::to_s(rect.h)};
-        req = {"EXECUTE", "UpdateSurfaceRect", args};
-        enqueueDirectSSTP({req});
-        args = {util::to_s(side())};
-        req = {"EXECUTE", "ResetBalloonPosition", args};
-        enqueueDirectSSTP({req});
         return true;
     }
 
@@ -115,27 +118,7 @@ namespace sorakado::ao::master {
         }
         Logger::log("setSize");
         change();
-        SDL_Rect r;
-        auto rect = getRect();
-        if (util::isWayland() && !getenv("NINIX_ENABLE_MULTI_MONITOR")) {
-            Rect monitor_rect = window_manager_->getMonitorRect(rect);
-            r = {monitor_rect.x, monitor_rect.y, monitor_rect.w, monitor_rect.h};
-        }
-        else {
-            auto id = util::getNearestDisplay(rect.x + rect.w / 2, rect.y + rect.h / 2);
-            SDL_GetDisplayBounds(id, &r);
-        }
-        Logger::log("monitor_rect:", r.x,",", r.y,",", r.w, ",",r.h);
-        Logger::log("surface_rect:", rect.x,",", rect.y,",", rect.w, ",",rect.h);
-        std::vector<std::string> args = {util::to_s(side()), util::to_s(r.x), util::to_s(r.y), util::to_s(r.w), util::to_s(r.h)};
-        directsstp::Request req = {"EXECUTE", "UpdateMonitorRect", args};
-        enqueueDirectSSTP({req});
-        args = {util::to_s(side()), util::to_s(rect.x), util::to_s(rect.y), util::to_s(rect.w), util::to_s(rect.h)};
-        req = {"EXECUTE", "UpdateSurfaceRect", args};
-        enqueueDirectSSTP({req});
-        args = {util::to_s(side())};
-        req = {"EXECUTE", "ResetBalloonPosition", args};
-        enqueueDirectSSTP({req});
+        notifyRectInfo();
         return true;
     }
 
@@ -245,6 +228,7 @@ namespace sorakado::ao::master {
                 // nop
                 break;
         }
+        notifyRectInfo();
     }
 
     void Character::press(key_t key, bool down) {
@@ -294,6 +278,7 @@ namespace sorakado::ao::master {
             auto [dx, dy] = drag_.value();
             if (util::isWayland()) {
                 setPosition(r.x + x - dx, r.y + y - dy);
+                notifyRectInfo();
                 drag_ = {x, y};
             }
             else {
@@ -301,6 +286,7 @@ namespace sorakado::ao::master {
                 float mouse_x, mouse_y;
                 SDL_GetGlobalMouseState(&mouse_x, &mouse_y);
                 setPosition(r.x + mouse_x - drag_->x, r.y + mouse_y - drag_->y);
+                notifyRectInfo();
                 drag_ = {mouse_x, mouse_y};
             }
         }
@@ -422,6 +408,7 @@ namespace sorakado::ao::master {
         update();
         if (!prev_info_ || prev_info_.value() != info) {
             prev_info_ = info;
+            info.change();
             current_surface_ = info.getSurface(image_cache);
             if (current_surface_) {
                 setSize(current_surface_->width(), current_surface_->height());

@@ -6,6 +6,8 @@ namespace sorakado {
         private:
             bool changed_;
         public:
+            Watcher() : changed_(false) {}
+            virtual ~Watcher() {}
             void change() {
                 changed_ = true;
             }

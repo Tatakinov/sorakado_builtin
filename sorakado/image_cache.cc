@@ -1,6 +1,7 @@
 #include "image_cache.h"
 #include "os_preprocess.h"
 
+#include <algorithm>
 #include <cassert>
 #include <cmath>
 
@@ -9,6 +10,136 @@
 #include "logger.h"
 
 namespace sorakado {
+    Region merge(const Region &a, const Region &b) {
+        Region ret;
+        ret.reserve(a.size() + b.size());
+        Region::size_type a_i = 0, b_i = 0;
+        while (a_i < a.size() && b_i < b.size()) {
+            auto comp = a[a_i].y <=> b[b_i].y;
+            assert(a[a_i].len > 0);
+            assert(b[b_i].len > 0);
+            if (comp < 0) {
+                ret.push_back(a[a_i++]);
+                continue;
+            }
+            else if (comp > 0) {
+                ret.push_back(b[b_i++]);
+                continue;
+            }
+            comp = a[a_i].x <=> b[b_i].x;
+            if (ret.size() == 0 || ret.back().y < a[a_i].y || ret.back().x + ret.back().len < (std::min)(a[a_i].x, b[b_i].x)) {
+                if (comp < 0) {
+                    ret.push_back(a[a_i++]);
+                    continue;
+                }
+                else if (comp > 0) {
+                    ret.push_back(b[b_i++]);
+                    continue;
+                }
+                if (a[a_i].len < b[b_i].len) {
+                    ret.push_back(b[b_i++]);
+                    a_i++;
+                    continue;
+                }
+                else {
+                    ret.push_back(a[a_i++]);
+                    b_i++;
+                    continue;
+                }
+            }
+            else {
+                auto &last = ret.back();
+                if (comp < 0) {
+                    last.len = (std::max)(last.x + last.len, a[a_i].x + a[a_i].len) - last.x;
+                    a_i++;
+                    continue;
+                }
+                else if (comp > 0) {
+                    last.len = (std::max)(last.x + last.len, b[b_i].x + b[b_i].len) - last.x;
+                    b_i++;
+                    continue;
+                }
+                if (a[a_i].len < b[b_i].len) {
+                    last.len = (std::max)(last.x + last.len, b[b_i].x + b[b_i].len) - last.x;
+                    b_i++;
+                    a_i++;
+                    continue;
+                }
+                else {
+                    last.len = (std::max)(last.x + last.len, a[a_i].x + a[a_i].len) - last.x;
+                    a_i++;
+                    b_i++;
+                    continue;
+                }
+            }
+        }
+        for (;a_i < a.size(); a_i++) {
+            ret.push_back(a[a_i]);
+        }
+        for (;b_i < b.size(); b_i++) {
+            ret.push_back(b[b_i]);
+        }
+        return ret;
+    }
+
+    Region translate(const Region &r, int x, int y) {
+        Region ret;
+        ret.reserve(r.size());
+        for (auto &v : r) {
+            assert(v.len > 0);
+            ret.push_back({v.x + x, v.y + y, v.len});
+        }
+        return ret;
+    }
+
+    Region subtract(const Region &r, int x, int y, int w, int h) {
+        Region ret;
+        ret.reserve(r.size());
+        for (auto v : r) {
+            if (v.y >= y && v.y < y + h) {
+                continue;
+            }
+            if (v.x >= x && v.x < x + w) {
+                v.len -= x + w - v.x;
+                v.x = x + w;
+            }
+            if (v.len <= 0) {
+                continue;
+            }
+            if (v.x + v.len >= x && v.x + v.len < x + w) {
+                v.len = x - v.x;
+            }
+            if (v.len <= 0) {
+                continue;
+            }
+            ret.push_back({v.x, v.y, v.len});
+        }
+        return ret;
+    }
+
+    ImageInfo::ImageInfo(const std::vector<unsigned char> &data, int width, int height, bool is_upconverted) : data_(data), width_(width), height_(height), is_upconverted_(is_upconverted) {
+        int x_begin = -1;
+        for (int y = 0; y < height_; y++) {
+            for (int x = 0; x < width_; x++) {
+                if (data[4 * (y * width_ + x) + 3]) {
+                    if (x_begin == -1) {
+                        x_begin = x;
+                    }
+                }
+                else {
+                    if (x_begin != -1) {
+                        region_.push_back({x_begin, y, x - x_begin});
+                        x_begin = -1;
+                    }
+                }
+            }
+            if (x_begin != -1) {
+                region_.push_back({x_begin, y, width_ - x_begin});
+                x_begin = -1;
+            }
+        }
+    }
+
 #if defined(USE_ONNX)
     ImageCache::ImageCache(const std::filesystem::path &sorakado_dir, const std::filesystem::path &exe_dir, bool use_self_alpha)
         : alive_(true), use_self_alpha_(use_self_alpha), scale_(100), sorakado_dir_(sorakado_dir), session_(nullptr) {

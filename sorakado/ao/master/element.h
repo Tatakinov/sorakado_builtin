@@ -19,6 +19,7 @@ namespace sorakado::ao::master {
         bool equals(const RenderInfo &rhs) const override;
         Rect getRect(std::unique_ptr<ImageCache> &image_cache, bool include_empty_image) const;
         Rect getRect(std::unique_ptr<ImageCache> &image_cache) const override;
+        Region getRegion(std::unique_ptr<ImageCache> &image_cache) const override;
         std::unique_ptr<WrapSurface> getSurface(std::unique_ptr<ImageCache> &image_cache) const override;
         std::unique_ptr<WrapTexture> getTexture(std::unique_ptr<ImageCache> &image_cache, renderer_t *renderer, std::unique_ptr<TextureCache> &texture_cache) const override;
     };

@@ -72,6 +72,51 @@ namespace sorakado::ao::master {
         return r;
     }
 
+    Region ElementWithChildren::getRegion(std::unique_ptr<ImageCache> &image_cache) const {
+        auto rect = getRect(image_cache);
+        if (rect.w <= 0 || rect.h <= 0) {
+            return {};
+        }
+        bool upconverted = true;
+        std::vector<Region> list;
+        for (auto &element : children) {
+            std::visit([&](const auto &e) {
+                list.push_back(e.getRegion(image_cache));
+            }, element);
+        }
+        Region ret;
+        for (int i = 0; i < children.size(); i++) {
+            SDL_BlendMode mode = SDL_ComposeCustomBlendMode(SDL_BLENDFACTOR_ONE, SDL_BLENDFACTOR_ONE_MINUS_SRC_ALPHA, SDL_BLENDOPERATION_ADD, SDL_BLENDFACTOR_ONE, SDL_BLENDFACTOR_ONE, SDL_BLENDOPERATION_ADD);
+            std::visit([&](const auto &e) {
+                auto r = translate(list[i], x - rect.x, y - rect.y);
+                switch (e.method) {
+                    case Method::Base:
+                    case Method::Add:
+                    case Method::Overlay:
+                    case Method::OverlayFast:
+                    case Method::OverlayMultiply:
+                        ret = merge(ret, r);
+                        break;
+                    case Method::Replace:
+                        // FIXME region width-height for subtract
+                        ret = merge(ret, r);
+                        break;
+                    case Method::Interpolate:
+                        // TODO incorrect?
+                        ret = merge(ret, r);
+                        break;
+                    case Method::Reduce:
+                        // TODO incorrect?
+                        ret = merge(ret, r);
+                        break;
+                    default:
+                        break;
+                }
+            }, children[i]);
+        }
+        return ret;
+    }
+
     std::unique_ptr<WrapSurface> ElementWithChildren::getSurface(std::unique_ptr<ImageCache> &image_cache) const {
         auto rect = getRect(image_cache);
         if (rect.w <= 0 || rect.h <= 0) {

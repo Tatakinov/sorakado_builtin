@@ -121,6 +121,7 @@ namespace sorakado::ao {
             }
             bool highlight(int x, int y);
             void unhighlight();
+            Region getRegion(std::unique_ptr<ImageCache> &image_cache) const override;
             std::unique_ptr<WrapSurface> getSurface(std::unique_ptr<ImageCache> &image_cache) const override;
             std::unique_ptr<WrapTexture> getTexture(std::unique_ptr<ImageCache> &image_cache, renderer_t *renderer, std::unique_ptr<TextureCache> &texture_cache) const override;
             bool equals(const RenderInfo &rhs) const override {

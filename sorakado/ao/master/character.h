@@ -32,6 +32,8 @@ namespace sorakado::ao::master {
             std::optional<ElementWithChildren> prev_info_;
             region_t current_surface_;
             std::optional<MoveInfo> move_info_;
+
+            void notifyRectInfo();
         public:
             Character(sorakado::Sorakado *parent, std::unique_ptr<WindowManager> window_manager, int side, const std::string &name, std::unique_ptr<Seriko> seriko);
 

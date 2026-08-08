@@ -63,6 +63,14 @@ namespace sorakado::ao::master {
         return {x, y, info->width(), info->height()};
     }
 
+    Region Element::getRegion(std::unique_ptr<ImageCache> &image_cache) const {
+        auto &info = image_cache->get(filename, index);
+        if (!info) {
+            return {};
+        }
+        return info->region();
+    }
+
     std::unique_ptr<WrapSurface> Element::getSurface(std::unique_ptr<ImageCache> &image_cache) const {
         auto &info = image_cache->get(filename, index);
         if (!info) {

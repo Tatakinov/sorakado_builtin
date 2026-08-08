@@ -16,6 +16,7 @@ namespace sorakado {
             virtual Rect getRect(std::unique_ptr<ImageCache> &image_cache) const {
                 return {0, 0, 0, 0};
             }
+            virtual Region getRegion(std::unique_ptr<ImageCache> &image_cache) const = 0;
             virtual std::unique_ptr<WrapSurface> getSurface(std::unique_ptr<ImageCache> &cache) const = 0;
             virtual std::unique_ptr<WrapTexture> getTexture(std::unique_ptr<ImageCache> &image_cache, renderer_t *renderer, std::unique_ptr<TextureCache> &texture_cache) const = 0;
             virtual bool equals(const RenderInfo &rhs) const = 0;

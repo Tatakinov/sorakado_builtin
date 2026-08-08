@@ -254,6 +254,14 @@ namespace sorakado::ao {
         }
     }
 
+    Region SubMenu::getRegion(std::unique_ptr<ImageCache> &image_cache) const {
+        Region r;
+        for (int y = 0; y < r_.h; y++) {
+            r.push_back({0, y, r_.w});
+        }
+        return r;
+    }
+
     std::unique_ptr<WrapSurface> SubMenu::getSurface(std::unique_ptr<ImageCache> &cache) const {
         auto s = std::make_unique<WrapSurface>(r_.w, r_.h);
         SDL_ClearSurface(s->surface(), 1, 1, 1, 1); // とりあえず白背景

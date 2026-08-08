@@ -39,21 +39,27 @@ struct std::hash<sorakado::ImagePath> {
 };
 
 namespace sorakado {
+    struct RegionData {
+        int x, y, len;
+        bool operator==(const RegionData &rhs) const {
+            return x == rhs.x && y == rhs.y && len == rhs.len;
+        }
+    };
+
+    using Region = std::vector<RegionData>;
+
+    Region merge(const Region &a, const Region &b);
+    Region translate(const Region &r, int x, int y);
+    Region subtract(const Region &r, int x, int y, int w, int h);
+
     class ImageInfo {
         private:
             std::vector<unsigned char> data_;
             int width_, height_;
             bool is_upconverted_;
-            bool is_empty_;
+            Region region_;
         public:
-            ImageInfo(const std::vector<unsigned char> &data, int width, int height, bool is_upconverted) : data_(data), width_(width), height_(height), is_upconverted_(is_upconverted), is_empty_(true) {
-                for (int i = 0; i < width_ * height_; i++) {
-                    is_empty_ = (data[4 * i + 3] == 0);
-                    if (!is_empty_) {
-                        break;
-                    }
-                }
-            }
+            ImageInfo(const std::vector<unsigned char> &data, int width, int height, bool is_upconverted);
             ~ImageInfo() {}
             std::vector<unsigned char> &get() {
                 return data_;
@@ -67,8 +73,11 @@ namespace sorakado {
             bool isUpconverted() const {
                 return is_upconverted_;
             }
+            Region region() const {
+                return region_;
+            }
             bool empty() const {
-                return is_empty_;
+                return region_.empty();
             }
     };
 

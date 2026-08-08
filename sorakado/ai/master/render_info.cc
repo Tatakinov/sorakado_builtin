@@ -203,6 +203,19 @@ namespace sorakado::ai::master {
         }
     }
 
+    Region RenderInfo::getRegion(std::unique_ptr<ImageCache> &image_cache) const {
+        if (balloon_id_ == -1 || !shown_) {
+            return {};
+        }
+        auto filename = util::balloonSide2str(side_, balloon_id_, direction_);
+        auto &info = image_cache_->get(filename);
+        if (!info) {
+            Logger::log("not found: ", filename);
+            return {};
+        }
+        return info->region();
+    }
+
     std::unique_ptr<WrapSurface> RenderInfo::getSurface(std::unique_ptr<ImageCache> &unused) const {
         if (balloon_id_ == -1 || !shown_) {
             std::unique_ptr<WrapSurface> invalid;

@@ -57,6 +57,14 @@ namespace sorakado::ai {
         change();
     }
 
+    Region InputboxInfo::getRegion(std::unique_ptr<ImageCache> &image_cache) const {
+        Region r;
+        for (int y = 0; y < h_; y++) {
+            r.push_back({0, y, w_});
+        }
+        return r;
+    }
+
     std::unique_ptr<WrapSurface> InputboxInfo::getSurface(std::unique_ptr<ImageCache> &cache) const {
         auto s = std::make_unique<WrapSurface>(w_, h_);
         SDL_ClearSurface(s->surface(), 1, 1, 1, 1);

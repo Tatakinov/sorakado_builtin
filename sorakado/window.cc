@@ -66,6 +66,9 @@ namespace sorakado {
     }
 
     Window::~Window() {
+        if (texture_) {
+            texture_.reset();
+        }
         if (renderer_ != nullptr) {
             SDL_DestroyRenderer(renderer_);
         }
@@ -182,73 +185,43 @@ namespace sorakado {
     }
 
     void Window::draw(std::unique_ptr<ImageCache> &image_cache, Position offset, const RenderInfo &render_info, region_t &region) {
+        if (!util::isWayland() && !render_info.changed() && texture_ && texture_->isUpconverted()) {
+            return;
+        }
+        if (!texture_ || render_info.changed()) {
+            texture_ = render_info.getTexture(image_cache, renderer_, texture_cache_);
+        }
+        // render next frame unless texture is up-converted
+        if (!(texture_ && texture_->isUpconverted())) {
+            parent_->change();
+        }
         SDL_SetRenderTarget(renderer_, nullptr);
         SDL_SetRenderDrawColor(renderer_, 0x00, 0x00, 0x00, 0x00);
         SDL_RenderClear(renderer_);
-        auto texture = render_info.getTexture(image_cache, renderer_, texture_cache_);
-        // render next frame unless texture is up-converted
-        if (!(texture && texture->isUpconverted())) {
-            parent_->change();
-        }
-        if (texture) {
-            Rect rect = {offset.x, offset.y, texture->width(), texture->height()};
+        if (texture_) {
+            Rect rect = {offset.x, offset.y, texture_->width(), texture_->height()};
             auto m = getMonitorRect(rect);
             SDL_SetRenderTarget(renderer_, nullptr);
             SDL_BlendMode mode = SDL_ComposeCustomBlendMode(SDL_BLENDFACTOR_ONE, SDL_BLENDFACTOR_ONE_MINUS_SRC_ALPHA, SDL_BLENDOPERATION_ADD, SDL_BLENDFACTOR_ONE, SDL_BLENDFACTOR_ONE, SDL_BLENDOPERATION_ADD);
-            SDL_SetTextureBlendMode(texture->texture(), mode);
-            SDL_FRect r = { offset.x - m.x, offset.y - m.y, texture->width(), texture->height() };
+            SDL_SetTextureBlendMode(texture_->texture(), mode);
+            SDL_FRect r = { offset.x - m.x, offset.y - m.y, texture_->width(), texture_->height() };
             Logger::log("window.draw", r.x, r.y, r.w, r.h);
-            SDL_RenderTexture(renderer_, texture->texture(), nullptr, &r);
+            SDL_RenderTexture(renderer_, texture_->texture(), nullptr, &r);
         }
         if (region) {
             Rect rect = {offset.x, offset.y, region->width(), region->height()};
             auto m = getMonitorRect(rect);
-            std::vector<int> shape;
-#if defined(IS__NIX)
-            bool is_wayland = util::isWayland();
-            int x_begin = -1;
-            wl_region *r = nullptr;
-            if (is_wayland) {
-                r = wl_compositor_create_region(compositor_);
-            }
-#endif // Linux/Unix
-            {
-                SDL_LockSurface(region->surface());
-                for (int y = 0; y < region->height(); y++) {
-                    for (int x = 0; x < region->width(); x++) {
-                        unsigned char *p = static_cast<unsigned char *>(region->surface()->pixels);
-                        int index = y * region->width() + x;
-                        if (p[4 * index + 3]) {
-#if !defined(IS__NIX)
-                            shape.push_back(index);
-#else
-                            shape.push_back(offset.y * region->width() + offset.x + index);
-                            if (x_begin == -1 && is_wayland) {
-                                x_begin = x;
-                            }
-                        }
-                        else {
-                            if (x_begin != -1) {
-                                wl_region_add(r, offset.x - m.x + x_begin, offset.y - m.y + y, x - x_begin, 1);
-                                x_begin = -1;
-                            }
-#endif // Linux/Unix
-                        }
-                    }
-#if defined(IS__NIX)
-                    if (x_begin != -1 && is_wayland) {
-                        wl_region_add(r, offset.x - m.x + x_begin, offset.y - m.y + y, region->width() - x_begin, 1);
-                        x_begin = -1;
-                    }
-#endif // Linux/Unix
-                }
-                SDL_UnlockSurface(region->surface());
-            }
+            Region shape = translate(render_info.getRegion(image_cache), offset.x, offset.y);
             if (!shape_ || shape_ != shape) {
 #if defined(IS__NIX)
-                if (is_wayland) {
+                if (util::isWayland()) {
+                    wl_region *r = wl_compositor_create_region(compositor_);
+                    for (auto s : shape) {
+                        wl_region_add(r, s.x - m.x, s.y - m.y, s.len, 1);
+                    }
                     wl_surface *surface = static_cast<wl_surface *>(SDL_GetPointerProperty(SDL_GetWindowProperties(window_), SDL_PROP_WINDOW_WAYLAND_SURFACE_POINTER, nullptr));
                     wl_surface_set_input_region(surface, r);
+                    wl_region_destroy(r);
                 }
                 else
 #endif // Linux/Unix
@@ -259,12 +232,13 @@ namespace sorakado {
             }
         }
         else if (!shape_ || shape_->size() > 0) {
-            shape_ = std::make_optional<std::vector<int>>();
+            shape_ = std::make_optional<Region>();
 #if defined(IS__NIX)
             if (util::isWayland()) {
                 wl_region *r = wl_compositor_create_region(compositor_);
                 wl_surface *surface = static_cast<wl_surface *>(SDL_GetPointerProperty(SDL_GetWindowProperties(window_), SDL_PROP_WINDOW_WAYLAND_SURFACE_POINTER, nullptr));
                 wl_surface_set_input_region(surface, r);
+                wl_region_destroy(r);
             }
             else
 #endif // Linux/Unix

@@ -139,13 +139,13 @@ namespace sorakado::ai::master {
                 setSize(region_->width(), region_->height());
             }
         }
-        info_.update();
         if (util::isWayland()) {
             window_manager_->draw(image_cache, getRect(), info_, region_);
         }
         else {
             window_manager_->draw(image_cache, {0, 0}, info_, region_);
         }
+        info_.update();
     }
 
     void Character::setBalloonID(int id) {

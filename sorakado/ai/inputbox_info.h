@@ -28,6 +28,7 @@ namespace sorakado::ai {
             void incrementCursorIndex();
             void decrementCursorIndex();
 
+            Region getRegion(std::unique_ptr<ImageCache> &image_cache) const override;
             std::unique_ptr<WrapSurface> getSurface(std::unique_ptr<ImageCache> &cache) const override;
             std::unique_ptr<WrapTexture> getTexture(std::unique_ptr<ImageCache> &image_cache, renderer_t *renderer, std::unique_ptr<TextureCache> &texture_cache) const override;
             bool equals(const RenderInfo &r) const override {

@@ -36,7 +36,8 @@ namespace sorakado {
             bool shown_;
             bool redrawn_;
             bool focused_;
-            std::optional<std::vector<int>> shape_;
+            std::optional<Region> shape_;
+            std::unique_ptr<WrapTexture> texture_;
             std::unique_ptr<TextureCache> texture_cache_;
 #if defined(IS__NIX)
             wl_registry *reg_;

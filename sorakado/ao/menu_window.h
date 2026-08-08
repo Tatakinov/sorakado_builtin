@@ -18,6 +18,7 @@ namespace sorakado::ao {
             std::unique_ptr<SubMenu> menu_;
         public:
             AoMenuWindow(sorakado::BaseCharacter *parent, display_t id, std::unique_ptr<BackendWindowFactory> &factory, const std::string &name, int x, int y, int width, int height, std::unique_ptr<SubMenu> menu);
+            ~AoMenuWindow() {}
 
             void draw(std::unique_ptr<ImageCache> &cache);
             bool key(sorakado::window_id_t id, sorakado::key_t key, bool down) override;
