@@ -7,6 +7,10 @@
 #include <windows.h>
 #endif // IS_WINDOWS
 
+#if defined(IS__NIX)
+#include <unistd.h>
+#endif // IS__NIX
+
 #include "sorakado/default_backend_window_factory.h"
 #include "sorakado/multiple_window_manager.h"
 #include "sorakado/single_window_manager.h"

@@ -5,6 +5,10 @@
 #include <windows.h>
 #endif // IS_WINDOWS
 
+#if defined(IS__NIX)
+#include <unistd.h>
+#endif // IS__NIX
+
 #include "libfontlist/include/fontlist.hpp"
 
 #include "sorakado/default_backend_window_factory.h"
