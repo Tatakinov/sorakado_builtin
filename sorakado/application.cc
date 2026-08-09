@@ -16,12 +16,16 @@
 #include <io.h>
 #include <ws2tcpip.h>
 #include <afunix.h>
+#include <winsock.h>
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #undef max
 #undef min
 #else
+#include <fcntl.h>
 #include <sys/socket.h>
+#include <sys/time.h>
+#include <sys/types.h>
 #include <sys/un.h>
 #include <unistd.h>
 #endif // WIN32
@@ -37,6 +41,7 @@ namespace {
         return close(fd);
     }
     const auto SD_SEND = SHUT_WR;
+    const int SOCKET_ERROR = -1;
 #endif
 }
 
@@ -157,23 +162,30 @@ namespace sorakado {
 #endif // DEBUG
 
         th_send_ = std::make_unique<std::thread>([&]() {
+            int soc = -1;
             while (true) {
-                std::vector<directsstp::Request> list;
+                std::queue<std::vector<directsstp::Request>> queue;
                 {
                     std::unique_lock<std::mutex> lock(mutex_);
                     cond_.wait(lock, [this] { return !event_queue_.empty() || !alive_; });
                     if (!alive_) {
                         break;
                     }
-                    list = event_queue_.front();
-                    event_queue_.pop();
-                }
-                for (auto &request : list) {
-                    auto res = lib_skeleton::sstp::Response::parse(sendDirectSSTP(request.method, request.command, request.args, request.script, request.hide_on_204));
-                    // not fallback unless 204
-                    if (res.getStatusCode() != 204) {
-                        break;
+                    while (!event_queue_.empty()) {
+                        queue.push(event_queue_.front());
+                        event_queue_.pop();
                     }
+                }
+                while (!queue.empty() && alive_) {
+                    auto list = queue.front();
+                    for (auto &request : list) {
+                        auto res = lib_skeleton::sstp::Response::parse(sendDirectSSTP(soc, request.method, request.command, request.args, request.script, request.hide_on_204));
+                        // not fallback unless 204
+                        if (res.getStatusCode() != 204) {
+                            break;
+                        }
+                    }
+                    queue.pop();
                 }
             }
         });
@@ -273,10 +285,13 @@ namespace sorakado {
         is_idle_ = !sorakado_instance_->draw();
     }
 
-    std::string Application::sendDirectSSTP(std::string method, std::string command, std::vector<std::string> args, std::string script, bool hide_on_204) {
+    std::string Application::sendDirectSSTP(int &soc, std::string method, std::string command, std::vector<std::string> args, std::string script, bool hide_on_204) {
         lib_skeleton::sstp::Request req {method};
         lib_skeleton::sstp::Response res {500, "Internal Server Error"};
         req["Charset"] = "UTF-8";
+        if (soc > -2) {
+            req["Connection"] = "keep-alive";
+        }
         switch (type_) {
             case SorakadoType::Ao:
                 req["Ao"] = uuid_;
@@ -311,40 +326,137 @@ namespace sorakado {
             req(i) = args[i];
         }
         //Logger::log(static_cast<std::string>(req));
-        sockaddr_un addr;
-        if (path_.length() >= sizeof(addr.sun_path)) {
-            return res;
-        }
-        int soc = socket(AF_UNIX, SOCK_STREAM, 0);
-        if (soc == -1) {
-            return res;
-        }
-        memset(&addr, 0, sizeof(sockaddr_un));
-        addr.sun_family = AF_UNIX;
-        // null-terminatedも書き込ませる
-        strncpy(addr.sun_path, path_.c_str(), path_.length() + 1);
-        if (connect(soc, reinterpret_cast<const sockaddr *>(&addr), sizeof(addr)) == -1) {
-            return res;
-        }
-        std::string request = req;
-        if (send(soc, request.c_str(), request.size(), 0) != request.size()) {
-            closesocket(soc);
-            return res;
-        }
-        shutdown(soc, SD_SEND);
-        char buffer[BUFFER_SIZE] = {};
-        std::string data;
-        while (true) {
-            int ret = recv(soc, buffer, BUFFER_SIZE, 0);
-            if (ret == -1) {
-                closesocket(soc);
+        if (soc < 0) {
+            sockaddr_un addr = {};
+            if (path_.length() >= sizeof(addr.sun_path)) {
+                Logger::log("too long path");
                 return res;
             }
-            if (ret == 0) {
+            soc = socket(AF_UNIX, SOCK_STREAM, 0);
+            if (soc == -1) {
+                Logger::log("socket failed");
+                return res;
+            }
+            addr.sun_family = AF_UNIX;
+            // null-terminatedも書き込ませる
+            strncpy(addr.sun_path, path_.c_str(), path_.length() + 1);
+            if (connect(soc, reinterpret_cast<const sockaddr *>(&addr), sizeof(addr)) == -1) {
+                Logger::log("connect failed");
                 closesocket(soc);
+                soc = -1;
+                return res;
+            }
+#if defined(IS_WINDOWS)
+            u_long iMode = 1; // non-zero for non-blocking IO
+            if (ioctlsocket(soc, FIONBIO, &iMode) != NO_ERROR) {
+                Logger::log("failed to non-blocking");
+                closesocket(soc);
+                soc = -1;
+                return res;
+            }
+#elif defined(IS__NIX)
+            int flags = fcntl(soc, F_GETFL, 0);
+            if (flags == -1) {
+                Logger::log("fcntl get failed");
+                closesocket(soc);
+                soc = -1;
+                return res;
+            }
+            if (fcntl(soc, F_SETFL, flags | O_NONBLOCK) == -1) {
+                Logger::log("failed to non-blocking");
+                closesocket(soc);
+                soc = -1;
+                return res;
+            }
+#endif // OS
+        }
+        std::string request = req;
+        // wait until writable
+        auto len = request.size();
+        while (true) {
+            fd_set wfds;
+            FD_ZERO(&wfds);
+            FD_SET(soc, &wfds);
+            int active = select(soc + 1, nullptr, &wfds, nullptr, nullptr);
+            if (active == SOCKET_ERROR) {
+                Logger::log("select failed");
+                closesocket(soc);
+                soc = -1;
+                return res;
+            }
+            auto sent = send(soc, request.data(), request.size(), 0);
+            if (sent == -1) {
+                Logger::log("failed to write");
+                closesocket(soc);
+                soc = -1;
+                return res;
+            }
+            len -= sent;
+            if (len <= 0) {
                 break;
             }
-            data.append(buffer, ret);
+            request = request.substr(sent);
+        }
+        //shutdown(soc, SD_SEND);
+        char buffer[BUFFER_SIZE] = {};
+        std::string data;
+        {
+            fd_set rfds;
+            FD_ZERO(&rfds);
+            FD_SET(soc, &rfds);
+            int active = select(soc + 1, &rfds, nullptr, nullptr, nullptr);
+            if (active == SOCKET_ERROR) {
+                Logger::log("select failed");
+                closesocket(soc);
+                soc = -1;
+                return res;
+            }
+        }
+        while (true) {
+            fd_set rfds;
+            FD_ZERO(&rfds);
+            FD_SET(soc, &rfds);
+            timeval timeout = {0, 0};
+            int active = select(soc + 1, &rfds, nullptr, nullptr, &timeout);
+            if (active == SOCKET_ERROR) {
+                Logger::log("select failed");
+                closesocket(soc);
+                soc = -1;
+                return res;
+            }
+            if (active == 0) {
+                auto r = lib_skeleton::sstp::Response::parse(std::string(data));
+                if (!r["Connection"] || r["Connection"].value() != "keep-alive") {
+                    closesocket(soc);
+                    soc = -1;
+                }
+                break;
+            }
+            int len = recv(soc, buffer, BUFFER_SIZE, 0);
+            if (len == -1) {
+                Logger::log("failed to read");
+                closesocket(soc);
+                soc = -1;
+                return res;
+            }
+            if (len == 0) {
+                Logger::log("end of data");
+                closesocket(soc);
+                soc = -1;
+                break;
+            }
+            data.append(buffer, len);
+            if (data.ends_with("\r\n\r\n")) {
+                auto r = lib_skeleton::sstp::Response::parse(std::string(data));
+                if (r.getStatusCode() == 200 && r.getContent().empty()) {
+                    continue;
+                }
+                if (!r["Connection"] || r["Connection"].value() != "keep-alive") {
+                    closesocket(soc);
+                    soc = -1;
+                }
+                break;
+            }
         }
         return data;
     }

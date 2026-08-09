@@ -44,7 +44,8 @@ namespace sorakado {
     }
 
     std::string Sorakado::sendDirectSSTP(std::string method, std::string command, std::vector<std::string> args, std::string script, bool hide_on_204) {
-        return parent_->sendDirectSSTP(method, command, args, script, hide_on_204);
+        int soc = -2; // keep-aliveしないので-1でなく-2を使用する
+        return parent_->sendDirectSSTP(soc, method, command, args, script, hide_on_204);
     }
 
     void Sorakado::enqueueDirectSSTP(std::vector<directsstp::Request> list) {
