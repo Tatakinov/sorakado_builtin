@@ -10,46 +10,12 @@ namespace sorakado::ao::master {
         return lhs.method == rhs.method && lhs.x == rhs.x && lhs.y == rhs.y && lhs.filename == rhs.filename && lhs.index == rhs.index;
     }
 
-    std::unique_ptr<WrapTexture> Element::getTexture(std::unique_ptr<ImageCache> &image_cache, renderer_t *renderer, std::unique_ptr<TextureCache> &texture_cache) const {
-        auto& src = texture_cache->get({filename, index}, renderer, image_cache);
-        if (!src) {
-            std::unique_ptr<WrapTexture> invalid;
-            return invalid;
+    WrapTexture *Element::getTexture(std::unique_ptr<ImageCache> &image_cache, renderer_t *renderer, std::unique_ptr<TextureCache> &texture_cache) const {
+        auto data = texture_cache->get({filename, index}, renderer, image_cache);
+        if (!data) {
+            return nullptr;
         }
-        auto dst = std::make_unique<WrapTexture>(renderer, src->width(), src->height(), src->isUpconverted());
-        SDL_BlendMode mode = SDL_ComposeCustomBlendMode(SDL_BLENDFACTOR_SRC_ALPHA, SDL_BLENDFACTOR_ONE_MINUS_SRC_ALPHA, SDL_BLENDOPERATION_ADD, SDL_BLENDFACTOR_ONE, SDL_BLENDFACTOR_ONE, SDL_BLENDOPERATION_ADD);
-        switch (method) {
-            case Method::Base:
-            case Method::Add:
-            case Method::Overlay:
-                break;
-            case Method::OverlayFast:
-                mode = SDL_ComposeCustomBlendMode(SDL_BLENDFACTOR_DST_ALPHA, SDL_BLENDFACTOR_ONE_MINUS_SRC_ALPHA, SDL_BLENDOPERATION_ADD, SDL_BLENDFACTOR_ONE, SDL_BLENDFACTOR_ONE, SDL_BLENDOPERATION_ADD);
-                break;
-            case Method::OverlayMultiply:
-                // FIXME
-                mode = SDL_ComposeCustomBlendMode(SDL_BLENDFACTOR_ZERO, SDL_BLENDFACTOR_SRC_COLOR, SDL_BLENDOPERATION_ADD, SDL_BLENDFACTOR_ONE, SDL_BLENDFACTOR_ONE, SDL_BLENDOPERATION_ADD);
-                break;
-            case Method::Replace:
-                mode = SDL_ComposeCustomBlendMode(SDL_BLENDFACTOR_SRC_ALPHA, SDL_BLENDFACTOR_ZERO, SDL_BLENDOPERATION_ADD, SDL_BLENDFACTOR_ONE, SDL_BLENDFACTOR_ONE, SDL_BLENDOPERATION_ADD);
-                break;
-            case Method::Interpolate:
-                mode = SDL_ComposeCustomBlendMode(SDL_BLENDFACTOR_ONE_MINUS_DST_ALPHA, SDL_BLENDFACTOR_ONE_MINUS_SRC_ALPHA, SDL_BLENDOPERATION_ADD, SDL_BLENDFACTOR_ONE, SDL_BLENDFACTOR_ONE, SDL_BLENDOPERATION_ADD);
-                break;
-            case Method::Reduce:
-                // FIXME
-                mode = SDL_ComposeCustomBlendMode(SDL_BLENDFACTOR_ZERO, SDL_BLENDFACTOR_SRC_ALPHA, SDL_BLENDOPERATION_ADD, SDL_BLENDFACTOR_ZERO, SDL_BLENDFACTOR_ONE, SDL_BLENDOPERATION_ADD);
-                break;
-            default:
-                break;
-        }
-        SDL_SetRenderTarget(renderer, dst->texture());
-        SDL_SetRenderDrawColor(renderer, 0x00, 0x00, 0x00, 0x00);
-        SDL_RenderClear(renderer);
-        SDL_SetTextureBlendMode(src->texture(), mode);
-        SDL_RenderTexture(renderer, src->texture(), nullptr, nullptr);
-        SDL_SetRenderTarget(renderer, nullptr);
-        return dst;
+        return data.value();
     }
 
     Rect Element::getRect(std::unique_ptr<ImageCache> &image_cache, bool include_empty_image) const {

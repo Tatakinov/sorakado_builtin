@@ -98,9 +98,11 @@ namespace sorakado::ai {
         SDL_SetRenderTarget(renderer, dst->texture());
         SDL_SetRenderDrawColor(renderer, 0x00, 0x00, 0x00, 0x00);
         SDL_RenderClear(renderer);
-        ImagePath key = {path_, std::nullopt};
-        auto &background = texture_cache->get(key, renderer, image_cache);
-        SDL_RenderTexture(renderer, background->texture(), nullptr, nullptr);
+        texture_cache_t key = {path_, std::nullopt, RenderType::PreMultiplied};
+        auto background = texture_cache->get(key, renderer, image_cache);
+        if (background) {
+            SDL_RenderTexture(renderer, (*background)->texture(), nullptr, nullptr);
+        }
         {
             SDL_FRect r = {inputbox_r_.x + width, inputbox_r_.y, 1, TTF_GetFontHeight(font_->font())};
             SDL_RenderTexture(renderer, cursor_texture->texture(), nullptr, &r);

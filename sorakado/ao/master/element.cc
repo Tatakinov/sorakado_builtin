@@ -164,15 +164,13 @@ namespace sorakado::ao::master {
             return invalid;
         }
         bool upconverted = true;
-        std::vector<std::optional<std::unique_ptr<WrapTexture>>> list;
+        std::vector<std::variant<std::unique_ptr<WrapTexture>, WrapTexture *>> list;
         for (auto &element : children) {
             std::visit([&](const auto &e) {
                 auto t = e.getTexture(image_cache, renderer, texture_cache);
-                if (!t) {
-                    list.push_back(std::nullopt);
-                    return;
+                if (t) {
+                    upconverted = upconverted && t->isUpconverted();
                 }
-                upconverted = upconverted && t->isUpconverted();
                 list.push_back(std::move(t));
             }, element);
         }
@@ -181,12 +179,11 @@ namespace sorakado::ao::master {
         SDL_SetRenderDrawColor(renderer, 0x00, 0x00, 0x00, 0x00);
         SDL_RenderClear(renderer);
         for (int i = 0; i < children.size(); i++) {
-            if (!list[i]) {
-                continue;
-            }
             SDL_BlendMode mode = SDL_ComposeCustomBlendMode(SDL_BLENDFACTOR_ONE, SDL_BLENDFACTOR_ONE_MINUS_SRC_ALPHA, SDL_BLENDOPERATION_ADD, SDL_BLENDFACTOR_ONE, SDL_BLENDFACTOR_ONE, SDL_BLENDOPERATION_ADD);
-            std::visit([&](const auto &e) {
-                auto &t = list[i].value();
+            std::visit([&](const auto &e, const auto &t) {
+                if (!t) {
+                    return;
+                }
                 SDL_FRect r = { e.x - rect.x + x, e.y - rect.y + y, t->width(), t->height() };
                 if (r.x + r.w < 0 || r.x > rect.w || r.y + r.h < 0 || r.y > rect.h) {
                     return;
@@ -218,7 +215,7 @@ namespace sorakado::ao::master {
                 }
                 SDL_SetTextureBlendMode(t->texture(), mode);
                 SDL_RenderTexture(renderer, t->texture(), nullptr, &r);
-            }, children[i]);
+            }, children[i], list[i]);
         }
         SDL_SetRenderTarget(renderer, nullptr);
         return texture;
