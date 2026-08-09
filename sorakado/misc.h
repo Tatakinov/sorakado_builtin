@@ -7,6 +7,8 @@
 #include "sorakado/compatible.h"
 
 namespace sorakado {
+    constexpr int BUFFER_SIZE = 1024;
+
     struct Position {
         int x, y;
     };
@@ -33,7 +35,5 @@ namespace sorakado::directsstp {
         bool hide_on_204;
     };
 }
-
-constexpr int BUFFER_SIZE = 1024;
 
 #endif // SORAKADO_MISC_H_
