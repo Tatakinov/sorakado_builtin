@@ -26,7 +26,7 @@ namespace sorakado {
             return descript_info_.at(key);
         }
         if (fallback) {
-            auto res = lib_skeleton::sstp::Response::parse(sendDirectSSTP("EXECUTE", "GetDescript", {key}, {}, false));
+            auto res = sendDirectSSTP({"EXECUTE", "GetDescript", {key}, {}, false});
             std::string content = res.getContent();
             if (freeze) {
                 descript_info_[key] = content;
@@ -43,9 +43,8 @@ namespace sorakado {
     void Sorakado::run() {
     }
 
-    std::string Sorakado::sendDirectSSTP(std::string method, std::string command, std::vector<std::string> args, std::string script, bool hide_on_204) {
-        int soc = -2; // keep-aliveしないので-1でなく-2を使用する
-        return parent_->sendDirectSSTP(soc, method, command, args, script, hide_on_204);
+    lib_skeleton::sstp::Response Sorakado::sendDirectSSTP(const directsstp::Request req) {
+        return parent_->sendDirectSSTP(req);
     }
 
     void Sorakado::enqueueDirectSSTP(std::vector<directsstp::Request> list) {

@@ -7,10 +7,7 @@
 namespace sorakado {
     class Sorakado;
     class Application;
-
-    enum class SorakadoType {
-        Unknown, Ao, Ai,
-    };
+    enum class SorakadoType;
 
     class SorakadoFactory {
         public:

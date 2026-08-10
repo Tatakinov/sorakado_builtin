@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 
+#include "lib_skeleton/sstp.h"
 #include "sorakado/compatible.h"
 #include "sorakado/misc.h"
 #include "sorakado/watcher.h"
@@ -32,7 +33,7 @@ namespace sorakado {
             virtual void inputText(const std::string &text);
             virtual void editText(const std::string &text);
 
-            std::string sendDirectSSTP(std::string method, std::string command, std::vector<std::string> args, std::string script, bool hide_on_204);
+            lib_skeleton::sstp::Response sendDirectSSTP(const directsstp::Request req);
             void enqueueDirectSSTP(std::vector<directsstp::Request> list);
     };
 }

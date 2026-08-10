@@ -7,7 +7,9 @@
 #include "sorakado/compatible.h"
 
 namespace sorakado {
-    constexpr int BUFFER_SIZE = 1024;
+    enum class SorakadoType {
+        Unknown, Ao, Ai,
+    };
 
     struct Position {
         int x, y;
@@ -24,16 +26,24 @@ namespace sorakado {
     struct Color {
         byte_t r, g, b, a;
     };
-}
 
-namespace sorakado::directsstp {
-    struct Request {
-        std::string method;
-        std::string command;
-        std::vector<std::string> args;
-        std::string script;
-        bool hide_on_204;
-    };
+    namespace directsstp {
+        struct Request {
+            std::string method;
+            std::string command;
+            std::vector<std::string> args;
+            std::string script;
+            bool hide_on_204;
+            // use only on EXECUTE
+            int side;
+        };
+
+        struct RequestCache {
+            int side;
+            std::string command;
+            std::vector<Request> req;
+        };
+    }
 }
 
 #endif // SORAKADO_MISC_H_

@@ -70,14 +70,12 @@ namespace sorakado::ao::master {
         Logger::log("monitor_rect:", r.x,",", r.y,",", r.w, ",",r.h);
         Logger::log("surface_rect:", rect.x,",", rect.y,",", rect.w, ",",rect.h);
         std::vector<std::string> args = {util::to_s(side()), util::to_s(r.x), util::to_s(r.y), util::to_s(r.w), util::to_s(r.h)};
-        directsstp::Request req = {"EXECUTE", "UpdateMonitorRect", args};
-        enqueueDirectSSTP({req});
+        directsstp::Request umr = {"EXECUTE", "UpdateMonitorRect", args};
         args = {util::to_s(side()), util::to_s(rect.x), util::to_s(rect.y), util::to_s(rect.w), util::to_s(rect.h)};
-        req = {"EXECUTE", "UpdateSurfaceRect", args};
-        enqueueDirectSSTP({req});
+        directsstp::Request usr = {"EXECUTE", "UpdateSurfaceRect", args};
         args = {util::to_s(side())};
-        req = {"EXECUTE", "ResetBalloonPosition", args};
-        enqueueDirectSSTP({req});
+        directsstp::Request rbp = {"EXECUTE", "ResetBalloonPosition", args};
+        enqueueDirectSSTP({umr, usr, rbp});
     }
 
     void Character::create(display_t id) {

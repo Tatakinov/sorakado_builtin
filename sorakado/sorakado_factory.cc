@@ -2,6 +2,7 @@
 
 #include <cassert>
 
+#include "sorakado/misc.h"
 #include "sorakado/ao/master/ao.h"
 #include "sorakado/ai/master/ai.h"
 

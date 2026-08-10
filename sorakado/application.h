@@ -15,6 +15,7 @@
 #include <unordered_set>
 #include <vector>
 
+#include "lib_skeleton/sstp.h"
 #include "sorakado/misc.h"
 #include "sorakado/compatible.h"
 #include "sorakado/sorakado_factory.h"
@@ -38,6 +39,8 @@ namespace sorakado {
             bool is_idle_;
             bool is_debug_;
 
+            void receiveSorakado();
+            void asyncSendDirectSSTP();
         public:
             Application(int argc, char *argv[]);
             ~Application();
@@ -48,7 +51,7 @@ namespace sorakado {
 
             void run();
 
-            std::string sendDirectSSTP(int &soc, std::string method, std::string command, std::vector<std::string> args, std::string script, bool hide_on_204);
+            lib_skeleton::sstp::Response sendDirectSSTP(const directsstp::Request req);
             void enqueueDirectSSTP(std::vector<directsstp::Request> list);
     };
 }

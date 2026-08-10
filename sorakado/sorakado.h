@@ -8,6 +8,7 @@
 #include <vector>
 
 #include "lib_skeleton/sorakado.h"
+#include "lib_skeleton/sstp.h"
 #include "sorakado/compatible.h"
 #include "sorakado/misc.h"
 
@@ -46,7 +47,7 @@ namespace sorakado {
             virtual void run();
 
             virtual bool draw() = 0;
-            std::string sendDirectSSTP(std::string method, std::string command, std::vector<std::string> args, std::string script, bool hide_on_204);
+            lib_skeleton::sstp::Response sendDirectSSTP(const directsstp::Request req);
             void enqueueDirectSSTP(std::vector<directsstp::Request> list);
     };
 }

@@ -30,8 +30,8 @@ namespace sorakado {
     void BaseCharacter::editText(const std::string &text) {
     }
 
-    std::string BaseCharacter::sendDirectSSTP(std::string method, std::string command, std::vector<std::string> args, std::string script, bool hide_on_204) {
-        return parent_->sendDirectSSTP(method, command, args, script, hide_on_204);
+    lib_skeleton::sstp::Response BaseCharacter::sendDirectSSTP(const directsstp::Request req) {
+        return parent_->sendDirectSSTP(req);
     }
 
     void BaseCharacter::enqueueDirectSSTP(std::vector<directsstp::Request> list) {
