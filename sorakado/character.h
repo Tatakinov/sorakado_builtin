@@ -20,7 +20,6 @@ namespace sorakado {
 
     class Character : public BaseCharacter {
         private:
-            int side_;
             std::string name_;
             Rect rect_;
         protected:
@@ -33,9 +32,6 @@ namespace sorakado {
             virtual void destroy(display_t id);
             virtual void draw(std::unique_ptr<ImageCache> &cache) = 0;
             bool swapBuffers();
-            int side() const {
-                return side_;
-            }
             const std::string &name() const {
                 return name_;
             }

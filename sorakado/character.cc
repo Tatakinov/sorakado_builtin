@@ -9,7 +9,7 @@
 
 namespace sorakado {
 
-    Character::Character(Sorakado *parent, std::unique_ptr<WindowManager> manager, int side, const std::string &name) : BaseCharacter(parent), side_(side), name_(name), rect_({0, 0, 0, 0}), window_manager_(std::move(manager)) {
+    Character::Character(Sorakado *parent, std::unique_ptr<WindowManager> manager, int side, const std::string &name) : BaseCharacter(parent, side), name_(name), rect_({0, 0, 0, 0}), window_manager_(std::move(manager)) {
     }
 
     Character::~Character() {

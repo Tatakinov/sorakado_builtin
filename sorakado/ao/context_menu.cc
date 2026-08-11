@@ -12,7 +12,7 @@ namespace sorakado::ao {
         constexpr int delay = 5;
     }
 
-    ContextMenu::ContextMenu(sorakado::Sorakado *parent, const Rect &display_r, window_t parent_window, std::unique_ptr<ImageCache> &cache, std::unique_ptr<WrapFont> &font) : sorakado::BaseCharacter(parent), alive_(true), focus_gained_(false), index_in_progress_(-1), display_r_(display_r), parent_window_(parent_window), cache_(cache), font_(font), is_idle_(true), delay_(invalid) {
+    ContextMenu::ContextMenu(sorakado::Sorakado *parent, const Rect &display_r, window_t parent_window, std::unique_ptr<ImageCache> &cache, std::unique_ptr<WrapFont> &font) : sorakado::BaseCharacter(parent, -1), alive_(true), focus_gained_(false), index_in_progress_(-1), display_r_(display_r), parent_window_(parent_window), cache_(cache), font_(font), is_idle_(true), delay_(invalid) {
     }
 
     ContextMenu::~ContextMenu() {

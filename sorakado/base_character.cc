@@ -35,6 +35,9 @@ namespace sorakado {
     }
 
     void BaseCharacter::enqueueDirectSSTP(std::vector<directsstp::Request> list) {
+        for (auto &v : list) {
+            v.side = side();
+        }
         parent_->enqueueDirectSSTP(list);
     }
 }

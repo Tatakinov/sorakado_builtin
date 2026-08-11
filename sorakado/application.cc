@@ -178,6 +178,36 @@ namespace sorakado {
         std::queue<std::vector<directsstp::Request>> queue;
         std::queue<std::vector<directsstp::Request>> remain_queue;
         std::vector<directsstp::RequestCache> cache;
+        auto connect = [&](const std::vector<directsstp::Request> &list) {
+            // reuse socket
+            bool found = false;
+            std::queue<lib_skeleton::sstp::Request> q;
+            for (auto &request : list) {
+                q.push(buildRequest(type_, uuid_, request));
+            }
+            for (auto &[_, v] : map) {
+                if (v->state() != SocketState::Idle) {
+                    continue;
+                }
+                v->enqueue(q);
+                found = true;
+                break;
+            }
+            if (found) {
+                return true;
+            }
+            if (map.size() >= POOL_SIZE) {
+                return false;
+            }
+            auto socket = std::make_unique<Socket>(path_);
+            auto s = socket->socket();
+            if (s == INVALID_SOCKET) {
+                return false;
+            }
+            socket->enqueue(q);
+            map.try_emplace(s, std::move(socket));
+            return true;
+        };
         while (true) {
             int running = 0;
             for (auto &[_, v] : map) {
@@ -186,10 +216,10 @@ namespace sorakado {
                 }
                 running++;
             }
-            Logger::log("application", running, remain_queue.size());
+            Logger::log("application", running, remain_queue.size(), cache.size());
             {
                 std::unique_lock<std::mutex> lock(mutex_);
-                cond_.wait(lock, [&] { return !event_queue_.empty() || !alive_ || running > 0 || !remain_queue.empty(); });
+                cond_.wait(lock, [&] { return !event_queue_.empty() || !alive_ || running > 0 || !remain_queue.empty() || !cache.empty(); });
                 if (!alive_) {
                     break;
                 }
@@ -203,45 +233,37 @@ namespace sorakado {
             }
             std::swap(queue, remain_queue);
             while (!queue.empty()) {
-                // reuse socket
+                auto list = queue.front();
+                if (connect(list)) {
+                    queue.pop();
+                    continue;
+                }
+                if (list[0].method != "EXECUTE") {
+                    remain_queue.push(list);
+                    queue.pop();
+                    continue;
+                }
                 bool found = false;
-                for (auto &[_, v] : map) {
-                    if (v->state() != SocketState::Idle) {
+                for (auto &c : cache) {
+                    if (c.side != list[0].side || c.command != list[0].command) {
                         continue;
                     }
-                    auto list = queue.front();
-                    std::queue<lib_skeleton::sstp::Request> q;
-                    for (auto &request : list) {
-                        q.push(buildRequest(type_, uuid_, request));
-                    }
-                    queue.pop();
-                    v->enqueue(q);
+                    c.req = list;
                     found = true;
                     break;
                 }
-                if (found) {
-                    continue;
-                }
-                if (map.size() >= POOL_SIZE) {
-                    break;
-                }
-                auto list = queue.front();
-                std::queue<lib_skeleton::sstp::Request> q;
-                for (auto &request : list) {
-                    q.push(buildRequest(type_, uuid_, request));
+                if (!found) {
+                    Logger::log("application", list[0].side, list[0].command);
+                    cache.push_back({list[0].side, list[0].command, list});
                 }
                 queue.pop();
-                auto socket = std::make_unique<Socket>(path_);
-                auto s = socket->socket();
-                if (s == INVALID_SOCKET) {
-                    break;
-                }
-                socket->enqueue(q);
-                map.try_emplace(s, std::move(socket));
             }
-            while (!queue.empty()) {
-                remain_queue.push(queue.front());
-                queue.pop();
+            while (cache.size() > 0) {
+                auto tail = cache.back();
+                if (!connect(tail.req)) {
+                    break;
+                }
+                cache.erase(cache.begin() + cache.size() - 1);
             }
             SOCKET max = INVALID_SOCKET;
             std::unordered_set<SOCKET> r_set, w_set;
