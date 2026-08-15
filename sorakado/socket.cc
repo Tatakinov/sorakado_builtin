@@ -66,7 +66,7 @@ namespace sorakado {
         if (ioctlsocket(soc_, FIONBIO, &iMode) != NO_ERROR) {
             Logger::log("socket", "ioctlsocket() failed");
             closesocket(soc_);
-            soc = INVALID_SOCKET;
+            soc_ = INVALID_SOCKET;
             return;
         }
 #elif defined(IS__NIX)
