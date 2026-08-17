@@ -53,11 +53,17 @@ namespace sorakado::ai {
                 }
             }
         }
-        else if (args[0] == "SetPosition" && args.size() == 4) {
-            int side, x, y;
+        else if (args[0] == "SetPosition" && args.size() == 6) {
+            int side, x, y, mx, my;
             util::to_x(args[1], side);
             util::to_x(args[2], x);
             util::to_x(args[3], y);
+            util::to_x(args[4], mx);
+            util::to_x(args[5], my);
+            if (!util::isWayland() || getenv("NINIX_ENABLE_MULTI_MONITOR")) {
+                x += mx;
+                y += my;
+            }
             setBalloonPosition(side, x, y);
         }
         else if (args[0] == "SetDirection" && args.size() == 3) {
