@@ -342,8 +342,7 @@ namespace sorakado::ao::master {
         }
         for (auto &[k, _] : bind_id_[menu_initializer_.side]) {
             // FIXME clickable
-            MenuModelDataActionWithBoolean action = {
-                .action = ActionType::DressUp,
+            MenuModelDataDressUp action = {
                 .valid = false,
                 .caption = k,
                 .state = false,

@@ -22,38 +22,32 @@ namespace sorakado {
 }
 
 namespace sorakado::ao {
-    enum class ActionType {
-        None, Site, StayOnTop, Preferences, Switch, Call, Shell, DressUp,
-        Balloon, BasewareVersion, Close, CloseAll, ScriptInputBox, ScriptLog,
-    };
-
-    struct MenuModelDataAction {
-        ActionType action;
+    struct MenuModelDataItem {
         bool valid;
         std::string caption;
+        std::string command;
+        std::vector<std::string> args;
     };
 
-    struct MenuModelDataActionWithBoolean {
-        ActionType action;
+    struct MenuModelDataCheck {
+        bool valid;
+        std::string caption;
+        std::string command;
+        bool state;
+    };
+
+    struct MenuModelDataDressUp {
         bool valid;
         std::string caption;
         bool state;
     };
 
-    struct MenuModelDataActionWithArgs {
-        ActionType action;
-        bool valid;
-        std::string caption;
-        std::vector<std::string> args;
-    };
-
     struct MenuModelDataSubMenu {
-        ActionType action;
         std::string caption;
-        std::vector<std::variant<MenuModelDataAction, MenuModelDataActionWithArgs, MenuModelDataActionWithBoolean, MenuModelDataSubMenu>> children;
+        std::vector<std::variant<MenuModelDataItem, MenuModelDataCheck, MenuModelDataDressUp, MenuModelDataSubMenu>> children;
     };
 
-    using MenuModelData = std::variant<MenuModelDataAction, MenuModelDataActionWithArgs, MenuModelDataActionWithBoolean, MenuModelDataSubMenu>;
+    using MenuModelData = std::variant<MenuModelDataItem, MenuModelDataCheck, MenuModelDataDressUp, MenuModelDataSubMenu>;
 
     std::vector<std::string> toList(const Json::Value &value);
 
@@ -76,13 +70,6 @@ namespace sorakado::ao {
                     }
                     return std::nullopt;
                 }
-            ActionType getAction() const {
-                ActionType type = ActionType::None;
-                std::visit([&](const auto &x) {
-                    type = x.action;
-                }, data_);
-                return type;
-            }
             int width() const;
             int height() const;
             SDL_Surface *surface();
@@ -109,13 +96,6 @@ namespace sorakado::ao {
                     assert(index_ < item_list_.size());
                     return item_list_[index_]->get<T>();
                 }
-            ActionType getAction() const {
-                if (index_ == invalid) {
-                    return ActionType::None;
-                }
-                assert(index_ < item_list_.size());
-                return item_list_[index_]->getAction();
-            }
             Rect rect() {
                 return r_;
             }

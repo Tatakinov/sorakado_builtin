@@ -25,81 +25,29 @@ namespace sorakado::ao {
             auto type = v["type"].asString();
             if (type == "submenu") {
                 MenuModelDataSubMenu submenu = {
-                    .action = ActionType::None,
                     .caption = v["caption"].asString(),
                     .children = parseMenuInfo(v["list"], dress_up_list),
                 };
                 data.push_back(submenu);
                 assert(std::holds_alternative<MenuModelDataSubMenu>(data.back()));
             }
-            if (type == "site") {
-                MenuModelDataActionWithArgs args = {
-                    .action = ActionType::Site,
+            if (type == "item") {
+                MenuModelDataItem args = {
                     .valid = v["valid"].asBool(),
                     .caption = v["caption"].asString(),
-                    .args = toList(v["list"]),
+                    .command = v["command"].asString(),
+                    .args = toList(v["args"]),
                 };
                 data.push_back(args);
             }
             if (type == "check") {
-                MenuModelDataActionWithBoolean check = {
-                    .action = ActionType::StayOnTop,
+                MenuModelDataCheck check = {
                     .valid = v["valid"].asBool(),
                     .caption = v["caption"].asString(),
+                    .command = v["command"].asString(),
                     .state = v["state"].asBool(),
                 };
                 data.push_back(check);
-            }
-            if (type == "preferences") {
-                MenuModelDataAction action = {
-                    .action = ActionType::Preferences,
-                    .valid = v["valid"].asBool(),
-                    .caption = v["caption"].asString(),
-                };
-                data.push_back(action);
-            }
-            if (type == "scriptinputbox") {
-                MenuModelDataAction action = {
-                    .action = ActionType::ScriptInputBox,
-                    .valid = v["valid"].asBool(),
-                    .caption = v["caption"].asString(),
-                };
-                data.push_back(action);
-            }
-            if (type == "scriptlog") {
-                MenuModelDataAction action = {
-                    .action = ActionType::ScriptLog,
-                    .valid = v["valid"].asBool(),
-                    .caption = v["caption"].asString(),
-                };
-                data.push_back(action);
-            }
-            if (type == "switch") {
-                MenuModelDataActionWithArgs action = {
-                    .action = ActionType::Switch,
-                    .valid = v["valid"].asBool(),
-                    .caption = v["caption"].asString(),
-                    .args = toList(v["list"])
-                };
-                data.push_back(action);
-            }
-            if (type == "call") {
-                MenuModelDataActionWithArgs action = {
-                    .action = ActionType::Call,
-                    .valid = v["valid"].asBool(),
-                    .caption = v["caption"].asString(),
-                    .args = toList(v["list"])
-                };
-                data.push_back(action);
-            }
-            if (type == "shell") {
-                MenuModelDataActionWithArgs action = {
-                    .action = ActionType::Shell,
-                    .valid = v["valid"].asBool(),
-                    .caption = v["caption"].asString(),
-                    .args = toList(v["list"])
-                };
-                data.push_back(action);
             }
             if (type == "dressup") {
                 MenuModelDataSubMenu dressup = {
@@ -107,39 +55,6 @@ namespace sorakado::ao {
                     .children = dress_up_list,
                 };
                 data.push_back(dressup);
-            }
-            if (type == "balloon") {
-                MenuModelDataActionWithArgs action = {
-                    .action = ActionType::Balloon,
-                    .valid = v["valid"].asBool(),
-                    .caption = v["caption"].asString(),
-                    .args = toList(v["list"])
-                };
-                data.push_back(action);
-            }
-            if (type == "basewareversion") {
-                MenuModelDataAction action = {
-                    .action = ActionType::BasewareVersion,
-                    .valid = v["valid"].asBool(),
-                    .caption = v["caption"].asString(),
-                };
-                data.push_back(action);
-            }
-            if (type == "close") {
-                MenuModelDataAction action = {
-                    .action = ActionType::Close,
-                    .valid = v["valid"].asBool(),
-                    .caption = v["caption"].asString(),
-                };
-                data.push_back(action);
-            }
-            if (type == "close_all") {
-                MenuModelDataAction action = {
-                    .action = ActionType::CloseAll,
-                    .valid = v["valid"].asBool(),
-                    .caption = v["caption"].asString(),
-                };
-                data.push_back(action);
             }
         }
         return data;
