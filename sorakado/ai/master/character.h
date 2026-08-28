@@ -28,6 +28,7 @@ namespace sorakado::ai::master {
             bool raise_on_talk_;
             region_t region_;
             Link prev_link_;
+            std::optional<Color> default_color_, disable_color_;
         protected:
         public:
             Character(sorakado::Sorakado *parent, std::unique_ptr<WindowManager> window_manager, int side, const std::string &name, std::unique_ptr<ImageCache> &image_cache, std::unique_ptr<FontCache> &font_cache);
@@ -56,6 +57,8 @@ namespace sorakado::ai::master {
             void setCursorPosition(std::string axis, double value, bool is_absolute, MoveUnit unit);
             void newLine();
             void setScale(int scale);
+            Color getDefaultColor(int id);
+            Color getDisableColor(int id);
     };
 }
 

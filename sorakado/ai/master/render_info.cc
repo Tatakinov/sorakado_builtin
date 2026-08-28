@@ -241,24 +241,19 @@ namespace sorakado::ai::master {
             auto &font = (font_cache_->get(data.content.attr.font)->font() != nullptr) ? font_cache_->get(data.content.attr.font) : font_cache_->get("default");
             FontResizer resizer(font->font(), scale_);
             auto &color = data.content.attr.color;
-            post::ColorInt c = {0, 0, 0, 0};
-            if (std::holds_alternative<post::ColorInt>(color)) {
-                c = std::get<post::ColorInt>(color);
+            sorakado::Color c = {0, 0, 0, 0};
+            if (std::holds_alternative<sorakado::Color>(color)) {
+                c = std::get<sorakado::Color>(color);
             }
             else {
                 auto s = std::get<std::string>(color);
                 int id = util::balloon2id(balloon_id_, direction_);
                 if (s == "default") {
-                    util::to_x(parent_->getInfo(id, "font.color.r", "0"), c.r);
-                    util::to_x(parent_->getInfo(id, "font.color.g", "0"), c.g);
-                    util::to_x(parent_->getInfo(id, "font.color.b", "0"), c.b);
+                    c = parent_->getDefaultColor(id);
                 }
                 else if (s == "disable") {
-                    util::to_x(parent_->getInfo(id, "disable.font.color.r", "0"), c.r);
-                    util::to_x(parent_->getInfo(id, "disable.font.color.g", "0"), c.g);
-                    util::to_x(parent_->getInfo(id, "disable.font.color.b", "0"), c.b);
+                    c = parent_->getDisableColor(id);
                 }
-                c.a = 0xff;
             }
             SDL_Surface *text = TTF_RenderText_Blended(font->font(), data.content.data.data(), data.content.data.length(), {c.r, c.g, c.b, c.a});
             SDL_Rect r = {data.position.x * scale_ / 100, (data.position.y - scroll_) * scale_ / 100, text->w * scale_ / 100, text->h * scale_ / 100};

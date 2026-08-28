@@ -24,14 +24,7 @@ namespace sorakado::ai::master {
             }
         };
 
-        struct ColorInt {
-            byte_t r, g, b, a;
-            bool operator==(const ColorInt &l) const {
-                return r == l.r && g == l.g && b == l.b && a == l.a;
-            }
-        };
-
-        using Color = std::variant<ColorInt, std::string>;
+        using Color = std::variant<sorakado::Color, std::string>;
 
         using IntString = std::variant<int, std::string>;
         using BoolString = std::variant<bool, std::string>;

@@ -288,4 +288,26 @@ namespace sorakado::ai::master {
     void Character::setScale(int scale) {
         info_.setScale(scale);
     }
+
+    Color Character::getDefaultColor(int id) {
+        if (!default_color_) {
+            int r, g, b;
+            util::to_x(getInfo(id, "font.color.r", "0"), r);
+            util::to_x(getInfo(id, "font.color.g", "0"), g);
+            util::to_x(getInfo(id, "font.color.b", "0"), b);
+            default_color_ = {r & 0xff, g & 0xff, b & 0xff, 0xff};
+        }
+        return default_color_.value();
+    }
+
+    Color Character::getDisableColor(int id) {
+        if (!disable_color_) {
+            int r, g, b;
+            util::to_x(getInfo(id, "disable.color.r", "0"), r);
+            util::to_x(getInfo(id, "disable.color.g", "0"), g);
+            util::to_x(getInfo(id, "disable.color.b", "0"), b);
+            disable_color_ = {r & 0xff, g & 0xff, b & 0xff, 0xff};
+        }
+        return disable_color_.value();
+    }
 }
