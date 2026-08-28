@@ -295,7 +295,12 @@ namespace sorakado::ai::master {
             util::to_x(getInfo(id, "font.color.r", "0"), r);
             util::to_x(getInfo(id, "font.color.g", "0"), g);
             util::to_x(getInfo(id, "font.color.b", "0"), b);
-            default_color_ = {r & 0xff, g & 0xff, b & 0xff, 0xff};
+            default_color_ = {
+                static_cast<sorakado::byte_t>(r & 0xff),
+                static_cast<sorakado::byte_t>(g & 0xff),
+                static_cast<sorakado::byte_t>(b & 0xff),
+                static_cast<sorakado::byte_t>(0xff)
+            };
         }
         return default_color_.value();
     }
@@ -306,7 +311,12 @@ namespace sorakado::ai::master {
             util::to_x(getInfo(id, "disable.color.r", "0"), r);
             util::to_x(getInfo(id, "disable.color.g", "0"), g);
             util::to_x(getInfo(id, "disable.color.b", "0"), b);
-            disable_color_ = {r & 0xff, g & 0xff, b & 0xff, 0xff};
+            disable_color_ = {
+                static_cast<sorakado::byte_t>(r & 0xff),
+                static_cast<sorakado::byte_t>(g & 0xff),
+                static_cast<sorakado::byte_t>(b & 0xff),
+                static_cast<sorakado::byte_t>(0xff)
+            };
         }
         return disable_color_.value();
     }
