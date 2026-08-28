@@ -165,7 +165,6 @@ namespace sorakado::ao::master {
             return ElementWithChildren(Method::Overlay, 0, 0, {});
         }
         ElementWithChildren ret(Method::Overlay, 0, 0, {});
-        update();
         int id = current_id_;
         auto &surface = surfaces_.at(id);
         std::vector<int> list;
@@ -257,7 +256,6 @@ namespace sorakado::ao::master {
         if (!surfaces_.contains(id)) {
             return {};
         }
-        update();
         std::vector<CollisionInfo> ret;
         // TODO order
         // 当たり判定は定義順の逆順で走査するので判定式も逆

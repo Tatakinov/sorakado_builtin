@@ -615,6 +615,7 @@ namespace sorakado::ao::master {
     }
 
     void Character::run() {
+        seriko_->update();
         if (move_info_) {
             auto r = getRect();
             auto now = std::chrono::system_clock::now();

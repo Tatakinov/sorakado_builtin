@@ -45,7 +45,6 @@ namespace sorakado::ao::master {
             std::unordered_map<int, bool> binds_;
             std::unordered_map<int, std::unordered_set<int>> bind_addids_;
 
-            void update(bool change = false);
             void updateBind();
         public:
             Seriko(const std::unordered_map<int, Surface> &surfaces) : scale_(100), current_id_(-1), surfaces_(surfaces) {}
@@ -53,6 +52,7 @@ namespace sorakado::ao::master {
             void setParent(Character *parent) {
                 parent_ = parent;
             }
+            void update(bool change = false);
             void push(int id, int elapsed);
             bool active(int id);
             bool active(const std::string &id);
