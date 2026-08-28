@@ -57,7 +57,7 @@ namespace sorakado {
 
 #if !defined(DEBUG)
         {
-            std::unique_lock<std::mutex> lock(mutex_);
+            std::unique_lock<std::mutex> lock(recv_mutex_);
             cond_.wait(lock, [&] { return loaded_; });
         }
 #endif // DEBUG
@@ -69,7 +69,8 @@ namespace sorakado {
 
     Application::~Application() {
         {
-            std::unique_lock<std::mutex> lock(mutex_);
+            std::unique_lock<std::mutex> lock1(recv_mutex_);
+            std::unique_lock<std::mutex> lock2(send_mutex_);
             alive_ = false;
         }
         th_send_->join();
@@ -101,7 +102,7 @@ namespace sorakado {
             if (event == "Initialize" && req(0) && req(1)) {
                 std::string tmp;
                 {
-                    std::unique_lock<std::mutex> lock(mutex_);
+                    std::unique_lock<std::mutex> lock(recv_mutex_);
                     tmp = req(0).value();
                 }
                 std::u8string u8dir(tmp.begin(), tmp.end());
@@ -126,7 +127,7 @@ namespace sorakado {
             }
             else if (event == "Endpoint" && req(0) && req(1)) {
                 {
-                    std::unique_lock<std::mutex> lock(mutex_);
+                    std::unique_lock<std::mutex> lock(recv_mutex_);
                     path_ = req(0).value();
                     uuid_ = req(1).value();
                 }
@@ -134,6 +135,7 @@ namespace sorakado {
                 cond_.notify_one();
             }
             else {
+                std::unique_lock<std::mutex> lock(recv_mutex_);
                 auto r = sorakado_instance_->sorakadoEventImmediately(req);
                 if (r) {
                     res = r.value();
@@ -151,7 +153,6 @@ namespace sorakado {
                             break;
                         }
                     }
-                    std::unique_lock<std::mutex> lock(mutex_);
                     queue_.push(args);
                 }
             }
@@ -165,7 +166,7 @@ namespace sorakado {
             std::cout.write(response.c_str(), len);
         }
         {
-            std::unique_lock<std::mutex> lock(mutex_);
+            std::unique_lock<std::mutex> lock(recv_mutex_);
             loaded_ = true;
             alive_ = false;
             event_queue_.push({{"", "", {}}});
@@ -218,7 +219,7 @@ namespace sorakado {
             }
             Logger::log("application", running, remain_queue.size(), cache.size());
             {
-                std::unique_lock<std::mutex> lock(mutex_);
+                std::unique_lock<std::mutex> lock(send_mutex_);
                 cond_.wait(lock, [&] { return !event_queue_.empty() || !alive_ || running > 0 || !remain_queue.empty() || !cache.empty(); });
                 if (!alive_) {
                     break;
@@ -321,6 +322,7 @@ namespace sorakado {
         SDL_Event event;
         std::vector<std::string> filelist;
         while ((is_idle_) ? (SDL_WaitEventTimeout(&event, 10)) : (SDL_PollEvent(&event))) {
+            std::unique_lock<std::mutex> lock(recv_mutex_);
             is_idle_ = false;
             switch (event.type) {
                 case SDL_EVENT_WINDOW_MOVED:
@@ -375,7 +377,10 @@ namespace sorakado {
                     break;
             }
         }
-        sorakado_instance_->run();
+        {
+            std::unique_lock<std::mutex> lock(recv_mutex_);
+            sorakado_instance_->run();
+        }
         {
             std::string err(SDL_GetError());
             if (!err.empty()) {
@@ -385,13 +390,14 @@ namespace sorakado {
         }
         std::queue<std::vector<std::string>> queue;
         {
-            std::unique_lock<std::mutex> lock(mutex_);
+            std::unique_lock<std::mutex> lock(recv_mutex_);
             while (!queue_.empty()) {
                 queue.push(queue_.front());
                 queue_.pop();
             }
         }
         while (!queue.empty()) {
+            std::unique_lock<std::mutex> lock(recv_mutex_);
             std::vector<std::string> args = queue.front();
             queue.pop();
             sorakado_instance_->sorakadoEvent(args);
@@ -433,7 +439,7 @@ namespace sorakado {
 
     void Application::enqueueDirectSSTP(std::vector<directsstp::Request> list) {
         {
-            std::unique_lock<std::mutex> lock(mutex_);
+            std::unique_lock<std::mutex> lock(send_mutex_);
             event_queue_.push(list);
         }
         cond_.notify_one();

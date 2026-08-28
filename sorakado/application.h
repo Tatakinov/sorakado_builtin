@@ -23,7 +23,8 @@
 namespace sorakado {
     class Application {
         private:
-            std::mutex mutex_;
+            std::mutex recv_mutex_;
+            std::mutex send_mutex_;
             std::condition_variable cond_;
             std::queue<std::vector<std::string>> queue_;
             std::queue<std::vector<directsstp::Request>> event_queue_;
