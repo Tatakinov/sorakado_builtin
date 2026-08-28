@@ -4,6 +4,8 @@
 #include <string>
 #include <queue>
 
+#include "os_preprocess.h"
+
 #if defined(IS_WINDOWS)
 #include <fcntl.h>
 #include <io.h>
@@ -24,7 +26,6 @@ using SOCKET = int;
 constexpr SOCKET INVALID_SOCKET = -1;
 #endif // IS_WINDOWS
 
-#include "os_preprocess.h"
 #include "lib_skeleton/sstp.h"
 #include "sorakado/misc.h"
 
