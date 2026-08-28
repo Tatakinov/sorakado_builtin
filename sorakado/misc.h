@@ -25,6 +25,9 @@ namespace sorakado {
 
     struct Color {
         byte_t r, g, b, a;
+        bool operator==(const Color &l) const {
+            return r == l.r && g == l.g && b == l.b && a == l.a;
+        }
     };
 
     namespace directsstp {
