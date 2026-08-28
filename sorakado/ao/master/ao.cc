@@ -90,7 +90,7 @@ namespace sorakado::ao::master {
         if (util::isWayland() && getenv("NINIX_ENABLE_MULTI_MONITOR")) {
             auto backend_window_factory = std::make_unique<DefaultBackendWindowFactory>(SDL_WINDOW_TRANSPARENT | SDL_WINDOW_BORDERLESS | SDL_WINDOW_MAXIMIZED | SDL_WINDOW_INPUT_FOCUS | SDL_WINDOW_MOUSE_FOCUS | SDL_WINDOW_RESIZABLE | SDL_WINDOW_HIDDEN);
             auto manager = std::make_unique<MultipleWindowManager>(std::move(window_factory), std::move(backend_window_factory));
-            characters_.try_emplace(side, std::make_unique<Character>(this, std::move(manager), side, name, surfaces_->getSeriko()));
+            characters_.try_emplace(side, std::make_unique<Character>(this, std::move(manager), side, name, surfaces_->getSeriko(side)));
             int count = 0;
             auto *monitors = SDL_GetDisplays(&count);
             for (int i = 0; i < count; i++) {
@@ -101,13 +101,13 @@ namespace sorakado::ao::master {
         else if (util::isWayland()) {
             auto backend_window_factory = std::make_unique<DefaultBackendWindowFactory>(SDL_WINDOW_TRANSPARENT | SDL_WINDOW_BORDERLESS | SDL_WINDOW_MAXIMIZED | SDL_WINDOW_INPUT_FOCUS | SDL_WINDOW_MOUSE_FOCUS | SDL_WINDOW_RESIZABLE | SDL_WINDOW_HIDDEN);
             auto manager = std::make_unique<SingleWindowManager>(std::move(window_factory), std::move(backend_window_factory));
-            characters_.try_emplace(side, std::make_unique<Character>(this, std::move(manager), side, name, surfaces_->getSeriko()));
+            characters_.try_emplace(side, std::make_unique<Character>(this, std::move(manager), side, name, surfaces_->getSeriko(side)));
             characters_.at(side)->create(0);
         }
         else {
             auto backend_window_factory = std::make_unique<DefaultBackendWindowFactory>(SDL_WINDOW_TRANSPARENT | SDL_WINDOW_BORDERLESS | SDL_WINDOW_INPUT_FOCUS | SDL_WINDOW_MOUSE_FOCUS | SDL_WINDOW_HIDDEN);
             auto manager = std::make_unique<SingleWindowManager>(std::move(window_factory), std::move(backend_window_factory));
-            characters_.try_emplace(side, std::make_unique<Character>(this, std::move(manager), side, name, surfaces_->getSeriko()));
+            characters_.try_emplace(side, std::make_unique<Character>(this, std::move(manager), side, name, surfaces_->getSeriko(side)));
             characters_.at(side)->create(0);
         }
         return;

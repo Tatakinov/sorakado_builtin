@@ -14,7 +14,7 @@ namespace sorakado::ao::master {
         private:
             int version_;
             std::unordered_map<int, Surface> surfaces_;
-            std::unordered_map<std::string, std::vector<int>> alias_;
+            std::unordered_map<int, std::unordered_map<std::string, std::vector<int>>> alias_;
 
             void importAnimatedSurface(const std::filesystem::path &path);
         public:
@@ -24,7 +24,7 @@ namespace sorakado::ao::master {
                 surfaces_[n].element[0] = Element(Method::Base, 0, 0, path, std::nullopt);
             }
             void parse(const std::filesystem::path &path);
-            std::unique_ptr<Seriko> getSeriko() const;
+            std::unique_ptr<Seriko> getSeriko(int side);
             void dump() const;
     };
 }

@@ -13,7 +13,7 @@
 #include "sorakado/util.h"
 
 namespace sorakado::ao::master {
-    enum class State { Root, Descript, Surface, None };
+    enum class State { Root, Descript, Surface, Alias, None };
 
     namespace {
         std::string trimSpace(const std::string &str) {
@@ -235,8 +235,11 @@ namespace sorakado::ao::master {
         std::unordered_set<int> inclusive;
         std::unordered_set<int> exclusive;
         bool append = false;
+        int alias = -1;
+        std::unordered_map<std::string, std::vector<int>> alias_map;
         for (int line_count = 1; std::getline(iss, line, '\x0a'); line_count++) {
             line = trimSpace(line);
+            Logger::log(line);
             if (once && line.starts_with("charset,")) {
                 // TODO
             }
@@ -269,6 +272,22 @@ namespace sorakado::ao::master {
                             state = next;
                             next = State::None;
                         }
+                    }
+                    else if (line.ends_with(".surface.alias")) {
+                        std::string tmp;
+                        std::istringstream side(line);
+                        std::getline(side, tmp, '.');
+                        if (tmp == "sakura") {
+                            alias = 0;
+                        }
+                        else if (tmp == "kero") {
+                            alias = 1;
+                        }
+                        else {
+                            util::to_x(tmp.substr(4), alias);
+                        }
+                        next = State::Alias;
+                        alias_map.clear();
                     }
                     else if (line.starts_with("//") || line.empty()) {
                     }
@@ -558,6 +577,28 @@ namespace sorakado::ao::master {
                         }
                     }
                     break;
+                case State::Alias:
+                    if (line == "}") {
+                        state = State::Root;
+                        alias_[alias] = alias_map;
+                    }
+                    else {
+                        std::string tmp;
+                        std::istringstream l(line);
+                        std::getline(l, tmp, ',');
+                        std::string sid = tmp;
+                        std::getline(l, tmp, '[');
+                        std::getline(l, tmp, ']');
+                        std::istringstream l2(tmp);
+                        int id;
+                        std::vector<int> alias_list;
+                        while (std::getline(l2, tmp, ',')) {
+                            util::to_x(tmp, id);
+                            alias_list.push_back(id);
+                        }
+                        alias_map[sid] = alias_list;
+                    }
+                    break;
                 default:
                     // unreachable
                     assert(false);
@@ -568,8 +609,8 @@ namespace sorakado::ao::master {
         }
     }
 
-    std::unique_ptr<Seriko> Surfaces::getSeriko() const {
-        return std::make_unique<Seriko>(surfaces_);
+    std::unique_ptr<Seriko> Surfaces::getSeriko(int side) {
+        return std::make_unique<Seriko>(surfaces_, alias_[side]);
     }
 
     void Surfaces::dump() const {

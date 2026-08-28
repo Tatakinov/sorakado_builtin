@@ -110,6 +110,10 @@ namespace sorakado::ao::master {
     }
 
     bool Seriko::setSurfaceID(const std::string &id) {
+        if (alias_.contains(id) && alias_.at(id).size() > 0) {
+            auto list = alias_.at(id);
+            return setSurfaceID(list[util::random(0, list.size() - 1)]);
+        }
         int tmp;
         util::to_x(id, tmp);
         return setSurfaceID(tmp);

@@ -38,6 +38,7 @@ namespace sorakado::ao::master {
             int scale_;
             int current_id_;
             std::unordered_map<int, Surface> surfaces_;
+            std::unordered_map<std::string, std::vector<int>> alias_;
             std::unordered_map<int, Actor> actors_;
             std::chrono::system_clock::time_point prev_time_;
             std::priority_queue<ActorWithPriority, std::vector<ActorWithPriority>, Compare> process_;
@@ -47,7 +48,7 @@ namespace sorakado::ao::master {
 
             void updateBind();
         public:
-            Seriko(const std::unordered_map<int, Surface> &surfaces) : scale_(100), current_id_(-1), surfaces_(surfaces) {}
+            Seriko(const std::unordered_map<int, Surface> &surfaces, const std::unordered_map<std::string, std::vector<int>> &alias) : scale_(100), current_id_(-1), surfaces_(surfaces), alias_(alias) {}
             ~Seriko() {}
             void setParent(Character *parent) {
                 parent_ = parent;
