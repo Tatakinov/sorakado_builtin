@@ -36,7 +36,7 @@ namespace sorakado::ao {
         if (y + r.h > display_r_.y + display_r_.h) {
             y = display_r_.y + display_r_.h - r.h;
         }
-        std::unique_ptr<BackendWindowFactory> factory = std::make_unique<PopupBackendWindowFactory>(parent_window_, x, y, SDL_WINDOW_POPUP_MENU | SDL_WINDOW_INPUT_FOCUS | SDL_WINDOW_MOUSE_FOCUS);
+        std::unique_ptr<BackendWindowFactory> factory = std::make_unique<PopupBackendWindowFactory>(parent_window_, x, y, SDL_WINDOW_TRANSPARENT | SDL_WINDOW_POPUP_MENU | SDL_WINDOW_INPUT_FOCUS | SDL_WINDOW_MOUSE_FOCUS);
         std::string name = "unused";
         windows_.emplace_back(std::make_unique<AoMenuWindow>(this, 0, factory, name, x, y, r.w, r.h, std::move(menu)));
         windows_.back()->show();
