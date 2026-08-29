@@ -88,10 +88,15 @@ namespace sorakado {
         // null-terminatedも書き込ませる
         strncpy(addr.sun_path, path.c_str(), path.length() + 1);
         if (connect(soc_, reinterpret_cast<const sockaddr *>(&addr), sizeof(addr)) == -1) {
-            Logger::log("socket", "connect() failed");
-            closesocket(soc_);
-            soc_ = INVALID_SOCKET;
-            return;
+#if defined(IS_WINDOWS)
+            if (WSAGetLastError() !=  WSAEWOULDBLOCK)
+#endif
+            {
+                Logger::log("socket", "connect() failed");
+                closesocket(soc_);
+                soc_ = INVALID_SOCKET;
+                return;
+            }
         }
         state_ = SocketState::Idle;
     }
