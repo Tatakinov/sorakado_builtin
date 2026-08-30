@@ -151,6 +151,7 @@ namespace sorakado::ai::master {
     void Character::setBalloonID(int id) {
         if (id == -1) {
             info_.setID(-1);
+            hide();
             info_.hide();
             return;
         }
@@ -262,6 +263,7 @@ namespace sorakado::ai::master {
             raise();
         }
         info_.appendText(text);
+        show();
         info_.show();
     }
 
