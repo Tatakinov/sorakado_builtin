@@ -46,7 +46,7 @@ namespace sorakado::ai::master {
         if (util::isWayland() && getenv("NINIX_ENABLE_MULTI_MONITOR")) {
             auto backend_window_factory = std::make_unique<DefaultBackendWindowFactory>(SDL_WINDOW_TRANSPARENT | SDL_WINDOW_BORDERLESS | SDL_WINDOW_MAXIMIZED | SDL_WINDOW_INPUT_FOCUS | SDL_WINDOW_MOUSE_FOCUS | SDL_WINDOW_RESIZABLE);
             auto manager = std::make_unique<MultipleWindowManager>(std::move(window_factory), std::move(backend_window_factory));
-            characters_.try_emplace(side, std::make_unique<Character>(this, std::move(manager), side, name, image_cache_, font_cache_));
+            characters_.try_emplace(side, std::make_unique<Character>(*this, std::move(manager), side, name, *image_cache_, *font_cache_));
             int count = 0;
             auto *monitors = SDL_GetDisplays(&count);
             for (int i = 0; i < count; i++) {
@@ -57,13 +57,13 @@ namespace sorakado::ai::master {
         else if (util::isWayland()) {
             auto backend_window_factory = std::make_unique<DefaultBackendWindowFactory>(SDL_WINDOW_TRANSPARENT | SDL_WINDOW_BORDERLESS | SDL_WINDOW_MAXIMIZED | SDL_WINDOW_INPUT_FOCUS | SDL_WINDOW_MOUSE_FOCUS | SDL_WINDOW_RESIZABLE);
             auto manager = std::make_unique<SingleWindowManager>(std::move(window_factory), std::move(backend_window_factory));
-            characters_.try_emplace(side, std::make_unique<Character>(this, std::move(manager), side, name, image_cache_, font_cache_));
+            characters_.try_emplace(side, std::make_unique<Character>(*this, std::move(manager), side, name, *image_cache_, *font_cache_));
             characters_.at(side)->create(0);
         }
         else {
             auto backend_window_factory = std::make_unique<DefaultBackendWindowFactory>(SDL_WINDOW_TRANSPARENT | SDL_WINDOW_BORDERLESS | SDL_WINDOW_INPUT_FOCUS | SDL_WINDOW_MOUSE_FOCUS);
             auto manager = std::make_unique<SingleWindowManager>(std::move(window_factory), std::move(backend_window_factory));
-            characters_.try_emplace(side, std::make_unique<Character>(this, std::move(manager), side, name, image_cache_, font_cache_));
+            characters_.try_emplace(side, std::make_unique<Character>(*this, std::move(manager), side, name, *image_cache_, *font_cache_));
             characters_.at(side)->create(0);
         }
         return;
@@ -226,14 +226,13 @@ namespace sorakado::ai::master {
 
     bool Ai::draw() {
         if (script_inputbox_) {
-            Logger::log("script-input.draw");
-            script_inputbox_->draw(image_cache_);
+            script_inputbox_->draw();
         }
         for (auto &[_, v] : inputboxes_) {
-            v->draw(image_cache_);
+            v->draw();
         }
         for (auto &[_, v] : characters_) {
-            v->draw(image_cache_);
+            v->draw();
         }
         bool redrawn = false;
         if (script_inputbox_) {
@@ -305,7 +304,7 @@ namespace sorakado::ai::master {
     }
 
     void Ai::setFont(const std::string &name) {
-        auto &font = font_cache_->getDefaultFont();
+        auto *font = font_cache_->getDefaultFont();
         if (font && font->name() == name) {
             return;
         }
@@ -430,7 +429,7 @@ namespace sorakado::ai::master {
         if (util::isWayland() && getenv("NINIX_ENABLE_MULTI_MONITOR")) {
             auto backend_window_factory = std::make_unique<DefaultBackendWindowFactory>(SDL_WINDOW_TRANSPARENT | SDL_WINDOW_BORDERLESS | SDL_WINDOW_MAXIMIZED | SDL_WINDOW_INPUT_FOCUS | SDL_WINDOW_MOUSE_FOCUS | SDL_WINDOW_RESIZABLE);
             auto manager = std::make_unique<MultipleWindowManager>(std::move(window_factory), std::move(backend_window_factory));
-            inputboxes_.try_emplace(id, std::make_unique<Inputbox>(this, std::move(manager), inputbox_r, color, image_cache_, font_cache_->get("default"), id));
+            inputboxes_.try_emplace(id, std::make_unique<Inputbox>(*this, std::move(manager), inputbox_r, color, *image_cache_, font_cache_->getDefaultFont(), id));
             int count = 0;
             auto *monitors = SDL_GetDisplays(&count);
             for (int i = 0; i < count; i++) {
@@ -441,13 +440,13 @@ namespace sorakado::ai::master {
         else if (util::isWayland()) {
             auto backend_window_factory = std::make_unique<DefaultBackendWindowFactory>(SDL_WINDOW_TRANSPARENT | SDL_WINDOW_BORDERLESS | SDL_WINDOW_MAXIMIZED | SDL_WINDOW_INPUT_FOCUS | SDL_WINDOW_MOUSE_FOCUS | SDL_WINDOW_RESIZABLE);
             auto manager = std::make_unique<SingleWindowManager>(std::move(window_factory), std::move(backend_window_factory));
-            inputboxes_.try_emplace(id, std::make_unique<Inputbox>(this, std::move(manager), inputbox_r, color, image_cache_, font_cache_->get("default"), id));
+            inputboxes_.try_emplace(id, std::make_unique<Inputbox>(*this, std::move(manager), inputbox_r, color, *image_cache_, font_cache_->getDefaultFont(), id));
             inputboxes_.at(id)->create(0);
         }
         else {
             auto backend_window_factory = std::make_unique<DefaultBackendWindowFactory>(SDL_WINDOW_TRANSPARENT | SDL_WINDOW_BORDERLESS | SDL_WINDOW_INPUT_FOCUS | SDL_WINDOW_MOUSE_FOCUS);
             auto manager = std::make_unique<SingleWindowManager>(std::move(window_factory), std::move(backend_window_factory));
-            inputboxes_.try_emplace(id, std::make_unique<Inputbox>(this, std::move(manager), inputbox_r, color, image_cache_, font_cache_->get("default"), id));
+            inputboxes_.try_emplace(id, std::make_unique<Inputbox>(*this, std::move(manager), inputbox_r, color, *image_cache_, font_cache_->getDefaultFont(), id));
             inputboxes_.at(id)->create(0);
         }
         inputboxes_.at(id)->show();
@@ -516,7 +515,7 @@ namespace sorakado::ai::master {
         if (util::isWayland() && getenv("NINIX_ENABLE_MULTI_MONITOR")) {
             auto backend_window_factory = std::make_unique<DefaultBackendWindowFactory>(SDL_WINDOW_TRANSPARENT | SDL_WINDOW_BORDERLESS | SDL_WINDOW_MAXIMIZED | SDL_WINDOW_INPUT_FOCUS | SDL_WINDOW_MOUSE_FOCUS | SDL_WINDOW_RESIZABLE);
             auto manager = std::make_unique<MultipleWindowManager>(std::move(window_factory), std::move(backend_window_factory));
-            script_inputbox_ = std::make_unique<ScriptInputbox>(this, std::move(manager), inputbox_r, color, image_cache_, font_cache_->get("default"));
+            script_inputbox_ = std::make_unique<ScriptInputbox>(*this, std::move(manager), inputbox_r, color, *image_cache_, font_cache_->getDefaultFont());
             int count = 0;
             auto *monitors = SDL_GetDisplays(&count);
             for (int i = 0; i < count; i++) {
@@ -527,13 +526,13 @@ namespace sorakado::ai::master {
         else if (util::isWayland()) {
             auto backend_window_factory = std::make_unique<DefaultBackendWindowFactory>(SDL_WINDOW_TRANSPARENT | SDL_WINDOW_BORDERLESS | SDL_WINDOW_MAXIMIZED | SDL_WINDOW_INPUT_FOCUS | SDL_WINDOW_MOUSE_FOCUS | SDL_WINDOW_RESIZABLE);
             auto manager = std::make_unique<SingleWindowManager>(std::move(window_factory), std::move(backend_window_factory));
-            script_inputbox_ = std::make_unique<ScriptInputbox>(this, std::move(manager), inputbox_r, color, image_cache_, font_cache_->get("default"));
+            script_inputbox_ = std::make_unique<ScriptInputbox>(*this, std::move(manager), inputbox_r, color, *image_cache_, font_cache_->getDefaultFont());
             script_inputbox_->create(0);
         }
         else {
             auto backend_window_factory = std::make_unique<DefaultBackendWindowFactory>(SDL_WINDOW_TRANSPARENT | SDL_WINDOW_BORDERLESS | SDL_WINDOW_INPUT_FOCUS | SDL_WINDOW_MOUSE_FOCUS);
             auto manager = std::make_unique<SingleWindowManager>(std::move(window_factory), std::move(backend_window_factory));
-            script_inputbox_ = std::make_unique<ScriptInputbox>(this, std::move(manager), inputbox_r, color, image_cache_, font_cache_->get("default"));
+            script_inputbox_ = std::make_unique<ScriptInputbox>(*this, std::move(manager), inputbox_r, color, *image_cache_, font_cache_->getDefaultFont());
             script_inputbox_->create(0);
         }
         script_inputbox_->show();

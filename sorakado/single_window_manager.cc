@@ -10,9 +10,9 @@ namespace sorakado {
     SingleWindowManager::~SingleWindowManager() {
     }
 
-    void SingleWindowManager::create(BaseCharacter *parent, display_t id, const std::string &name) {
+    void SingleWindowManager::create(BaseCharacter &parent, display_t id, const std::string &name) {
         if (!window_) {
-            window_ = factory_->create(parent, id, backend_factory_, name);
+            window_ = factory_->create(parent, id, *backend_factory_, name);
         }
     }
 
@@ -20,11 +20,11 @@ namespace sorakado {
         window_.reset();
     }
 
-    void SingleWindowManager::draw(std::unique_ptr<ImageCache> &image_cache, Position offset, const RenderInfo &render_info, region_t &region) {
+    void SingleWindowManager::draw(Position offset, const RenderInfo &render_info, region_t &region) {
         if (!window_) {
             return;
         }
-        window_->draw(image_cache, offset, render_info, region);
+        window_->draw(offset, render_info, region);
     }
 
     bool SingleWindowManager::swapBuffers() {

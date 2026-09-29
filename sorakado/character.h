@@ -10,7 +10,6 @@
 
 #include "sorakado/base_character.h"
 #include "sorakado/compatible.h"
-#include "sorakado/image_cache.h"
 #include "sorakado/misc.h"
 #include "sorakado/window.h"
 #include "sorakado/window_manager.h"
@@ -25,12 +24,12 @@ namespace sorakado {
         protected:
             std::unique_ptr<WindowManager> window_manager_;
         public:
-            Character(Sorakado *parent, std::unique_ptr<WindowManager> manager, int side, const std::string &name);
+            Character(Sorakado &parent, std::unique_ptr<WindowManager> manager, int side, const std::string &name);
             virtual ~Character();
             std::string getInfo(std::string key, bool fallback, bool freeze = true);
             virtual void create(display_t id);
             virtual void destroy(display_t id);
-            virtual void draw(std::unique_ptr<ImageCache> &cache) = 0;
+            virtual void draw() = 0;
             bool swapBuffers();
             const std::string &name() const {
                 return name_;

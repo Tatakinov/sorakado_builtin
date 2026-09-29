@@ -56,11 +56,11 @@ namespace sorakado::ao {
     class MenuItem {
         private:
             const MenuModelData data_;
-            const std::unique_ptr<WrapFont> &font_;
+            WrapFont *font_;
             SDL_Surface *surface_;
             bool highlight_;
         public:
-            MenuItem(const MenuModelData &data, const std::unique_ptr<WrapFont> &font);
+            MenuItem(const MenuModelData &data, WrapFont *font);
             ~MenuItem();
             std::optional<std::vector<MenuModelData>> getModel();
             template <typename T>
@@ -85,7 +85,7 @@ namespace sorakado::ao {
             int prev_index_;
             int index_;
         public:
-            SubMenu(const std::vector<MenuModelData> &data, const Rect &display_r, const std::unique_ptr<WrapFont> &font);
+            SubMenu(const std::vector<MenuModelData> &data, const Rect &display_r, ImageCache &cache, WrapFont *font);
             ~SubMenu();
             int getSelectedItemY();
             template <typename T>
@@ -101,9 +101,9 @@ namespace sorakado::ao {
             }
             bool highlight(int x, int y);
             void unhighlight();
-            Region getRegion(std::unique_ptr<ImageCache> &image_cache) const override;
-            std::unique_ptr<WrapSurface> getSurface(std::unique_ptr<ImageCache> &image_cache) const override;
-            std::unique_ptr<WrapTexture> getTexture(std::unique_ptr<ImageCache> &image_cache, renderer_t *renderer, std::unique_ptr<TextureCache> &texture_cache) const override;
+            Region getRegion() const override;
+            std::unique_ptr<WrapSurface> getSurface() const override;
+            std::unique_ptr<WrapTexture> getTexture(renderer_t *renderer, TextureCache &texture_cache) const override;
             bool equals(const RenderInfo &rhs) const override {
                 return false;
             }

@@ -10,11 +10,11 @@
 #include "lib_skeleton/sstp.h"
 
 namespace sorakado::ao::master {
-    std::unique_ptr<Window> AoMasterWindowFactory::create(sorakado::BaseCharacter *parent, display_t id, std::unique_ptr<BackendWindowFactory> &factory, const std::string &name) const {
+    std::unique_ptr<Window> AoMasterWindowFactory::create(sorakado::BaseCharacter &parent, display_t id, BackendWindowFactory &factory, const std::string &name) const {
         return std::make_unique<AoMasterWindow>(parent, id, factory, name);
     }
 
-    AoMasterWindow::AoMasterWindow(sorakado::BaseCharacter *parent, display_t id, std::unique_ptr<BackendWindowFactory> &factory, const std::string &name) : sorakado::Window(parent, id, factory, name) {
+    AoMasterWindow::AoMasterWindow(sorakado::BaseCharacter &parent, display_t id, BackendWindowFactory &factory, const std::string &name) : sorakado::Window(parent, id, factory, name) {
     }
 
     AoMasterWindow::~AoMasterWindow() {
@@ -24,7 +24,7 @@ namespace sorakado::ao::master {
         if (id != SDL_GetWindowID(window_)) {
             return false;
         }
-        parent_->press(key, down);
+        parent_.press(key, down);
         return true;
     }
 
@@ -54,7 +54,7 @@ namespace sorakado::ao::master {
         if (id != SDL_GetWindowID(window_)) {
             return false;
         }
-        parent_->dnd(file_list);
+        parent_.dnd(file_list);
         return true;
     }
 
@@ -62,7 +62,7 @@ namespace sorakado::ao::master {
         if (!Window::maximized(id)) {
             return false;
         }
-        static_cast<Character *>(parent_)->displayChanged();
+        static_cast<Character &>(parent_).displayChanged();
         return true;
     }
 }

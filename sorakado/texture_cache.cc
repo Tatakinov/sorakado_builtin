@@ -1,9 +1,9 @@
 #include "texture_cache.h"
 
 namespace sorakado {
-    std::optional<WrapTexture *> TextureCache::get(const texture_cache_t &key, renderer_t *renderer, std::unique_ptr<ImageCache> &image_cache) {
+    std::optional<WrapTexture *> TextureCache::get(const texture_cache_t &key, renderer_t *renderer, ImageCache &image_cache) {
         if (!map_.contains(key) || (map_.at(key) && !map_.at(key)->isUpconverted())) {
-            auto image = image_cache->get(key.path, key.index);
+            auto image = image_cache.get(key.path, key.index);
             if (image) {
                 auto surface = std::make_unique<WrapSurface>(image.value());
                 auto src = std::make_unique<WrapTexture>(renderer, surface->surface(), surface->isUpconverted());

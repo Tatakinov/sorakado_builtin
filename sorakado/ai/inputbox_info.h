@@ -12,12 +12,12 @@ namespace sorakado::ai {
             int w_, h_;
             Color color_;
             std::filesystem::path path_;
-            std::unique_ptr<WrapFont> &font_;
+            WrapFont *font_;
             int cursor_index_;
             std::vector<std::string> input_;
             std::string edit_;
         public:
-            InputboxInfo(const Rect &inputbox_r, const Color &color, const std::filesystem::path &path, std::unique_ptr<ImageCache> &image_cache, std::unique_ptr<WrapFont> &font);
+            InputboxInfo(const Rect &inputbox_r, const Color &color, const std::filesystem::path &path, ImageCache &image_cache, WrapFont *font);
 
             void input(const std::string &text);
             void edit(const std::string &text);
@@ -28,9 +28,9 @@ namespace sorakado::ai {
             void incrementCursorIndex();
             void decrementCursorIndex();
 
-            Region getRegion(std::unique_ptr<ImageCache> &image_cache) const override;
-            std::unique_ptr<WrapSurface> getSurface(std::unique_ptr<ImageCache> &cache) const override;
-            std::unique_ptr<WrapTexture> getTexture(std::unique_ptr<ImageCache> &image_cache, renderer_t *renderer, std::unique_ptr<TextureCache> &texture_cache) const override;
+            Region getRegion() const override;
+            std::unique_ptr<WrapSurface> getSurface() const override;
+            std::unique_ptr<WrapTexture> getTexture(renderer_t *renderer, TextureCache &texture_cache) const override;
             bool equals(const RenderInfo &r) const override {
                 const auto &rhs = static_cast<const InputboxInfo &>(r);
                 return input_ == rhs.input_ && edit_ == rhs.edit_;

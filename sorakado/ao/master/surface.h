@@ -25,11 +25,6 @@ namespace sorakado::ao::master {
         int x, y;
         std::filesystem::path filename;
         std::optional<int> index;
-        Rect getRect(std::unique_ptr<ImageCache> &image_cache, bool include_empty_image) const;
-        Region getRegion(std::unique_ptr<ImageCache> &image_cache) const;
-        std::unique_ptr<WrapSurface> getSurface(std::unique_ptr<ImageCache> &image_cache) const;
-        WrapTexture *getTexture(std::unique_ptr<ImageCache> &image_cache, renderer_t *renderer, std::unique_ptr<TextureCache> &texture_cache) const;
-        bool operator==(const Element &rhs) const;
     };
 
     struct Pattern {

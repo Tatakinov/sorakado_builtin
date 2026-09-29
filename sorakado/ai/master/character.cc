@@ -51,7 +51,7 @@ namespace sorakado::ai::master {
         };
     }
 
-    Character::Character(sorakado::Sorakado *parent, std::unique_ptr<WindowManager> window_manager, int side, const std::string &name, std::unique_ptr<ImageCache> &image_cache, std::unique_ptr<FontCache> &font_cache) : sorakado::Character(parent, std::move(window_manager), side, name), offset_(0, 0), info_(this, side, image_cache, font_cache), raise_on_talk_(false) {
+    Character::Character(sorakado::Sorakado &parent, std::unique_ptr<WindowManager> window_manager, int side, const std::string &name, ImageCache &image_cache, FontCache &font_cache) : sorakado::Character(parent, std::move(window_manager), side, name), offset_(0, 0), info_(*this, side, image_cache, font_cache), raise_on_talk_(false) {
     }
 
     void Character::resetPosition(bool initialize) {
@@ -70,7 +70,7 @@ namespace sorakado::ai::master {
         }
         std::vector<std::string> args = { key2s[key], util::to_s(key) };
         directsstp::Request req = {"NOTIFY", "OnKeyPress", args};
-        parent_->enqueueDirectSSTP({req});
+        parent_.enqueueDirectSSTP({req});
     }
 
     void Character::dnd(const std::vector<std::string> &file_list) {
@@ -81,7 +81,7 @@ namespace sorakado::ai::master {
             args.push_back(path);
         }
         directsstp::Request req = {"EXECUTE", "AnalyzeFileMagic", args};
-        parent_->enqueueDirectSSTP({req});
+        parent_.enqueueDirectSSTP({req});
     }
 
     void Character::hover(float x, float y) {
@@ -98,11 +98,11 @@ namespace sorakado::ai::master {
             if (link.content.event.empty()) {
                 if (link.content.is_anchor) {
                     directsstp::Request anchor = {"NOTIFY", "OnAnchorEnter", {}};
-                    parent_->enqueueDirectSSTP({anchor});
+                    parent_.enqueueDirectSSTP({anchor});
                 }
                 else {
                     directsstp::Request choice = {"NOTIFY", "OnChoiceEnter", {}};
-                    parent_->enqueueDirectSSTP({choice});
+                    parent_.enqueueDirectSSTP({choice});
                 }
             }
             else {
@@ -111,11 +111,11 @@ namespace sorakado::ai::master {
                 args.insert(args.begin(), link.content.text);
                 if (link.content.is_anchor) {
                     directsstp::Request anchor = {"NOTIFY", "OnAnchorEnter", args};
-                    parent_->enqueueDirectSSTP({anchor});
+                    parent_.enqueueDirectSSTP({anchor});
                 }
                 else {
                     directsstp::Request choice = {"NOTIFY", "OnChoiceEnter", args};
-                    parent_->enqueueDirectSSTP({choice});
+                    parent_.enqueueDirectSSTP({choice});
                 }
             }
         }
@@ -125,7 +125,7 @@ namespace sorakado::ai::master {
         info_.scroll(y);
     }
 
-    void Character::draw(std::unique_ptr<ImageCache> &image_cache) {
+    void Character::draw() {
         if (!window_manager_->shown()) {
             return;
         }
@@ -134,16 +134,16 @@ namespace sorakado::ai::master {
         }
         update();
         if (info_.changed()) {
-            region_ = info_.getSurface(image_cache);
+            region_ = info_.getSurface();
             if (region_) {
                 setSize(region_->width(), region_->height());
             }
         }
         if (util::isWayland()) {
-            window_manager_->draw(image_cache, getRect(), info_, region_);
+            window_manager_->draw(getRect(), info_, region_);
         }
         else {
-            window_manager_->draw(image_cache, {0, 0}, info_, region_);
+            window_manager_->draw({0, 0}, info_, region_);
         }
         info_.update();
     }
@@ -225,7 +225,7 @@ namespace sorakado::ai::master {
             if (!link.content.event.empty()) {
                 if (link.content.event.starts_with("On")) {
                     directsstp::Request req = {"NOTIFY", link.content.event, link.content.args, {}, true};
-                    parent_->enqueueDirectSSTP({req});
+                    parent_.enqueueDirectSSTP({req});
                 }
                 else if (link.content.event.starts_with("script:")) {
                     // TODO stub
@@ -238,13 +238,13 @@ namespace sorakado::ai::master {
                         Logger::log("anchor.", link.content.event);
                         directsstp::Request anchor_ex = {"NOTIFY", "OnAnchorSelectEx", args};
                         directsstp::Request anchor = {"NOTIFY", "OnAnchorSelect", {link.content.event}, {}, true};
-                        parent_->enqueueDirectSSTP({anchor_ex, anchor});
+                        parent_.enqueueDirectSSTP({anchor_ex, anchor});
                     }
                     else {
                         Logger::log("choice.", link.content.event);
                         directsstp::Request choice_ex = {"NOTIFY", "OnChoiceSelectEx", args};
                         directsstp::Request choice = {"NOTIFY", "OnChoiceSelect", {link.content.event}, {}, true};
-                        parent_->enqueueDirectSSTP({choice_ex, choice});
+                        parent_.enqueueDirectSSTP({choice_ex, choice});
                     }
                 }
             }
@@ -252,7 +252,7 @@ namespace sorakado::ai::master {
                 // FIXME button enum / click count
                 std::vector<std::string> args = {util::to_s(button), "1", util::to_s(side())};
                 directsstp::Request req = {"EXECUTE", "NotifyBalloonClick", args};
-                parent_->enqueueDirectSSTP({req});
+                parent_.enqueueDirectSSTP({req});
             }
         }
     }

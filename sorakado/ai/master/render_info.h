@@ -149,12 +149,11 @@ namespace sorakado::ai::master {
             int wrap_width_;
             Link link_;
 
-            std::unique_ptr<ImageCache> &image_cache_;
-            std::unique_ptr<FontCache> &font_cache_;
+            FontCache &font_cache_;
 
             void calculatePosition();
         public:
-            RenderInfo(Character *parent, int side, std::unique_ptr<ImageCache> &image_cache, std::unique_ptr<FontCache> &font_cache);
+            RenderInfo(Character &parent, int side, ImageCache &image_cache, FontCache &font_cache);
             ~RenderInfo();
             bool equals(const sorakado::RenderInfo &r) const {
                 const auto &rhs = static_cast<const sorakado::ai::master::RenderInfo &>(r);
@@ -190,9 +189,9 @@ namespace sorakado::ai::master {
             void appendLinkEnd();
             void setCursorPosition(std::string axis, double value, bool is_absolute, MoveUnit unit);
 
-            Region getRegion(std::unique_ptr<ImageCache> &image_cache) const override;
-            std::unique_ptr<WrapSurface> getSurface(std::unique_ptr<ImageCache> &image_cache) const override;
-            std::unique_ptr<WrapTexture> getTexture(std::unique_ptr<ImageCache> &image_cache, renderer_t *renderer, std::unique_ptr<TextureCache> &texture_cache) const override;
+            Region getRegion() const override;
+            std::unique_ptr<WrapSurface> getSurface() const override;
+            std::unique_ptr<WrapTexture> getTexture(renderer_t *renderer, TextureCache &texture_cache) const override;
             void reconfigure();
     };
 }

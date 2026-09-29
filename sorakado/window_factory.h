@@ -13,7 +13,7 @@ namespace sorakado {
         public:
             WindowFactory() {}
             virtual ~WindowFactory() {}
-            virtual std::unique_ptr<Window> create(BaseCharacter *parent, display_t id, std::unique_ptr<BackendWindowFactory> &factory, const std::string &name) const = 0;
+            virtual std::unique_ptr<Window> create(BaseCharacter &parent, display_t id, BackendWindowFactory &factory, const std::string &name) const = 0;
     };
 }
 

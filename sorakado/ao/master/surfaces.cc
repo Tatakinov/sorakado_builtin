@@ -609,8 +609,8 @@ namespace sorakado::ao::master {
         }
     }
 
-    std::unique_ptr<Seriko> Surfaces::getSeriko(int side) {
-        return std::make_unique<Seriko>(surfaces_, alias_[side]);
+    std::unique_ptr<Seriko> Surfaces::getSeriko(ImageCache &image_cache, int side) {
+        return std::make_unique<Seriko>(image_cache, surfaces_, alias_[side]);
     }
 
     void Surfaces::dump() const {

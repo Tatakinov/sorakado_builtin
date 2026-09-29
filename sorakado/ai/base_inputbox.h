@@ -21,14 +21,14 @@ namespace sorakado::ai {
         protected:
             bool alive_;
         public:
-            BaseInputbox(sorakado::Sorakado *parent, std::unique_ptr<WindowManager> manager, const Rect &inputbox_r, const Color &color, const std::filesystem::path path, std::unique_ptr<ImageCache> &image_cache, std::unique_ptr<WrapFont> &font) : Character(parent, std::move(manager), -1, "unused"), info_(inputbox_r, color, path, image_cache, font), alive_(true) {}
+            BaseInputbox(sorakado::Sorakado &parent, std::unique_ptr<WindowManager> manager, const Rect &inputbox_r, const Color &color, const std::filesystem::path path, ImageCache &image_cache, WrapFont *font) : Character(parent, std::move(manager), -1, "unused"), info_(inputbox_r, color, path, image_cache, font), alive_(true) {}
             virtual ~BaseInputbox() {}
 
             bool alive() const {
                 return alive_;
             }
 
-            void draw(std::unique_ptr<ImageCache> &cache) override;
+            void draw() override;
 
             void resetPosition(bool initialize) override;
 

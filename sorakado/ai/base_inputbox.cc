@@ -7,7 +7,7 @@
 #define MOUSE_BUTTON_RIGHT 3
 
 namespace sorakado::ai {
-    void BaseInputbox::draw(std::unique_ptr<ImageCache> &image_cache) {
+    void BaseInputbox::draw() {
         if (!window_manager_->shown()) {
             return;
         }
@@ -17,14 +17,14 @@ namespace sorakado::ai {
         }
         update();
         if (info_.changed()) {
-            region_ = info_.getSurface(image_cache);
+            region_ = info_.getSurface();
         }
         info_.update();
         if (util::isWayland()) {
-            window_manager_->draw(image_cache, getRect(), info_, region_);
+            window_manager_->draw(getRect(), info_, region_);
         }
         else {
-            window_manager_->draw(image_cache, {0, 0}, info_, region_);
+            window_manager_->draw({0, 0}, info_, region_);
         }
     }
 

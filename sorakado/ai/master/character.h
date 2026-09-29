@@ -31,7 +31,7 @@ namespace sorakado::ai::master {
             std::optional<Color> default_color_, disable_color_;
         protected:
         public:
-            Character(sorakado::Sorakado *parent, std::unique_ptr<WindowManager> window_manager, int side, const std::string &name, std::unique_ptr<ImageCache> &image_cache, std::unique_ptr<FontCache> &font_cache);
+            Character(sorakado::Sorakado &parent, std::unique_ptr<WindowManager> window_manager, int side, const std::string &name, ImageCache &image_cache, FontCache &font_cache);
 
             std::string getInfo(int id, std::string key, std::string fallback);
             void resetPosition(bool initialize) override;
@@ -42,7 +42,7 @@ namespace sorakado::ai::master {
             void click(Window *window, float x, float y, button_t button, bool down, click_t clicks) override;
             void scroll(float x, float y, float mouse_x, float mouse_y) override;
 
-            void draw(std::unique_ptr<ImageCache> &cache) override;
+            void draw() override;
 
             void setBalloonID(int id);
             void setBalloonPosition(int x, int y);

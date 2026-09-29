@@ -7,6 +7,7 @@
 #include <vector>
 
 #include "sorakado/ao/master/actor.h"
+#include "sorakado/ao/master/element.h"
 #include "sorakado/ao/master/surface.h"
 
 namespace sorakado {
@@ -15,7 +16,6 @@ namespace sorakado {
 
 namespace sorakado::ao::master {
     class Actor;
-    class ElementWithChildren;
 
     struct ActorWithPriority {
         int id;
@@ -35,6 +35,7 @@ namespace sorakado::ao::master {
 
     class Seriko {
         private:
+            ImageCache &image_cache_;
             int scale_;
             int current_id_;
             std::unordered_map<int, Surface> surfaces_;
@@ -48,7 +49,7 @@ namespace sorakado::ao::master {
 
             void updateBind();
         public:
-            Seriko(const std::unordered_map<int, Surface> &surfaces, const std::unordered_map<std::string, std::vector<int>> &alias) : scale_(100), current_id_(-1), surfaces_(surfaces), alias_(alias) {}
+            Seriko(ImageCache &image_cache, const std::unordered_map<int, Surface> &surfaces, const std::unordered_map<std::string, std::vector<int>> &alias) : image_cache_(image_cache), scale_(100), current_id_(-1), surfaces_(surfaces), alias_(alias) {}
             ~Seriko() {}
             void setParent(Character *parent) {
                 parent_ = parent;
@@ -67,8 +68,8 @@ namespace sorakado::ao::master {
             bool setSurfaceID(int id);
             bool getBindDefault(int id);
             std::unordered_set<int> getBindAddIDs(int id);
-            ElementWithChildren get();
-            std::vector<std::variant<Element, ElementWithChildren>> getElements(int id, std::unordered_set<int> &done);
+            std::unique_ptr<ElementWithChildren> get();
+            std::vector<std::variant<ElementWithNoChildren, ElementWithChildren>> getElements(int id, std::unordered_set<int> &done);
             std::vector<CollisionInfo> getCollision();
             void bind(int id, bool enable);
             bool isBinding(int id);

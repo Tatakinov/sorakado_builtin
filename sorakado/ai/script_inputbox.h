@@ -9,7 +9,7 @@ namespace sorakado::ai {
             void activate(const std::string &text) override;
             void cancel(const std::string &reason) override;
         public:
-            ScriptInputbox(sorakado::Sorakado *parent, std::unique_ptr<WindowManager> manager, const Rect &inputbox_r, const Color &color, std::unique_ptr<ImageCache> &image_cache, std::unique_ptr<WrapFont> &font) : BaseInputbox(parent, std::move(manager), inputbox_r, color, "balloonc1.png", image_cache, font) {}
+            ScriptInputbox(sorakado::Sorakado &parent, std::unique_ptr<WindowManager> manager, const Rect &inputbox_r, const Color &color, ImageCache &image_cache, WrapFont *font) : BaseInputbox(parent, std::move(manager), inputbox_r, color, "balloonc1.png", image_cache, font) {}
             ~ScriptInputbox() {}
     };
 }

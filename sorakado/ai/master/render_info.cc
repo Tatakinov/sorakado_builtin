@@ -13,7 +13,7 @@ namespace sorakado::ai::master {
         constexpr int kLineSpace = 1;
     }
 
-    RenderInfo::RenderInfo(Character *parent, int side, std::unique_ptr<ImageCache> &image_cache, std::unique_ptr<FontCache> &font_cache) : sorakado::RenderInfo(), parent_(parent), side_(side), balloon_id_(-1), direction_(false), scroll_(0), shown_(false), scale_(100), origin_x_(0), origin_y_(0), image_cache_(image_cache), font_cache_(font_cache) {
+    RenderInfo::RenderInfo(Character &parent, int side, ImageCache &image_cache, FontCache &font_cache) : sorakado::RenderInfo(image_cache), parent_(&parent), side_(side), balloon_id_(-1), direction_(false), scroll_(0), shown_(false), scale_(100), origin_x_(0), origin_y_(0), font_cache_(font_cache) {
         clear(true);
     }
 
@@ -203,12 +203,12 @@ namespace sorakado::ai::master {
         }
     }
 
-    Region RenderInfo::getRegion(std::unique_ptr<ImageCache> &image_cache) const {
+    Region RenderInfo::getRegion() const {
         if (balloon_id_ == -1 || !shown_) {
             return {};
         }
         auto filename = util::balloonSide2str(side_, balloon_id_, direction_);
-        auto &info = image_cache_->get(filename);
+        auto &info = image_cache_.get(filename);
         if (!info) {
             Logger::log("not found: ", filename);
             return {};
@@ -216,13 +216,13 @@ namespace sorakado::ai::master {
         return info->region();
     }
 
-    std::unique_ptr<WrapSurface> RenderInfo::getSurface(std::unique_ptr<ImageCache> &unused) const {
+    std::unique_ptr<WrapSurface> RenderInfo::getSurface() const {
         if (balloon_id_ == -1 || !shown_) {
             std::unique_ptr<WrapSurface> invalid;
             return invalid;
         }
         auto filename = util::balloonSide2str(side_, balloon_id_, direction_);
-        auto &info = image_cache_->get(filename);
+        auto &info = image_cache_.get(filename);
         if (!info) {
             Logger::log("not found: ", filename);
             std::unique_ptr<WrapSurface> invalid;
@@ -238,7 +238,7 @@ namespace sorakado::ai::master {
             if (data.content.data.length() == 0) {
                 continue;
             }
-            auto &font = (font_cache_->get(data.content.attr.font)->font() != nullptr) ? font_cache_->get(data.content.attr.font) : font_cache_->get("default");
+            auto *font = (font_cache_.get(data.content.attr.font)->font() != nullptr) ? font_cache_.get(data.content.attr.font) : font_cache_.get("default");
             FontResizer resizer(font->font(), scale_);
             auto &color = data.content.attr.color;
             sorakado::Color c = {0, 0, 0, 0};
@@ -263,8 +263,8 @@ namespace sorakado::ai::master {
         return dst;
     }
 
-    std::unique_ptr<WrapTexture> RenderInfo::getTexture(std::unique_ptr<ImageCache> &image_cache, renderer_t *renderer, std::unique_ptr<TextureCache> &texture_cache) const {
-        auto s = getSurface(image_cache);
+    std::unique_ptr<WrapTexture> RenderInfo::getTexture(renderer_t *renderer, TextureCache &texture_cache) const {
+        auto s = getSurface();
         if (!s) {
             std::unique_ptr<WrapTexture> invalid;
             return invalid;
@@ -300,7 +300,7 @@ namespace sorakado::ai::master {
     void RenderInfo::setID(int id) {
         int tmp_id = (id / 2) * 2;
         auto filename = util::balloonSide2str(side_, tmp_id, direction_);
-        auto &info = image_cache_->get(filename);
+        auto &info = image_cache_.get(filename);
         if (!info) {
             Logger::log("balloon.set:", filename, "not found");
             return;
@@ -364,7 +364,7 @@ namespace sorakado::ai::master {
 
     void RenderInfo::scroll(int diff) {
         auto filename = util::balloonSide2str(side_, balloon_id_, direction_);
-        auto &info = image_cache_->get(filename);
+        auto &info = image_cache_.get(filename);
         if (!info) {
             return;
         }
@@ -372,7 +372,7 @@ namespace sorakado::ai::master {
         for (auto &data : post_.data) {
             h_max = std::max(h_max, data.position.y + data.position.h);
         }
-        auto &font = font_cache_->get("default");
+        auto *font = font_cache_.get("default");
         scroll_ -= diff * (TTF_GetFontHeight(font->font()) + kLineSpace);
         scroll_ = std::min(scroll_, h_max - info->height());
         scroll_ = std::max(scroll_, 0);
@@ -447,7 +447,7 @@ namespace sorakado::ai::master {
         }
         change();
         auto &last = post_.data.back();
-        auto &font = font_cache_->get(last.content.attr.font) ? font_cache_->get(last.content.attr.font) : font_cache_->get("default");
+        auto *font = font_cache_.get(last.content.attr.font) ? font_cache_.get(last.content.attr.font) : font_cache_.get("default");
         std::string tmp;
         int width;
         switch (last.content.type) {
@@ -484,10 +484,9 @@ namespace sorakado::ai::master {
         }
         // scroll
         auto filename = util::balloonSide2str(side_, balloon_id_, direction_);
-        auto &info = image_cache_->get(filename);
+        auto &info = image_cache_.get(filename);
         if (!info) {
             Logger::log("not found: ", filename);
-            std::unique_ptr<WrapSurface> invalid;
             return;
         }
         int h_max = 0;
@@ -516,7 +515,7 @@ namespace sorakado::ai::master {
 
     void RenderInfo::setCursorPosition(std::string axis, double value, bool is_absolute, MoveUnit unit) {
         auto &last = post_.data.back();
-        auto &font = font_cache_->get(last.content.attr.font) ? font_cache_->get(last.content.attr.font) : font_cache_->get("default");
+        auto *font = font_cache_.get(last.content.attr.font) ? font_cache_.get(last.content.attr.font) : font_cache_.get("default");
         int width;
         TTF_MeasureString(font->font(), "0", 1, 0, &width, nullptr);
         switch (unit) {

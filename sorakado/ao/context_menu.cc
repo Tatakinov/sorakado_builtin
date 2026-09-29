@@ -12,7 +12,7 @@ namespace sorakado::ao {
         constexpr int delay = 5;
     }
 
-    ContextMenu::ContextMenu(sorakado::Sorakado *parent, const Rect &display_r, window_t parent_window, std::unique_ptr<ImageCache> &cache, std::unique_ptr<WrapFont> &font) : sorakado::BaseCharacter(parent, -1), alive_(true), focus_gained_(false), index_in_progress_(-1), display_r_(display_r), parent_window_(parent_window), cache_(cache), font_(font), is_idle_(true), delay_(invalid) {
+    ContextMenu::ContextMenu(sorakado::Sorakado &parent, const Rect &display_r, window_t parent_window, ImageCache &cache, WrapFont *font) : sorakado::BaseCharacter(parent, -1), alive_(true), focus_gained_(false), index_in_progress_(-1), display_r_(display_r), parent_window_(parent_window), cache_(cache), font_(font), is_idle_(true), delay_(invalid) {
     }
 
     ContextMenu::~ContextMenu() {
@@ -25,7 +25,7 @@ namespace sorakado::ao {
 
     void ContextMenu::createSubMenu(const std::vector<MenuModelData> &data, const Position &pos, const Rect &parent_r) {
         int x = pos.x, y = pos.y;
-        auto menu = std::make_unique<SubMenu>(data, display_r_, font_);
+        auto menu = std::make_unique<SubMenu>(data, display_r_, cache_, font_);
         auto r = menu->rect();
         if (r.w == 0 || r.h == 0) {
             return;
@@ -38,7 +38,7 @@ namespace sorakado::ao {
         }
         std::unique_ptr<BackendWindowFactory> factory = std::make_unique<PopupBackendWindowFactory>(parent_window_, x, y, SDL_WINDOW_TRANSPARENT | SDL_WINDOW_POPUP_MENU | SDL_WINDOW_INPUT_FOCUS | SDL_WINDOW_MOUSE_FOCUS);
         std::string name = "unused";
-        windows_.emplace_back(std::make_unique<AoMenuWindow>(this, 0, factory, name, x, y, r.w, r.h, std::move(menu)));
+        windows_.emplace_back(std::make_unique<AoMenuWindow>(*this, 0, *factory, name, x, y, r.w, r.h, std::move(menu)));
         windows_.back()->show();
         change();
     }
@@ -57,13 +57,13 @@ namespace sorakado::ao {
         is_idle_ = true;
     }
 
-    void ContextMenu::draw(std::unique_ptr<ImageCache> &cache) {
+    void ContextMenu::draw() {
         if (!changed()) {
             return;
         }
         update();
         for (auto &v : windows_) {
-            v->draw(cache);
+            v->draw();
         }
     }
 

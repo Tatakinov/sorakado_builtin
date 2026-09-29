@@ -19,13 +19,13 @@ namespace sorakado::ao::master {
         public:
             AoMasterWindowFactory() {}
             ~AoMasterWindowFactory() {}
-            std::unique_ptr<Window> create(sorakado::BaseCharacter *parent, display_t id, std::unique_ptr<BackendWindowFactory> &factory, const std::string &name) const override;
+            std::unique_ptr<Window> create(sorakado::BaseCharacter &parent, display_t id, BackendWindowFactory &factory, const std::string &name) const override;
     };
 
     class AoMasterWindow : public Window {
         private:
         public:
-            AoMasterWindow(sorakado::BaseCharacter *parent, display_t id, std::unique_ptr<BackendWindowFactory> &factory, const std::string &name);
+            AoMasterWindow(sorakado::BaseCharacter &parent, display_t id, BackendWindowFactory &factory, const std::string &name);
             ~AoMasterWindow();
 
             bool key(sorakado::window_id_t id, sorakado::key_t key, bool down) override;

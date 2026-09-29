@@ -17,10 +17,10 @@ namespace sorakado::ao {
             int x_, y_;
             std::unique_ptr<SubMenu> menu_;
         public:
-            AoMenuWindow(sorakado::BaseCharacter *parent, display_t id, std::unique_ptr<BackendWindowFactory> &factory, const std::string &name, int x, int y, int width, int height, std::unique_ptr<SubMenu> menu);
+            AoMenuWindow(sorakado::BaseCharacter &parent, display_t id, BackendWindowFactory &factory, const std::string &name, int x, int y, int width, int height, std::unique_ptr<SubMenu> menu);
             ~AoMenuWindow() {}
 
-            void draw(std::unique_ptr<ImageCache> &cache);
+            void draw();
             bool key(sorakado::window_id_t id, sorakado::key_t key, bool down) override;
             bool input(sorakado::window_id_t id, const std::string &text) override;
             bool edit(sorakado::window_id_t id, const std::string &text) override;

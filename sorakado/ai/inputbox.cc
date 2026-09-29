@@ -8,12 +8,12 @@ namespace sorakado::ai {
         if (id_.starts_with("On")) {
             std::vector<std::string> args = { text, "" };
             directsstp::Request req = {"NOTIFY", id_, args};
-            parent_->enqueueDirectSSTP({req});
+            parent_.enqueueDirectSSTP({req});
         }
         else {
             std::vector<std::string> args = { id_, text, "" };
             directsstp::Request req = {"NOTIFY", "OnUserInput", args};
-            parent_->enqueueDirectSSTP({req});
+            parent_.enqueueDirectSSTP({req});
         }
         alive_ = false;
     }
@@ -24,11 +24,11 @@ namespace sorakado::ai {
         if (reason == "timeout") {
             directsstp::Request req = {"NOTIFY", "OnUserInputCancel", args};
             directsstp::Request fallback = {"NOTIFY", "OnUserInput", args};
-            parent_->enqueueDirectSSTP({req, fallback});
+            parent_.enqueueDirectSSTP({req, fallback});
         }
         else {
             directsstp::Request req = {"NOTIFY", "OnUserInputCancel", args};
-            parent_->enqueueDirectSSTP({req});
+            parent_.enqueueDirectSSTP({req});
         }
     }
 }

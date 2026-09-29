@@ -31,13 +31,13 @@ namespace sorakado {
     }
 
     lib_skeleton::sstp::Response BaseCharacter::sendDirectSSTP(const directsstp::Request req) {
-        return parent_->sendDirectSSTP(req);
+        return parent_.sendDirectSSTP(req);
     }
 
     void BaseCharacter::enqueueDirectSSTP(std::vector<directsstp::Request> list) {
         for (auto &v : list) {
             v.side = side();
         }
-        parent_->enqueueDirectSSTP(list);
+        parent_.enqueueDirectSSTP(list);
     }
 }

@@ -52,7 +52,7 @@ namespace sorakado::ao::master {
         };
     }
 
-    Character::Character(sorakado::Sorakado *parent, std::unique_ptr<WindowManager> window_manager, int side, const std::string &name, std::unique_ptr<Seriko> seriko) : sorakado::Character(parent, std::move(window_manager), side, name), seriko_(std::move(seriko)) {
+    Character::Character(sorakado::Sorakado &parent, std::unique_ptr<WindowManager> window_manager, int side, const std::string &name, std::unique_ptr<Seriko> seriko) : sorakado::Character(parent, std::move(window_manager), side, name), seriko_(std::move(seriko)) {
         seriko_->setParent(this);
     }
 
@@ -129,7 +129,7 @@ namespace sorakado::ao::master {
         if (initialize || origin_x < m.x || origin_x + r.w > m.x + m.w) {
             origin_x = m.x + m.w;
             if (side() > 0) {
-                auto o = static_cast<Ao *>(parent_)->getCharacterPosition(side() - 1);
+                auto o = static_cast<Ao &>(parent_).getCharacterPosition(side() - 1);
                 if (o) {
                     if (o->x < origin_x) {
                         origin_x = o->x;
@@ -183,19 +183,19 @@ namespace sorakado::ao::master {
         std::string key_side = util::side2str(side()) + ".seriko.alignmenttodesktop";
         std::string key_all = "seriko.alignmenttodesktop";
         // 優先度が低い順に調べる
-        std::string value = parent_->getInfo(key_all, true);
+        std::string value = parent_.getInfo(key_all, true);
         if (!value.empty()) {
             align = f(value);
         }
-        value = parent_->getInfo(key_side, true);
+        value = parent_.getInfo(key_side, true);
         if (!value.empty()) {
             align = f(value);
         }
-        value = parent_->getInfo(key_all, false);
+        value = parent_.getInfo(key_all, false);
         if (!value.empty()) {
             align = f(value);
         }
-        value = parent_->getInfo(key_side, false);
+        value = parent_.getInfo(key_side, false);
         if (!value.empty()) {
             align = f(value);
         }
@@ -235,7 +235,7 @@ namespace sorakado::ao::master {
         }
         std::vector<std::string> args = { key2s[key], util::to_s(key) };
         directsstp::Request req = {"NOTIFY", "OnKeyPress", args};
-        parent_->enqueueDirectSSTP({req});
+        parent_.enqueueDirectSSTP({req});
     }
 
     void Character::dnd(const std::vector<std::string> &file_list) {
@@ -246,7 +246,7 @@ namespace sorakado::ao::master {
             args.push_back(path);
         }
         directsstp::Request req = {"EXECUTE", "AnalyzeFileMagic", args};
-        parent_->enqueueDirectSSTP({req});
+        parent_.enqueueDirectSSTP({req});
     }
 
     void Character::hover(float x, float y) {
@@ -293,14 +293,14 @@ namespace sorakado::ao::master {
                 v.drag = true;
             }
         }
-        parent_->hover(side(), x, y);
+        parent_.hover(side(), x, y);
     }
 
     void Character::click(Window *window, float x, float y, button_t button, bool down, click_t clicks) {
         Logger::log("character.click");
         if (down) {
             directsstp::Request req = {"EXECUTE", "RaiseBalloon", {util::to_s(side())}};
-            parent_->enqueueDirectSSTP({req});
+            parent_.enqueueDirectSSTP({req});
         }
         mouse_state_[button].press = down;
         if (button == MOUSE_BUTTON_LEFT && !mouse_state_[button].press) {
@@ -340,12 +340,12 @@ namespace sorakado::ao::master {
 
             if (clicks % 2 == 0) {
                 directsstp::Request req = {"NOTIFY", "OnMouseDoubleClick", args};
-                parent_->enqueueDirectSSTP({req});
+                parent_.enqueueDirectSSTP({req});
             }
             else if (button != MOUSE_BUTTON_RIGHT) {
                 directsstp::Request up = {"NOTIFY", "OnMouseUp", args};
                 directsstp::Request click = {"NOTIFY", "OnMouseClick", args};
-                parent_->enqueueDirectSSTP({up, click});
+                parent_.enqueueDirectSSTP({up, click});
             }
             else {
                 directsstp::Request up = {"NOTIFY", "OnMouseUp", args};
@@ -354,13 +354,13 @@ namespace sorakado::ao::master {
                 // 右クリックメニューを呼び出す
                 args = {util::to_s(side()), util::to_s(surface_x), util::to_s(surface_y)};
                 directsstp::Request menu = {"EXECUTE", "OpenMenu", args};
-                parent_->enqueueDirectSSTP({up, click, menu});
+                parent_.enqueueDirectSSTP({up, click, menu});
 #else
-                parent_->enqueueDirectSSTP({up, click});
+                parent_.enqueueDirectSSTP({up, click});
 #endif
                 Rect r = {x, y, 0, 0};
                 Logger::log("reserve", x, y);
-                static_cast<Ao *>(parent_)->reserveMenu(window->getBackendWindow(), side(), r, window->getMonitorRect(r));
+                static_cast<Ao &>(parent_).reserveMenu(window->getBackendWindow(), side(), r, window->getMonitorRect(r));
             }
         }
         else if (down) {
@@ -388,37 +388,39 @@ namespace sorakado::ao::master {
             std::vector<std::string> args;
             args = {util::to_s(x), util::to_s(y), util::to_s(0), util::to_s(side()), name, util::to_s(b)};
             directsstp::Request req = {"NOTIFY", "OnMouseDown", args};
-            parent_->enqueueDirectSSTP({req});
+            parent_.enqueueDirectSSTP({req});
         }
     }
 
     void Character::scroll(float x, float y, float mouse_x, float mouse_y) {
     }
 
-    void Character::draw(std::unique_ptr<ImageCache> &image_cache) {
+    void Character::draw() {
         if (!window_manager_->shown()) {
             return;
         }
         auto info = seriko_->get();
-        if (prev_info_ && prev_info_.value() == info && !changed()) {
+        if (prev_info_ && *prev_info_ == *info && !changed()) {
             return;
         }
         update();
-        if (!prev_info_ || prev_info_.value() != info) {
-            prev_info_ = info;
-            info.change();
-            current_surface_ = info.getSurface(image_cache);
+        if (!prev_info_ || *prev_info_ != *info) {
+            info->change();
+            current_surface_ = info->getSurface();
             if (current_surface_) {
                 setSize(current_surface_->width(), current_surface_->height());
-                auto o = info.getRect(image_cache);
+                auto o = info->getRect();
                 setOffset(o.x, o.y);
             }
         }
         if (util::isWayland()) {
-            window_manager_->draw(image_cache, getRect(), info, current_surface_);
+            window_manager_->draw(getRect(), *info, current_surface_);
         }
         else {
-            window_manager_->draw(image_cache, {0, 0}, info, current_surface_);
+            window_manager_->draw({0, 0}, *info, current_surface_);
+        }
+        if (!prev_info_ || *prev_info_ != *info) {
+            prev_info_ = std::move(info);
         }
     }
 
@@ -428,7 +430,7 @@ namespace sorakado::ao::master {
 
     void Character::setSurfaceID(const std::string &id) {
         if (seriko_->setSurfaceID(id)) {
-            static_cast<Ao *>(parent_)->surfaceChanged(side(), getSurfaceID());
+            static_cast<Ao &>(parent_).surfaceChanged(side(), getSurfaceID());
         }
     }
 

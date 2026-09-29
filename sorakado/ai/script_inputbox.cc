@@ -5,7 +5,7 @@
 namespace sorakado::ai {
     void ScriptInputbox::activate(const std::string &text) {
         directsstp::Request req = {"SEND", "", {}, text};
-        parent_->enqueueDirectSSTP({req});
+        parent_.enqueueDirectSSTP({req});
     }
 
     void ScriptInputbox::cancel(const std::string &reason) {

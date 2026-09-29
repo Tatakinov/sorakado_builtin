@@ -14,11 +14,11 @@ namespace sorakado {
     class Window;
     class BaseCharacter : public Watcher {
         protected:
-            Sorakado *parent_;
+            Sorakado &parent_;
             int side_;
             Position offset_;
         public:
-            BaseCharacter(Sorakado *parent, int side) : Watcher(), parent_(parent), side_(side), offset_({0, 0}) {}
+            BaseCharacter(Sorakado &parent, int side) : Watcher(), parent_(parent), side_(side), offset_({0, 0}) {}
             virtual ~BaseCharacter() {}
             int side() const {
                 return side_;

@@ -60,7 +60,7 @@ namespace sorakado::ao {
         return data;
     }
 
-    MenuItem::MenuItem(const MenuModelData &data, const std::unique_ptr<WrapFont> &font) : data_(data), font_(font), highlight_(false) {
+    MenuItem::MenuItem(const MenuModelData &data, WrapFont *font) : data_(data), font_(font), highlight_(false) {
         SDL_Color color = {0x00, 0x00, 0x00, 0xff};
         std::visit([&](const auto &d) {
             surface_ = TTF_RenderText_Blended(font_->font(), d.caption.data(), d.caption.length(), color);
@@ -103,7 +103,7 @@ namespace sorakado::ao {
         highlight_ = false;
     }
 
-    SubMenu::SubMenu(const std::vector<MenuModelData> &data, const Rect &display_r, const std::unique_ptr<WrapFont> &font) : RenderInfo(), r_({0, 0, 0, 0}), scroll_(0), prev_index_(invalid), index_(invalid) {
+    SubMenu::SubMenu(const std::vector<MenuModelData> &data, const Rect &display_r, ImageCache &cache, WrapFont *font) : RenderInfo(cache), r_({0, 0, 0, 0}), scroll_(0), prev_index_(invalid), index_(invalid) {
         for (auto &v : data) {
             item_list_.push_back(std::make_unique<MenuItem>(v, font));
             auto &last = item_list_.back();
@@ -169,7 +169,7 @@ namespace sorakado::ao {
         }
     }
 
-    Region SubMenu::getRegion(std::unique_ptr<ImageCache> &image_cache) const {
+    Region SubMenu::getRegion() const {
         Region r;
         for (int y = 0; y < r_.h; y++) {
             r.push_back({0, y, r_.w});
@@ -177,7 +177,7 @@ namespace sorakado::ao {
         return r;
     }
 
-    std::unique_ptr<WrapSurface> SubMenu::getSurface(std::unique_ptr<ImageCache> &cache) const {
+    std::unique_ptr<WrapSurface> SubMenu::getSurface() const {
         auto s = std::make_unique<WrapSurface>(r_.w, r_.h);
         SDL_ClearSurface(s->surface(), 1, 1, 1, 1); // とりあえず白背景
         int height = 0;
@@ -189,8 +189,8 @@ namespace sorakado::ao {
         return s;
     }
 
-    std::unique_ptr<WrapTexture> SubMenu::getTexture(std::unique_ptr<ImageCache> &image_cache, renderer_t *renderer, std::unique_ptr<TextureCache> &texture_cache) const {
-        auto s = getSurface(image_cache);
+    std::unique_ptr<WrapTexture> SubMenu::getTexture(renderer_t *renderer, TextureCache &texture_cache) const {
+        auto s = getSurface();
         if (!s) {
             std::unique_ptr<WrapTexture> invalid;
             return invalid;

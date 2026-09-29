@@ -45,13 +45,13 @@ namespace sorakado {
 #endif // Linux/Unix
 
         protected:
-            sorakado::BaseCharacter *parent_;
+            sorakado::BaseCharacter &parent_;
             SDL_Window *window_;
             SDL_Renderer *renderer_;
             Rect monitor_rect_;
 
         public:
-            Window(sorakado::BaseCharacter *parent, display_t id, std::unique_ptr<BackendWindowFactory> &factory, const std::string &name, int width = 0, int height = 0);
+            Window(sorakado::BaseCharacter &parent, display_t id, BackendWindowFactory &factory, const std::string &name, int width = 0, int height = 0);
 
             virtual ~Window();
 
@@ -93,7 +93,7 @@ namespace sorakado {
             bool focus(window_id_t id, bool focused);
             bool focused() const;
 
-            void draw(std::unique_ptr<ImageCache> &image_cache, Position offset, const RenderInfo &render_info, region_t &region);
+            void draw(Position offset, const RenderInfo &render_info, region_t &region);
             void redrawn();
     };
 }

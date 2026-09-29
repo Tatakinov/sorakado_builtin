@@ -29,17 +29,17 @@ namespace sorakado::ao::master {
             std::optional<DragPosition> drag_;
             std::unordered_map<button_t, State> mouse_state_;
             std::unique_ptr<Seriko> seriko_;
-            std::optional<ElementWithChildren> prev_info_;
+            std::unique_ptr<ElementWithChildren> prev_info_;
             region_t current_surface_;
             std::optional<MoveInfo> move_info_;
 
             void notifyRectInfo();
         public:
-            Character(sorakado::Sorakado *parent, std::unique_ptr<WindowManager> window_manager, int side, const std::string &name, std::unique_ptr<Seriko> seriko);
+            Character(sorakado::Sorakado &parent, std::unique_ptr<WindowManager> window_manager, int side, const std::string &name, std::unique_ptr<Seriko> seriko);
 
             void create(display_t id) override;
             void destroy(display_t id) override;
-            void draw(std::unique_ptr<ImageCache> &cache) override;
+            void draw() override;
 
             bool setPosition(int x, int y) override;
             bool setOffset(int x, int y) override;

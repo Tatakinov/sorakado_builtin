@@ -15,19 +15,19 @@ namespace sorakado::ai {
     class AiInputboxWindowFactory : public WindowFactory {
         private:
             Rect inputbox_r_;
-            std::unique_ptr<WrapFont> &font_;
+            WrapFont *font_;
         public:
-            AiInputboxWindowFactory(const Rect &inputbox_r, std::unique_ptr<WrapFont> &font);
+            AiInputboxWindowFactory(const Rect &inputbox_r, WrapFont *font);
 
-            std::unique_ptr<sorakado::Window> create(sorakado::BaseCharacter *parent, display_t id, std::unique_ptr<BackendWindowFactory> &factory, const std::string &name) const override;
+            std::unique_ptr<sorakado::Window> create(sorakado::BaseCharacter &parent, display_t id, BackendWindowFactory &factory, const std::string &name) const override;
     };
 
     class AiInputboxWindow : public sorakado::Window {
         private:
             const Rect inputbox_r_;
-            std::unique_ptr<WrapFont> &font_;
+            WrapFont *font_;
         public:
-            AiInputboxWindow(sorakado::BaseCharacter *parent, display_t id, std::unique_ptr<BackendWindowFactory> &factory, const std::string &name, const Rect &inputbox_r, std::unique_ptr<WrapFont> &font);
+            AiInputboxWindow(sorakado::BaseCharacter &parent, display_t id, BackendWindowFactory &factory, const std::string &name, const Rect &inputbox_r, WrapFont *font);
             ~AiInputboxWindow() {}
 
             bool wheel(sorakado::window_id_t id, float x, float y) override {

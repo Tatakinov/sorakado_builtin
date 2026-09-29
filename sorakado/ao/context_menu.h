@@ -24,14 +24,14 @@ namespace sorakado::ao {
             int index_in_progress_;
             const Rect display_r_;
             window_t parent_window_;
-            std::unique_ptr<ImageCache> &cache_;
-            std::unique_ptr<WrapFont> &font_;
+            ImageCache &cache_;
+            WrapFont *font_;
             std::vector<std::unique_ptr<AoMenuWindow>> windows_;
             bool is_idle_;
             int delay_;
             SubMenuInitializer initializer_;
         public:
-            ContextMenu(sorakado::Sorakado *parent, const Rect &display_r, window_t parent_window, std::unique_ptr<ImageCache> &cache, std::unique_ptr<WrapFont> &font);
+            ContextMenu(sorakado::Sorakado &parent, const Rect &display_r, window_t parent_window, ImageCache &cache, WrapFont *font);
             ~ContextMenu();
 
             Rect getRect() const override {
@@ -47,7 +47,7 @@ namespace sorakado::ao {
 
             bool alive() const;
 
-            void draw(std::unique_ptr<ImageCache> &cache);
+            void draw();
             bool swapBuffers();
 
             bool setSize(int w, int h) override {

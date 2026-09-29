@@ -6,6 +6,7 @@
 #include <unordered_map>
 #include <vector>
 
+#include "sorakado/image_cache.h"
 #include "sorakado/ao/master/seriko.h"
 #include "sorakado/ao/master/surface.h"
 
@@ -24,7 +25,7 @@ namespace sorakado::ao::master {
                 surfaces_[n].element[0] = Element(Method::Base, 0, 0, path, std::nullopt);
             }
             void parse(const std::filesystem::path &path);
-            std::unique_ptr<Seriko> getSeriko(int side);
+            std::unique_ptr<Seriko> getSeriko(ImageCache &image_cache, int side);
             void dump() const;
     };
 }

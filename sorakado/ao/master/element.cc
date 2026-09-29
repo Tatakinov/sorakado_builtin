@@ -10,6 +10,54 @@ namespace {
 }
 
 namespace sorakado::ao::master {
+    bool ElementWithNoChildren::operator==(const ElementWithNoChildren &rhs) const {
+        const auto &lhs = *this;
+        return lhs.method == rhs.method && lhs.x == rhs.x && lhs.y == rhs.y && lhs.filename == rhs.filename && lhs.index == rhs.index;
+    }
+
+    WrapTexture *ElementWithNoChildren::getTexture(renderer_t *renderer, TextureCache &texture_cache) const {
+        auto data = texture_cache.get({filename, index}, renderer, image_cache_);
+        if (!data) {
+            return nullptr;
+        }
+        return data.value();
+    }
+
+    Rect ElementWithNoChildren::getRect(bool include_empty_image) const {
+        auto &info = image_cache_.get(filename, index);
+        if (!info) {
+            return {0, 0, 0, 0};
+        }
+        if (!include_empty_image && info->empty()) {
+            return {0, 0, 0, 0};
+        }
+        return {x, y, info->width(), info->height()};
+    }
+
+    Region ElementWithNoChildren::getRegion() const {
+        auto &info = image_cache_.get(filename, index);
+        if (!info) {
+            return {};
+        }
+        return info->region();
+    }
+
+    std::unique_ptr<WrapSurface> ElementWithNoChildren::getSurface() const {
+        auto &info = image_cache_.get(filename, index);
+        if (!info) {
+            Logger::log("invalid info");
+            std::unique_ptr<WrapSurface> invalid;
+            return invalid;
+        }
+        WrapSurface src(info.value());
+        auto dst = std::make_unique<WrapSurface>(x + src.width(), y + src.height());
+        SDL_ClearSurface(dst->surface(), 0, 0, 0, 0);
+        SDL_SetSurfaceBlendMode(src.surface(), SDL_BLENDMODE_BLEND);
+        SDL_Rect r = { x, y, src.width(), src.height() };
+        SDL_BlitSurface(src.surface(), nullptr, dst->surface(), &r);
+        return dst;
+    }
+
     bool ElementWithChildren::equals(const RenderInfo &r) const {
         const auto &lhs = *this;
         const auto &rhs = static_cast<const ElementWithChildren &>(r);
@@ -27,21 +75,21 @@ namespace sorakado::ao::master {
         return true;
     }
 
-    Rect ElementWithChildren::getRect(std::unique_ptr<ImageCache> &image_cache) const {
-        auto r = getRect(image_cache, false);
+    Rect ElementWithChildren::getRect() const {
+        auto r = getRect(false);
         Logger::log("getRect.middle", r.x, r.y, r.w, r.h);
         if (r.w == 0 || r.h == 0) {
-            return getRect(image_cache, true);
+            return getRect(true);
         }
         return r;
     }
 
-    Rect ElementWithChildren::getRect(std::unique_ptr<ImageCache> &image_cache, bool include_empty_image) const {
+    Rect ElementWithChildren::getRect(bool include_empty_image) const {
         Rect r = {kInf, kInf, -kInf, -kInf};
         std::vector<std::optional<std::unique_ptr<WrapSurface>>> list;
         for (auto &element : children) {
             std::visit([&](const auto &e) {
-                auto cr = e.getRect(image_cache, include_empty_image);
+                auto cr = e.getRect(include_empty_image);
                 if (cr.w <= 0 || cr.h <= 0) {
                     return;
                 }
@@ -72,8 +120,8 @@ namespace sorakado::ao::master {
         return r;
     }
 
-    Region ElementWithChildren::getRegion(std::unique_ptr<ImageCache> &image_cache) const {
-        auto rect = getRect(image_cache);
+    Region ElementWithChildren::getRegion() const {
+        auto rect = getRect();
         if (rect.w <= 0 || rect.h <= 0) {
             return {};
         }
@@ -81,7 +129,7 @@ namespace sorakado::ao::master {
         std::vector<Region> list;
         for (auto &element : children) {
             std::visit([&](const auto &e) {
-                list.push_back(e.getRegion(image_cache));
+                list.push_back(e.getRegion());
             }, element);
         }
         Region ret;
@@ -117,8 +165,8 @@ namespace sorakado::ao::master {
         return ret;
     }
 
-    std::unique_ptr<WrapSurface> ElementWithChildren::getSurface(std::unique_ptr<ImageCache> &image_cache) const {
-        auto rect = getRect(image_cache);
+    std::unique_ptr<WrapSurface> ElementWithChildren::getSurface() const {
+        auto rect = getRect();
         if (rect.w <= 0 || rect.h <= 0) {
             std::unique_ptr<WrapSurface> invalid;
             //Logger::log("no valid children");
@@ -127,7 +175,7 @@ namespace sorakado::ao::master {
         std::vector<std::optional<std::unique_ptr<WrapSurface>>> list;
         for (auto &element : children) {
             std::visit([&](const auto &e) {
-                auto t = e.getSurface(image_cache);
+                auto t = e.getSurface();
                 if (!t) {
                     list.push_back(std::nullopt);
                     return;
@@ -156,8 +204,8 @@ namespace sorakado::ao::master {
         return surface;
     }
 
-    std::unique_ptr<WrapTexture> ElementWithChildren::getTexture(std::unique_ptr<ImageCache> &image_cache, renderer_t *renderer, std::unique_ptr<TextureCache> &texture_cache) const {
-        auto rect = getRect(image_cache);
+    std::unique_ptr<WrapTexture> ElementWithChildren::getTexture(renderer_t *renderer, TextureCache &texture_cache) const {
+        auto rect = getRect();
         if (rect.w <= 0 || rect.h <= 0) {
             std::unique_ptr<WrapTexture> invalid;
             //Logger::log("no valid children");
@@ -167,7 +215,7 @@ namespace sorakado::ao::master {
         std::vector<std::variant<std::unique_ptr<WrapTexture>, WrapTexture *>> list;
         for (auto &element : children) {
             std::visit([&](const auto &e) {
-                auto t = e.getTexture(image_cache, renderer, texture_cache);
+                auto t = e.getTexture(renderer, texture_cache);
                 if (t) {
                     upconverted = upconverted && t->isUpconverted();
                 }

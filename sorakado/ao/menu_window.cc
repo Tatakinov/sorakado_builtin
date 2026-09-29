@@ -9,12 +9,12 @@
 #define MOUSE_BUTTON_RIGHT 3
 
 namespace sorakado::ao {
-    AoMenuWindow::AoMenuWindow(sorakado::BaseCharacter *parent, display_t id, std::unique_ptr<BackendWindowFactory> &factory, const std::string &name, int x, int y, int width, int height, std::unique_ptr<SubMenu> menu) : sorakado::Window(parent, id, factory, name, width, height), x_(x), y_(y), menu_(std::move(menu)) {
+    AoMenuWindow::AoMenuWindow(sorakado::BaseCharacter &parent, display_t id, BackendWindowFactory &factory, const std::string &name, int x, int y, int width, int height, std::unique_ptr<SubMenu> menu) : sorakado::Window(parent, id, factory, name, width, height), x_(x), y_(y), menu_(std::move(menu)) {
     }
 
-    void AoMenuWindow::draw(std::unique_ptr<ImageCache> &cache) {
-        auto region = menu_->getSurface(cache);
-        Window::draw(cache, {0, 0}, *menu_, region);
+    void AoMenuWindow::draw() {
+        auto region = menu_->getSurface();
+        Window::draw({0, 0}, *menu_, region);
     }
 
     bool AoMenuWindow::key(sorakado::window_id_t id, sorakado::key_t key, bool down) {
@@ -59,8 +59,8 @@ namespace sorakado::ao {
         }
         menu_->unhighlight();
         if (menu_->highlight(x, y)) {
-            parent_->change();
-            parent_->hover(x, y);
+            parent_.change();
+            parent_.hover(x, y);
             auto submenu = menu_->get<MenuModelDataSubMenu>();
             if (submenu) {
                 auto parent_r = menu_->rect();
@@ -69,7 +69,7 @@ namespace sorakado::ao {
                 Position pos = menu_->rect();
                 pos.x += x_ + parent_r.w;
                 pos.y += y_ + menu_->getSelectedItemY();
-                static_cast<ContextMenu *>(parent_)->createSubMenuDefer(submenu.value().children, pos, parent_r);
+                static_cast<ContextMenu &>(parent_).createSubMenuDefer(submenu.value().children, pos, parent_r);
             }
         }
         return true;
@@ -85,10 +85,10 @@ namespace sorakado::ao {
         }
         auto item = menu_->get<MenuModelDataItem>();
         if (item) {
-            parent_->enqueueDirectSSTP({{"EXECUTE", item->command, item->args}});
+            parent_.enqueueDirectSSTP({{"EXECUTE", item->command, item->args}});
         }
         // TODO stub: Check, DressUp
-        parent_->click(this, x, y, button, down, clicks);
+        parent_.click(this, x, y, button, down, clicks);
         return true;
     }
 }

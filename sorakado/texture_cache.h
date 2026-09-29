@@ -41,7 +41,7 @@ namespace sorakado {
         public:
             TextureCache() {}
             ~TextureCache() {}
-            std::optional<WrapTexture *> get(const texture_cache_t &key, renderer_t *renderer, std::unique_ptr<ImageCache> &image_cache);
+            std::optional<WrapTexture *> get(const texture_cache_t &key, renderer_t *renderer, ImageCache &image_cache);
             void clear() {
                 map_.clear();
             }

@@ -9,18 +9,18 @@
 
 namespace sorakado {
 
-    Character::Character(Sorakado *parent, std::unique_ptr<WindowManager> manager, int side, const std::string &name) : BaseCharacter(parent, side), name_(name), rect_({0, 0, 0, 0}), window_manager_(std::move(manager)) {
+    Character::Character(Sorakado &parent, std::unique_ptr<WindowManager> manager, int side, const std::string &name) : BaseCharacter(parent, side), name_(name), rect_({0, 0, 0, 0}), window_manager_(std::move(manager)) {
     }
 
     Character::~Character() {
     }
 
     std::string Character::getInfo(std::string key, bool fallback, bool freeze) {
-        return parent_->getInfo(key, fallback, freeze);
+        return parent_.getInfo(key, fallback, freeze);
     }
 
     void Character::create(SDL_DisplayID id) {
-        window_manager_->create(this, id, name_);
+        window_manager_->create(*this, id, name_);
     }
 
     void Character::destroy(SDL_DisplayID id) {

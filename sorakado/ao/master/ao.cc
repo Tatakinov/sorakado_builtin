@@ -90,7 +90,7 @@ namespace sorakado::ao::master {
         if (util::isWayland() && getenv("NINIX_ENABLE_MULTI_MONITOR")) {
             auto backend_window_factory = std::make_unique<DefaultBackendWindowFactory>(SDL_WINDOW_TRANSPARENT | SDL_WINDOW_BORDERLESS | SDL_WINDOW_MAXIMIZED | SDL_WINDOW_INPUT_FOCUS | SDL_WINDOW_MOUSE_FOCUS | SDL_WINDOW_RESIZABLE | SDL_WINDOW_HIDDEN);
             auto manager = std::make_unique<MultipleWindowManager>(std::move(window_factory), std::move(backend_window_factory));
-            characters_.try_emplace(side, std::make_unique<Character>(this, std::move(manager), side, name, surfaces_->getSeriko(side)));
+            characters_.try_emplace(side, std::make_unique<Character>(*this, std::move(manager), side, name, surfaces_->getSeriko(*image_cache_, side)));
             int count = 0;
             auto *monitors = SDL_GetDisplays(&count);
             for (int i = 0; i < count; i++) {
@@ -101,13 +101,13 @@ namespace sorakado::ao::master {
         else if (util::isWayland()) {
             auto backend_window_factory = std::make_unique<DefaultBackendWindowFactory>(SDL_WINDOW_TRANSPARENT | SDL_WINDOW_BORDERLESS | SDL_WINDOW_MAXIMIZED | SDL_WINDOW_INPUT_FOCUS | SDL_WINDOW_MOUSE_FOCUS | SDL_WINDOW_RESIZABLE | SDL_WINDOW_HIDDEN);
             auto manager = std::make_unique<SingleWindowManager>(std::move(window_factory), std::move(backend_window_factory));
-            characters_.try_emplace(side, std::make_unique<Character>(this, std::move(manager), side, name, surfaces_->getSeriko(side)));
+            characters_.try_emplace(side, std::make_unique<Character>(*this, std::move(manager), side, name, surfaces_->getSeriko(*image_cache_, side)));
             characters_.at(side)->create(0);
         }
         else {
             auto backend_window_factory = std::make_unique<DefaultBackendWindowFactory>(SDL_WINDOW_TRANSPARENT | SDL_WINDOW_BORDERLESS | SDL_WINDOW_INPUT_FOCUS | SDL_WINDOW_MOUSE_FOCUS | SDL_WINDOW_HIDDEN);
             auto manager = std::make_unique<SingleWindowManager>(std::move(window_factory), std::move(backend_window_factory));
-            characters_.try_emplace(side, std::make_unique<Character>(this, std::move(manager), side, name, surfaces_->getSeriko(side)));
+            characters_.try_emplace(side, std::make_unique<Character>(*this, std::move(manager), side, name, surfaces_->getSeriko(*image_cache_, side)));
             characters_.at(side)->create(0);
         }
         return;
@@ -233,10 +233,10 @@ namespace sorakado::ao::master {
 
     bool Ao::draw() {
         if (menu_) {
-            menu_->draw(image_cache_);
+            menu_->draw();
         }
         for (auto &[_, v] : characters_) {
-            v->draw(image_cache_);
+            v->draw();
         }
         bool redrawn = false;
         if (menu_) {
@@ -252,7 +252,7 @@ namespace sorakado::ao::master {
         if (SDL_GetWindowID(menu_initializer_.parent) == 0) {
             return;
         }
-        menu_ = std::make_unique<ContextMenu>(this, menu_initializer_.r, menu_initializer_.parent, image_cache_, font_cache_->getDefaultFont());
+        menu_ = std::make_unique<ContextMenu>(*this, menu_initializer_.r, menu_initializer_.parent, *image_cache_, font_cache_->getDefaultFont());
         Rect parent_r = {menu_initializer_.pos.x, menu_initializer_.pos.y, 0, 0};
         menu_->createSubMenu(data, menu_initializer_.pos, parent_r);
     }

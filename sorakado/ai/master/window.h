@@ -16,13 +16,13 @@ namespace sorakado {
 namespace sorakado::ai::master {
     class AiMasterWindowFactory : public WindowFactory {
         public:
-            std::unique_ptr<sorakado::Window> create(sorakado::BaseCharacter *parent, display_t id, std::unique_ptr<BackendWindowFactory> &factory, const std::string &name) const override;
+            std::unique_ptr<sorakado::Window> create(sorakado::BaseCharacter &parent, display_t id, BackendWindowFactory &factory, const std::string &name) const override;
     };
 
     class AiMasterWindow : public Window {
         private:
         public:
-            AiMasterWindow(sorakado::BaseCharacter *parent, display_t id, std::unique_ptr<BackendWindowFactory> &factory, const std::string &name);
+            AiMasterWindow(sorakado::BaseCharacter &parent, display_t id, BackendWindowFactory &factory, const std::string &name);
             ~AiMasterWindow();
 
             bool input(sorakado::window_id_t id, const std::string &text) override;

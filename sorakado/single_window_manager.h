@@ -25,9 +25,9 @@ namespace sorakado {
             SingleWindowManager(std::unique_ptr<WindowFactory> factory, std::unique_ptr<BackendWindowFactory> backend_factory);
             ~SingleWindowManager();
 
-            void create(BaseCharacter *parent, display_t id, const std::string &name) override;
+            void create(BaseCharacter &parent, display_t id, const std::string &name) override;
             void destroy(display_t id) override;
-            void draw(std::unique_ptr<ImageCache> &image_cache, Position offset, const RenderInfo &render_info, region_t &region) override;
+            void draw(Position offset, const RenderInfo &render_info, region_t &region) override;
             bool swapBuffers() override;
 
             Rect getMonitorRect(const Rect &r) const override;

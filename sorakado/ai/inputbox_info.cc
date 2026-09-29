@@ -5,14 +5,14 @@
 #include "sorakado/util.h"
 
 namespace sorakado::ai {
-    InputboxInfo::InputboxInfo(const Rect &inputbox_r, const Color &color, const std::filesystem::path &path, std::unique_ptr<ImageCache> &image_cache, std::unique_ptr<WrapFont> &font) : sorakado::RenderInfo(), inputbox_r_(inputbox_r), color_(color), path_(path), font_(font), cursor_index_(0) {
+    InputboxInfo::InputboxInfo(const Rect &inputbox_r, const Color &color, const std::filesystem::path &path, ImageCache &image_cache, WrapFont *font) : sorakado::RenderInfo(image_cache), inputbox_r_(inputbox_r), color_(color), path_(path), font_(font), cursor_index_(0) {
         if (inputbox_r_.x < 0) {
             inputbox_r_.x = 0;
         }
         if (inputbox_r_.y < 0) {
             inputbox_r_.y = 0;
         }
-        auto &info = image_cache->get(path);
+        auto &info = image_cache.get(path);
         if (info) {
             w_ = info->width();
             h_ = info->height();
@@ -57,7 +57,7 @@ namespace sorakado::ai {
         change();
     }
 
-    Region InputboxInfo::getRegion(std::unique_ptr<ImageCache> &image_cache) const {
+    Region InputboxInfo::getRegion() const {
         Region r;
         for (int y = 0; y < h_; y++) {
             r.push_back({0, y, w_});
@@ -65,13 +65,13 @@ namespace sorakado::ai {
         return r;
     }
 
-    std::unique_ptr<WrapSurface> InputboxInfo::getSurface(std::unique_ptr<ImageCache> &cache) const {
+    std::unique_ptr<WrapSurface> InputboxInfo::getSurface() const {
         auto s = std::make_unique<WrapSurface>(w_, h_);
         SDL_ClearSurface(s->surface(), 1, 1, 1, 1);
         return s;
     }
 
-    std::unique_ptr<WrapTexture> InputboxInfo::getTexture(std::unique_ptr<ImageCache> &image_cache, renderer_t *renderer, std::unique_ptr<TextureCache> &texture_cache) const {
+    std::unique_ptr<WrapTexture> InputboxInfo::getTexture(renderer_t *renderer, TextureCache &texture_cache) const {
         auto cursor_texture = std::make_unique<WrapTexture>(renderer, 1, 1, true);
         SDL_SetRenderTarget(renderer, cursor_texture->texture());
         SDL_SetRenderDrawColor(renderer, color_.r, color_.g, color_.b, color_.a);
@@ -99,7 +99,7 @@ namespace sorakado::ai {
         SDL_SetRenderDrawColor(renderer, 0x00, 0x00, 0x00, 0x00);
         SDL_RenderClear(renderer);
         texture_cache_t key = {path_, std::nullopt, RenderType::PreMultiplied};
-        auto background = texture_cache->get(key, renderer, image_cache);
+        auto background = texture_cache.get(key, renderer, image_cache_);
         if (background) {
             SDL_RenderTexture(renderer, (*background)->texture(), nullptr, nullptr);
         }

@@ -10,8 +10,8 @@ namespace sorakado {
     MultipleWindowManager::~MultipleWindowManager() {
     }
 
-    void MultipleWindowManager::create(BaseCharacter *parent, display_t id, const std::string &name) {
-        windows_.try_emplace(id, factory_->create(parent, id, backend_factory_, name));
+    void MultipleWindowManager::create(BaseCharacter &parent, display_t id, const std::string &name) {
+        windows_.try_emplace(id, factory_->create(parent, id, *backend_factory_, name));
     }
 
     void MultipleWindowManager::destroy(display_t id) {
@@ -20,9 +20,9 @@ namespace sorakado {
         }
     }
 
-    void MultipleWindowManager::draw(std::unique_ptr<ImageCache> &image_cache, Position offset, const RenderInfo &render_info, region_t &region) {
+    void MultipleWindowManager::draw(Position offset, const RenderInfo &render_info, region_t &region) {
         for (auto &[_, window] : windows_) {
-            window->draw(image_cache, offset, render_info, region);
+            window->draw(offset, render_info, region);
         }
     }
 

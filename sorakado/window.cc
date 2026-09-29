@@ -6,7 +6,7 @@
 #include "sorakado/render_info.h"
 
 namespace sorakado {
-    Window::Window(sorakado::BaseCharacter *parent, display_t id, std::unique_ptr<BackendWindowFactory> &factory, const std::string &name, int width, int height) : texture_offset_({0, 0}), shown_(false), redrawn_(false), focused_(false), texture_cache_(std::make_unique<TextureCache>()), parent_(parent), window_(nullptr), renderer_(nullptr) {
+    Window::Window(sorakado::BaseCharacter &parent, display_t id, BackendWindowFactory &factory, const std::string &name, int width, int height) : texture_offset_({0, 0}), shown_(false), redrawn_(false), focused_(false), texture_cache_(std::make_unique<TextureCache>()), parent_(parent), window_(nullptr), renderer_(nullptr) {
         if (util::isWayland() && id > 0) {
             SDL_Rect r;
             SDL_GetDisplayBounds(id, &r);
@@ -33,13 +33,13 @@ namespace sorakado {
             }
             monitor_rect_.w = width;
             monitor_rect_.h = height;
-            window_ = factory->create(name.c_str(), width, height);
+            window_ = factory.create(name.c_str(), width, height);
         }
         else {
             if (width == 0 || height == 0) {
                 width = height = 200;
             }
-            window_ = factory->create(name.c_str(), width, height);
+            window_ = factory.create(name.c_str(), width, height);
         }
         renderer_ = SDL_CreateRenderer(window_, nullptr);
         SDL_SetRenderVSync(renderer_, 1);
@@ -62,7 +62,7 @@ namespace sorakado {
             wl_display_roundtrip(display);
         }
 #endif // Linux/Unix
-        parent_->resetPosition(true);
+        parent_.resetPosition(true);
     }
 
     Window::~Window() {
@@ -184,16 +184,16 @@ namespace sorakado {
         return focused_;
     }
 
-    void Window::draw(std::unique_ptr<ImageCache> &image_cache, Position offset, const RenderInfo &render_info, region_t &region) {
+    void Window::draw(Position offset, const RenderInfo &render_info, region_t &region) {
         if (!util::isWayland() && !render_info.changed() && texture_ && texture_->isUpconverted()) {
             return;
         }
         if (!texture_ || render_info.changed()) {
-            texture_ = render_info.getTexture(image_cache, renderer_, texture_cache_);
+            texture_ = render_info.getTexture(renderer_, *texture_cache_);
         }
         // render next frame unless texture is up-converted
         if (!(texture_ && texture_->isUpconverted())) {
-            parent_->change();
+            parent_.change();
         }
         SDL_SetRenderTarget(renderer_, nullptr);
         SDL_SetRenderDrawColor(renderer_, 0x00, 0x00, 0x00, 0x00);
@@ -211,7 +211,7 @@ namespace sorakado {
         if (region) {
             Rect rect = {offset.x, offset.y, region->width(), region->height()};
             auto m = getMonitorRect(rect);
-            Region shape = translate(render_info.getRegion(image_cache), offset.x, offset.y);
+            Region shape = translate(render_info.getRegion(), offset.x, offset.y);
             if (!shape_ || shape_ != shape) {
 #if defined(IS__NIX)
                 if (util::isWayland()) {
@@ -261,7 +261,7 @@ namespace sorakado {
         if (id != SDL_GetWindowID(window_)) {
             return false;
         }
-        parent_->press(key, down);
+        parent_.press(key, down);
         return true;
     }
 
@@ -269,7 +269,7 @@ namespace sorakado {
         if (id != SDL_GetWindowID(window_)) {
             return false;
         }
-        parent_->inputText(text);
+        parent_.inputText(text);
         return true;
     }
 
@@ -277,7 +277,7 @@ namespace sorakado {
         if (id != SDL_GetWindowID(window_)) {
             return false;
         }
-        parent_->editText(text);
+        parent_.editText(text);
         return true;
     }
 
@@ -285,7 +285,7 @@ namespace sorakado {
         if (id != SDL_GetWindowID(window_)) {
             return false;
         }
-        parent_->dnd(file_list);
+        parent_.dnd(file_list);
         return true;
     }
 
@@ -299,8 +299,8 @@ namespace sorakado {
             SDL_GetWindowSize(window_, &w, &h);
             monitor_rect_.w = w;
             monitor_rect_.h = h;
-            parent_->change();
-            parent_->resetPosition(true);
+            parent_.change();
+            parent_.resetPosition(true);
         }
         return true;
     }
@@ -313,7 +313,7 @@ namespace sorakado {
             x = x + monitor_rect_.x;
             y = y + monitor_rect_.y;
         }
-        parent_->hover(x, y);
+        parent_.hover(x, y);
         return true;
     }
 
@@ -327,7 +327,7 @@ namespace sorakado {
             y = y + monitor_rect_.y;
         }
         Logger::log("window.click");
-        parent_->click(this, x, y, button, down, clicks);
+        parent_.click(this, x, y, button, down, clicks);
         return true;
     }
 

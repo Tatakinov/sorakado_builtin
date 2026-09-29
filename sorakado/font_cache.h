@@ -15,8 +15,8 @@ namespace sorakado {
             FontCache();
             ~FontCache();
             void setDefaultFont(const fontlist::fontfamily &family);
-            std::unique_ptr<WrapFont> &getDefaultFont();
-            std::unique_ptr<WrapFont> &get(const std::filesystem::path &path);
+            WrapFont *getDefaultFont();
+            WrapFont *get(const std::filesystem::path &path);
     };
 }
 

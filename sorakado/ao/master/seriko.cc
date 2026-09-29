@@ -164,34 +164,34 @@ namespace sorakado::ao::master {
         return addids;
     }
 
-    ElementWithChildren Seriko::get() {
+    std::unique_ptr<ElementWithChildren> Seriko::get() {
+        auto ret = std::make_unique<ElementWithChildren>(image_cache_, Method::Overlay, 0, 0, std::vector<std::variant<ElementWithNoChildren, ElementWithChildren>>());
         if (!surfaces_.contains(current_id_)) {
-            return ElementWithChildren(Method::Overlay, 0, 0, {});
+            return ret;
         }
-        ElementWithChildren ret(Method::Overlay, 0, 0, {});
         int id = current_id_;
         auto &surface = surfaces_.at(id);
         std::vector<int> list;
         list.reserve(std::max(surface.element.size(), actors_.size()));
-        ret.children.reserve(surface.element.size());
+        ret->children.reserve(surface.element.size());
         // TODO background
         for (auto &[k, _] : surface.element) {
             list.emplace_back(k);
         }
         std::sort(list.begin(), list.end());
         for (auto i : list) {
-            auto element = surface.element[i];
+            ElementWithNoChildren element(image_cache_, surface.element[i]);
             element.x *= scale_ / 100.0;
             element.y *= scale_ / 100.0;
-            ret.children.emplace_back(element);
+            ret->children.emplace_back(element);
         }
         list.clear();
-        int allocate = ret.children.size();
+        int allocate = ret->children.size();
         for (auto &[k, v] : actors_) {
             list.emplace_back(k);
             allocate += v.patterns().size();
         }
-        ret.children.reserve(allocate);
+        ret->children.reserve(allocate);
         std::sort(list.begin(), list.end());
         std::unordered_set<int> done = {id};
         for (auto i : list) {
@@ -201,8 +201,8 @@ namespace sorakado::ao::master {
                 if (isBinding(i)) {
                     auto ps = actor.patterns();
                     for (auto &p : ps) {
-                        ElementWithChildren e(p.method, p.x * scale_ / 100.0, p.y * scale_ / 100.0, getElements(p.id, done));
-                        ret.children.emplace_back(e);
+                        ElementWithChildren e(image_cache_, p.method, p.x * scale_ / 100.0, p.y * scale_ / 100.0, getElements(p.id, done));
+                        ret->children.emplace_back(e);
                     }
                 }
             }
@@ -210,30 +210,30 @@ namespace sorakado::ao::master {
             else if (actor.active()) {
                 auto p = actor.currentPattern();
                 ElementWithChildren e = { p.method, p.x, p.y, getElements(p.id, done) };
-                ret.children.emplace_back(e);
+                ret->children.emplace_back(e);
             }
 #else
             auto p = actor.currentPattern();
-            ElementWithChildren e(p.method, p.x * scale_ / 100.0, p.y * scale_ / 100.0, getElements(p.id, done));
-            ret.children.emplace_back(e);
+            ElementWithChildren e(image_cache_, p.method, p.x * scale_ / 100.0, p.y * scale_ / 100.0, getElements(p.id, done));
+            ret->children.emplace_back(e);
 #endif
         }
         return ret;
     }
 
-    std::vector<std::variant<Element, ElementWithChildren>> Seriko::getElements(int id, std::unordered_set<int> &done) {
+    std::vector<std::variant<ElementWithNoChildren, ElementWithChildren>> Seriko::getElements(int id, std::unordered_set<int> &done) {
         if (!surfaces_.contains(id)) {
             return {};
         }
-        std::vector<std::variant<Element, ElementWithChildren>> ret;
+        std::vector<std::variant<ElementWithNoChildren, ElementWithChildren>> ret;
         auto &surface = surfaces_.at(id);
         done.emplace(id);
         // TODO background
         for (auto &[_, v] : surface.element) {
-            auto element = v;
+            ElementWithNoChildren element(image_cache_, v);
             element.x *= scale_ / 100.0;
             element.y *= scale_ / 100.0;
-            ret.push_back(v);
+            ret.push_back(element);
         }
         std::vector<int> list;
         for (auto &[k, _] : surface.animation) {
@@ -246,7 +246,7 @@ namespace sorakado::ao::master {
                 auto ps = surface.animation[i].pattern;
                 for (auto &p : ps) {
                     if (!done.contains(p.id)) {
-                        ElementWithChildren e(p.method, p.x * scale_ / 100.0, p.y * scale_ / 100.0, getElements(p.id, done));
+                        ElementWithChildren e(image_cache_, p.method, p.x * scale_ / 100.0, p.y * scale_ / 100.0, getElements(p.id, done));
                         ret.emplace_back(e);
                     }
                 }

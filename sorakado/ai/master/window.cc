@@ -10,11 +10,11 @@
 #include "lib_skeleton/sstp.h"
 
 namespace sorakado::ai::master {
-    std::unique_ptr<Window> AiMasterWindowFactory::create(sorakado::BaseCharacter *parent, display_t id, std::unique_ptr<BackendWindowFactory> &factory, const std::string &name) const {
+    std::unique_ptr<Window> AiMasterWindowFactory::create(sorakado::BaseCharacter &parent, display_t id, BackendWindowFactory &factory, const std::string &name) const {
         return std::make_unique<AiMasterWindow>(parent, id, factory, name);
     }
 
-    AiMasterWindow::AiMasterWindow(sorakado::BaseCharacter *parent, display_t id, std::unique_ptr<BackendWindowFactory> &factory, const std::string &name) : sorakado::Window(parent, id, factory, name) {
+    AiMasterWindow::AiMasterWindow(sorakado::BaseCharacter &parent, display_t id, BackendWindowFactory &factory, const std::string &name) : sorakado::Window(parent, id, factory, name) {
     }
 
     AiMasterWindow::~AiMasterWindow() {
