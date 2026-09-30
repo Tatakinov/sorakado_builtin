@@ -164,7 +164,7 @@ namespace sorakado {
                         scale = scale_;
                     }
                     int num_resize = std::ceil(std::log2(scale_ / 100.0));
-                    auto &info = cache_orig_.at(p);
+                    auto info = cache_orig_.at(p);
                     int w = info->width();
                     int h = info->height();
                     std::vector<unsigned char> src;
@@ -195,7 +195,7 @@ namespace sorakado {
                         catch (Ort::Exception &e) {
                             Logger::log(e.what());
                             auto &tmp = cache_.at(p);
-                            cache_[p] = {tmp->get(), tmp->width(), tmp->height(), true};
+                            cache_[p] = std::make_shared<ImageInfo>(tmp->get(), tmp->width(), tmp->height(), true);
                         }
                         for (int i = 0; i < (2 * w) * (2 * h); i++) {
                             for (int c = 0; c < 4; c++) {
@@ -227,7 +227,7 @@ namespace sorakado {
                     {
                         std::unique_lock<std::mutex> lock(mutex_);
                         if (scale == scale_) {
-                            cache_[p] = {dest, w, h, true};
+                            cache_[p] = std::make_shared<ImageInfo>(dest, w, h, true);
                         }
                     }
                     Logger::log("upconverted!");
@@ -245,7 +245,7 @@ namespace sorakado {
         if (th_) {
             {
                 std::unique_lock<std::mutex> lock(mutex_);
-                queue_.push({"", std::nullopt});
+                queue_.push({"", std::nullopt, false});
                 cond_.notify_one();
             }
             th_->join();
@@ -260,7 +260,7 @@ namespace sorakado {
         }
     }
 
-    std::optional<ImageInfo> ImageCache::load(const ImagePath &path, SDL_Surface *in) {
+    std::shared_ptr<ImageInfo> ImageCache::load(const ImagePath &path, SDL_Surface *in) {
         SDL_Surface *abgr = SDL_ConvertSurface(in, SDL_PIXELFORMAT_ABGR8888);
         int w = abgr->w, h = abgr->h;
         std::vector<unsigned char> data;
@@ -284,7 +284,7 @@ namespace sorakado {
         }
         SDL_UnlockSurface(abgr);
         SDL_DestroySurface(abgr);
-        if (!use_self_alpha_ && !path.index.has_value()) {
+        if (!path.use_self_alpha && !path.index.has_value()) {
             auto pna_filename = path.path.parent_path() / path.path.stem();
             pna_filename += ".pna";
             SDL_Surface *pna_in;
@@ -378,13 +378,14 @@ namespace sorakado {
                 }
             }
         }
-        return std::make_optional<ImageInfo>(data, w, h, true);
+        return std::make_shared<ImageInfo>(data, w, h, true);
     }
 
-    std::optional<ImageInfo> &ImageCache::getOriginal(const std::filesystem::path &path, const std::optional<int> index) {
+    std::shared_ptr<ImageInfo> ImageCache::getOriginal(const std::filesystem::path &path, const std::optional<int> index, const std::optional<bool> use_self_alpha) {
+        std::shared_ptr<ImageInfo> invalid;
         Logger::log("scale => ", scale_);
         Logger::log("file: ", path.string());
-        ImagePath key = {path, index};
+        ImagePath key = {path, index, ((use_self_alpha) ? (use_self_alpha.value()) : use_self_alpha_)};
         if (cache_orig_.contains(key)) {
             return cache_orig_.at(key);
         }
@@ -392,7 +393,7 @@ namespace sorakado {
             Logger::log("load animation!", path);
             IMG_Animation *anim = IMG_LoadAnimation(path.string().c_str());
             if (anim == nullptr) {
-                cache_orig_[key] = std::nullopt;
+                return invalid;
             }
             else {
                 for (int i = 0; i < anim->count; i++) {
@@ -405,7 +406,7 @@ namespace sorakado {
         else {
             SDL_Surface *in = IMG_Load(path.string().c_str());
             if (in == nullptr) {
-                cache_orig_[key] = std::nullopt;
+                return invalid;
             }
             else {
                 cache_orig_[key] = load(key, in);
@@ -415,17 +416,21 @@ namespace sorakado {
         return cache_orig_.at(key);
     }
 
-    std::optional<ImageInfo> &ImageCache::get(const std::filesystem::path &path, const std::optional<int> index) {
+    std::shared_ptr<ImageInfo> ImageCache::get(const std::filesystem::path &path, const std::optional<int> index, const std::optional<bool> use_self_alpha) {
         auto p = path.is_absolute() ? path : (sorakado_dir_ / path);
-        ImagePath key = {p, index};
+        ImagePath key = {p, index, ((use_self_alpha) ? (use_self_alpha.value()) : use_self_alpha_)};
         {
             std::unique_lock<std::mutex> lock(mutex_);
             if (cache_.contains(key)) {
                 return cache_.at(key);
             }
         }
-        auto &info = getOriginal(p, index);
-        if (info == std::nullopt || scale_ == 100) {
+        auto info = getOriginal(p, index);
+        if (!info) {
+            std::shared_ptr<ImageInfo> invalid;
+            return invalid;
+        }
+        if (scale_ == 100) {
             cache_[key] = info;
             return cache_.at(key);
         }
@@ -445,10 +450,10 @@ namespace sorakado {
         SDL_DestroySurface(out);
 
         if (scale_ <= 100 || !th_) {
-            cache_[key] = {resize, w, h, true};
+            cache_[key] = std::make_shared<ImageInfo>(resize, w, h, true);
         }
         else {
-            cache_[key] = {resize, w, h, false};
+            cache_[key] = std::make_shared<ImageInfo>(resize, w, h, false);
             {
                 std::unique_lock<std::mutex> lock(mutex_);
                 queue_.push(key);

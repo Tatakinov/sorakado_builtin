@@ -208,7 +208,7 @@ namespace sorakado::ai::master {
             return {};
         }
         auto filename = util::balloonSide2str(side_, balloon_id_, direction_);
-        auto &info = image_cache_.get(filename);
+        auto info = image_cache_.get(filename);
         if (!info) {
             Logger::log("not found: ", filename);
             return {};
@@ -222,13 +222,13 @@ namespace sorakado::ai::master {
             return invalid;
         }
         auto filename = util::balloonSide2str(side_, balloon_id_, direction_);
-        auto &info = image_cache_.get(filename);
+        auto info = image_cache_.get(filename);
         if (!info) {
             Logger::log("not found: ", filename);
             std::unique_ptr<WrapSurface> invalid;
             return invalid;
         }
-        WrapSurface balloon(info.value());
+        WrapSurface balloon(*info);
         auto dst = std::make_unique<WrapSurface>(balloon.width(), balloon.height());
         SDL_ClearSurface(dst->surface(), 0, 0, 0, 0);
         SDL_SetSurfaceBlendMode(balloon.surface(), SDL_BLENDMODE_BLEND);
@@ -300,7 +300,7 @@ namespace sorakado::ai::master {
     void RenderInfo::setID(int id) {
         int tmp_id = (id / 2) * 2;
         auto filename = util::balloonSide2str(side_, tmp_id, direction_);
-        auto &info = image_cache_.get(filename);
+        auto info = image_cache_.get(filename);
         if (!info) {
             Logger::log("balloon.set:", filename, "not found");
             return;
@@ -364,7 +364,7 @@ namespace sorakado::ai::master {
 
     void RenderInfo::scroll(int diff) {
         auto filename = util::balloonSide2str(side_, balloon_id_, direction_);
-        auto &info = image_cache_.get(filename);
+        auto info = image_cache_.get(filename);
         if (!info) {
             return;
         }
@@ -484,7 +484,7 @@ namespace sorakado::ai::master {
         }
         // scroll
         auto filename = util::balloonSide2str(side_, balloon_id_, direction_);
-        auto &info = image_cache_.get(filename);
+        auto info = image_cache_.get(filename);
         if (!info) {
             Logger::log("not found: ", filename);
             return;

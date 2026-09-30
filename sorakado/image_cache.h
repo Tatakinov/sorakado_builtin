@@ -21,8 +21,9 @@ namespace sorakado {
         std::filesystem::path path;
         // FIXME variant<int, string>
         std::optional<int> index;
+        bool use_self_alpha;
         bool operator==(const ImagePath &rhs) const {
-            return path == rhs.path && index == rhs.index;
+            return path == rhs.path && index == rhs.index && use_self_alpha == rhs.use_self_alpha;
         }
     };
 }
@@ -33,6 +34,9 @@ struct std::hash<sorakado::ImagePath> {
         size_t hash = std::hash<std::filesystem::path>()(p.path);
         if (p.index) {
             hash ^= std::hash<int>()(p.index.value());
+        }
+        if (p.use_self_alpha) {
+            hash = std::hash<size_t>()(hash);
         }
         return hash;
     }
@@ -91,14 +95,14 @@ namespace sorakado {
             std::condition_variable cond_;
             std::unique_ptr<std::thread> th_;
             std::queue<ImagePath> queue_;
-            std::unordered_map<ImagePath, std::optional<ImageInfo>> cache_orig_;
-            std::unordered_map<ImagePath, std::optional<ImageInfo>> cache_;
+            std::unordered_map<ImagePath, std::shared_ptr<ImageInfo>> cache_orig_;
+            std::unordered_map<ImagePath, std::shared_ptr<ImageInfo>> cache_;
 #if defined(USE_ONNX)
             Ort::Env env_;
             Ort::Session session_;
 #endif // USE_ONNX
 
-            std::optional<ImageInfo> load(const ImagePath &p, SDL_Surface *in);
+            std::shared_ptr<ImageInfo> load(const ImagePath &p, SDL_Surface *in);
 
         public:
 #if defined(USE_ONNX)
@@ -109,8 +113,8 @@ namespace sorakado {
 #endif // USE_ONNX
             ~ImageCache();
             void setScale(int scale);
-            std::optional<ImageInfo> &get(const std::filesystem::path &path, const std::optional<int> index = std::nullopt);
-            std::optional<ImageInfo> &getOriginal(const std::filesystem::path &path, const std::optional<int> index = std::nullopt);
+            std::shared_ptr<ImageInfo> get(const std::filesystem::path &path, const std::optional<int> index = std::nullopt, const std::optional<bool> use_self_alpha = std::nullopt);
+            std::shared_ptr<ImageInfo> getOriginal(const std::filesystem::path &path, const std::optional<int> index = std::nullopt, const std::optional<bool> use_self_alpha = std::nullopt);
             void clearCache();
     };
 }

@@ -12,7 +12,7 @@ namespace sorakado::ai {
         if (inputbox_r_.y < 0) {
             inputbox_r_.y = 0;
         }
-        auto &info = image_cache.get(path);
+        auto info = image_cache.get(path);
         if (info) {
             w_ = info->width();
             h_ = info->height();

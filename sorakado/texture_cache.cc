@@ -5,7 +5,7 @@ namespace sorakado {
         if (!map_.contains(key) || (map_.at(key) && !map_.at(key)->isUpconverted())) {
             auto image = image_cache.get(key.path, key.index);
             if (image) {
-                auto surface = std::make_unique<WrapSurface>(image.value());
+                auto surface = std::make_unique<WrapSurface>(*image);
                 auto src = std::make_unique<WrapTexture>(renderer, surface->surface(), surface->isUpconverted());
                 auto dst = std::make_unique<WrapTexture>(renderer, src->width(), src->height(), src->isUpconverted());
                 SDL_BlendMode mode = SDL_ComposeCustomBlendMode(SDL_BLENDFACTOR_SRC_ALPHA, SDL_BLENDFACTOR_ONE_MINUS_SRC_ALPHA, SDL_BLENDOPERATION_ADD, SDL_BLENDFACTOR_ONE, SDL_BLENDFACTOR_ONE, SDL_BLENDOPERATION_ADD);

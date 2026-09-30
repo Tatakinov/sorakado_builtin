@@ -24,7 +24,7 @@ namespace sorakado::ao::master {
     }
 
     Rect ElementWithNoChildren::getRect(bool include_empty_image) const {
-        auto &info = image_cache_.get(filename, index);
+        auto info = image_cache_.get(filename, index);
         if (!info) {
             return {0, 0, 0, 0};
         }
@@ -35,7 +35,7 @@ namespace sorakado::ao::master {
     }
 
     Region ElementWithNoChildren::getRegion() const {
-        auto &info = image_cache_.get(filename, index);
+        auto info = image_cache_.get(filename, index);
         if (!info) {
             return {};
         }
@@ -43,13 +43,13 @@ namespace sorakado::ao::master {
     }
 
     std::unique_ptr<WrapSurface> ElementWithNoChildren::getSurface() const {
-        auto &info = image_cache_.get(filename, index);
+        auto info = image_cache_.get(filename, index);
         if (!info) {
             Logger::log("invalid info");
             std::unique_ptr<WrapSurface> invalid;
             return invalid;
         }
-        WrapSurface src(info.value());
+        WrapSurface src(*info);
         auto dst = std::make_unique<WrapSurface>(x + src.width(), y + src.height());
         SDL_ClearSurface(dst->surface(), 0, 0, 0, 0);
         SDL_SetSurfaceBlendMode(src.surface(), SDL_BLENDMODE_BLEND);
