@@ -17,6 +17,9 @@ namespace sorakado {
 
     struct Rect : public Position {
         int w, h;
+        bool operator==(const Rect &l) const {
+            return x == l.x && y == l.y && w == l.w && h == l.h;
+        }
     };
 
     struct DragPosition {

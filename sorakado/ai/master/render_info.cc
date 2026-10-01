@@ -157,7 +157,7 @@ namespace sorakado::ai::master {
                         .underline = "default",
                         .sup = "default",
                         .sub = "default",
-                        .inline_ = false,
+                        ._inline = false,
                         .opaque = false,
                         .use_self_alpha = false,
                         .fixed = false,
@@ -180,7 +180,48 @@ namespace sorakado::ai::master {
             });
         }
         else {
-            auto &last = post_.data.back();
+            post::Data last = {
+                .position = {origin_x_, origin_y_, 0, 0},
+                .content = {
+                    .type = post::ContentType::Undefined,
+                    .data = "",
+                    .attr = post::Attribute{
+                        .font = "default",
+                        .height = std::nullopt,
+                        .color = "default",
+                        .bold = "default",
+                        .italic = "default",
+                        .strike = "default",
+                        .underline = "default",
+                        .sup = "default",
+                        .sub = "default",
+                        ._inline = false,
+                        .opaque = false,
+                        .use_self_alpha = false,
+                        .fixed = false,
+                        .foreground = false,
+                        .is_sstp_marker = false,
+                        .clipping = std::nullopt,
+                    }
+                },
+                .head = {
+                    .valid = new_line,
+                    .x = {
+                        .type = post::PointType::Absolute,
+                        .value = origin_x_
+                    },
+                    .y = {
+                        .type = post::PointType::Absolute,
+                        .value = origin_y_
+                    }
+                }
+            };
+            for (auto it = post_.data.rbegin(); it != post_.data.rend(); it++) {
+                if (it->head.valid || it->content.type == post::ContentType::Text || (it->content.type == post::ContentType::Image && it->content.attr._inline)) {
+                    last = *it;
+                    break;
+                }
+            }
             post_.data.push_back({
                 .position = {last.position.x + last.position.w, last.position.y, 0, 0},
                 .content = {
@@ -235,6 +276,21 @@ namespace sorakado::ai::master {
         SDL_BlitSurface(balloon.surface(), nullptr, dst->surface(), nullptr);
 
         for (const auto &data : post_.data) {
+            if (data.content.type != post::ContentType::Image || data.content.attr.foreground) {
+                continue;
+            }
+            auto info = image_cache_.get(data.content.data, std::nullopt, data.content.attr.use_self_alpha);
+            if (!info) {
+                continue;
+            }
+            auto s = std::make_unique<WrapSurface>(*info);
+            SDL_Rect r = {data.position.x * scale_ / 100, (data.position.y - scroll_) * scale_ / 100, data.position.w * scale_ / 100, data.position.h * scale_ / 100};
+            SDL_BlitSurface(s->surface(), nullptr, dst->surface(), &r);
+        }
+        for (const auto &data : post_.data) {
+            if (data.content.type != post::ContentType::Text) {
+                continue;
+            }
             if (data.content.data.length() == 0) {
                 continue;
             }
@@ -259,6 +315,18 @@ namespace sorakado::ai::master {
             SDL_Rect r = {data.position.x * scale_ / 100, (data.position.y - scroll_) * scale_ / 100, text->w * scale_ / 100, text->h * scale_ / 100};
             SDL_BlitSurface(text, nullptr, dst->surface(), &r);
             SDL_DestroySurface(text);
+        }
+        for (const auto &data : post_.data) {
+            if (data.content.type != post::ContentType::Image || !data.content.attr.foreground) {
+                continue;
+            }
+            auto info = image_cache_.get(data.content.data, std::nullopt, data.content.attr.use_self_alpha);
+            if (!info) {
+                continue;
+            }
+            auto s = std::make_unique<WrapSurface>(*info);
+            SDL_Rect r = {data.position.x * scale_ / 100, (data.position.y - scroll_) * scale_ / 100, data.position.w * scale_ / 100, data.position.h * scale_ / 100};
+            SDL_BlitSurface(s->surface(), nullptr, dst->surface(), &r);
         }
         return dst;
     }
@@ -380,7 +448,7 @@ namespace sorakado::ai::master {
     }
 
     void RenderInfo::hit(int x, int y) {
-        std::vector<post::Rect> list;
+        std::vector<Rect> list;
         LinkContent content;
         bool hit = false;
         bool in_link = false;
@@ -396,7 +464,7 @@ namespace sorakado::ai::master {
             }
             if (in_link) {
                 auto &p = data.position;
-                post::Rect r = {
+                Rect r = {
                     p.x * scale_ / 100.0,
                     p.y * scale_ / 100.0,
                     p.w * scale_ / 100.0,
@@ -430,7 +498,7 @@ namespace sorakado::ai::master {
         }
     }
 
-    std::vector<post::Rect> RenderInfo::getHitRegion() const {
+    std::vector<Rect> RenderInfo::getHitRegion() const {
         auto ret = link_.hit_region_list;
         for (auto &r : ret) {
             r.y -= scroll_ * scale_ / 100.0;
@@ -513,6 +581,35 @@ namespace sorakado::ai::master {
         last.head.link_end = std::make_optional<post::LinkEnd>(link);
     }
 
+    void RenderInfo::appendImage(const std::string &path, int x, int y, bool _inline, bool opaque, bool use_self_alpha, std::optional<Rect> &clipping, bool scaling, bool fixed, bool foreground, const std::optional<std::string> &source) {
+        auto info = image_cache_.get(path, std::nullopt, use_self_alpha);
+        if (!info) {
+            return;
+        }
+        if (!post_.data.empty()) {
+            auto &last = post_.data.back();
+            if (last.content.type != post::ContentType::Undefined) {
+                newBuffer(false);
+            }
+        }
+        auto &last = post_.data.back();
+        if (!_inline) {
+            last.position.x = x;
+            last.position.y = y;
+        }
+        last.position.w = info->width();
+        last.position.h = info->height();
+        last.content.type = post::ContentType::Image;
+        last.content.data = path;
+        last.content.attr._inline = _inline;
+        last.content.attr.opaque = opaque;
+        last.content.attr.use_self_alpha = use_self_alpha;
+        last.content.attr.fixed = fixed;
+        last.content.attr.foreground = foreground;
+        last.content.attr.is_sstp_marker = false;
+        last.content.attr.clipping = clipping;
+    }
+
     void RenderInfo::setCursorPosition(std::string axis, double value, bool is_absolute, MoveUnit unit) {
         auto &last = post_.data.back();
         auto *font = font_cache_.get(last.content.attr.font) ? font_cache_.get(last.content.attr.font) : font_cache_.get("default");
@@ -535,7 +632,22 @@ namespace sorakado::ai::master {
                     value *= width;
                 }
                 else if (axis == "y") {
-                    value *= TTF_GetFontHeight(font->font()) + kLineSpace;
+                    int height = TTF_GetFontHeight(font->font());
+                    for (auto it = post_.data.rbegin(); it != post_.data.rend(); it++) {
+                        // '\n'による改行の場合は最後にUndefinedなデータがあるので無視する
+                        if (it == post_.data.rbegin() && it->content.type == post::ContentType::Undefined) {
+                            continue;
+                        }
+                        if (it->content.type == post::ContentType::Text || (it->content.type == post::ContentType::Image && it->content.attr._inline)) {
+                            if (height < it->position.h) {
+                                height = it->position.h;
+                            }
+                        }
+                        if (it->head.valid) {
+                            break;
+                        }
+                    }
+                    value *= height + kLineSpace;
                 }
                 break;
         }

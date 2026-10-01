@@ -40,6 +40,7 @@ namespace sorakado::ai {
             virtual void appendText(int side, const std::string &text) = 0;
             virtual void appendLinkBegin(int side, bool is_anchor, const std::string &event, const std::vector<std::string> &args) = 0;
             virtual void appendLinkEnd(int side) = 0;
+            virtual void appendImage(int side, const std::string &path, int x, int y, bool _inline, bool opaque, bool use_self_alpha, std::optional<Rect> &clipping, bool scaling, bool fixed, bool foreground, const std::optional<std::string> &source) = 0;
             virtual void setCursorPosition(int side, std::string axis, double value, bool is_absolute, MoveUnit unit) = 0;
             virtual void newLine(int side) = 0;
     };

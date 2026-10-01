@@ -62,6 +62,7 @@ namespace sorakado::ai::master {
             void appendText(int side, const std::string &text) override;
             void appendLinkBegin(int side, bool is_anchor, const std::string &event, const std::vector<std::string> &args) override;
             void appendLinkEnd(int side) override;
+            void appendImage(int side, const std::string &path, int x, int y, bool _inline, bool opaque, bool use_self_alpha, std::optional<Rect> &clipping, bool scaling, bool fixed, bool foreground, const std::optional<std::string> &source) override;
             void setCursorPosition(int side, std::string axis, double value, bool is_absolute, MoveUnit unit) override;
             void newLine(int side) override;
             void openInputBox(const std::string &id) override;

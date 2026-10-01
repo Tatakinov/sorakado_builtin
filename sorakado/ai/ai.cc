@@ -93,6 +93,24 @@ namespace sorakado::ai {
             util::to_x(args[1], side);
             appendLinkEnd(side);
         }
+        else if (args[0] == "AppendImage" && args.size() >= 13) {
+            int side, x, y;
+            util::to_x(args[1], side);
+            std::filesystem::path path = args[2];
+            util::to_x(args[3], x);
+            util::to_x(args[4], y);
+            bool _inline = args[5] == "true";
+            bool opaque = args[6] == "true";
+            bool use_self_alpha = args[7] == "true";
+            // TODO stub
+            std::optional<Rect> clipping = std::nullopt;
+            // TODO stub
+            bool scaling = false;
+            bool fixed = args[10] == "true";
+            bool foreground = args[11] == "true";
+            std::optional<std::string> source = std::nullopt;
+            appendImage(side, path, x, y, _inline, opaque, use_self_alpha, clipping, scaling, fixed, foreground, source);
+        }
         else if (args[0] == "SetCursorPosition" && args.size() == 6) {
             int side;
             std::string axis;

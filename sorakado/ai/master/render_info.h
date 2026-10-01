@@ -17,15 +17,7 @@ namespace sorakado::ai::master {
     class Character;
 
     namespace post {
-        struct Rect {
-            int x, y, w, h;
-            bool operator==(const Rect &l) const {
-                return x == l.x && y == l.y && w == l.w && h == l.h;
-            }
-        };
-
         using Color = std::variant<sorakado::Color, std::string>;
-
         using IntString = std::variant<int, std::string>;
         using BoolString = std::variant<bool, std::string>;
 
@@ -34,13 +26,13 @@ namespace sorakado::ai::master {
             std::optional<int> height;
             Color color;
             BoolString bold, italic, strike, underline, sup, sub;
-            bool inline_, opaque, use_self_alpha, fixed, foreground, is_sstp_marker;
+            bool _inline, opaque, use_self_alpha, fixed, foreground, is_sstp_marker;
             std::optional<Rect> clipping;
             bool operator==(const Attribute &l) const {
                 return font == l.font && height == l.height && color == l.color &&
                     bold == l.bold && italic == l.italic && strike == l.strike &&
                     underline == l.underline && sup == l.sup && sub == l.sub &&
-                    inline_ == l.inline_ && opaque == l.opaque &&
+                    _inline == l._inline && opaque == l.opaque &&
                     use_self_alpha == l.use_self_alpha && fixed == l.fixed &&
                     foreground == l.foreground &&
                     is_sstp_marker == l.is_sstp_marker && clipping == l.clipping;
@@ -126,7 +118,7 @@ namespace sorakado::ai::master {
     };
 
     struct Link {
-        std::vector<post::Rect> hit_region_list;
+        std::vector<Rect> hit_region_list;
         LinkContent content;
         bool operator==(const Link &l) const {
             return hit_region_list == l.hit_region_list && content == l.content;
@@ -166,7 +158,7 @@ namespace sorakado::ai::master {
             void setDirection(bool direction);
             void scroll(int diff);
             void hit(int x, int y);
-            std::vector<post::Rect> getHitRegion() const;
+            std::vector<Rect> getHitRegion() const;
             Link getLink() const {
                 return link_;
             }
@@ -187,6 +179,7 @@ namespace sorakado::ai::master {
             void appendText(const std::string &text);
             void appendLinkBegin(bool is_anchor, const std::string &event, const std::vector<std::string> &args);
             void appendLinkEnd();
+            void appendImage(const std::string &path, int x, int y, bool _inline, bool opaque, bool use_self_alpha, std::optional<Rect> &clipping, bool scaling, bool fixed, bool foreground, const std::optional<std::string> &source);
             void setCursorPosition(std::string axis, double value, bool is_absolute, MoveUnit unit);
 
             Region getRegion() const override;
