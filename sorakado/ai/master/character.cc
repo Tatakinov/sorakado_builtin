@@ -52,6 +52,15 @@ namespace sorakado::ai::master {
     }
 
     Character::Character(sorakado::Sorakado &parent, std::unique_ptr<WindowManager> window_manager, int side, const std::string &name, ImageCache &image_cache, FontCache &font_cache) : sorakado::Character(parent, std::move(window_manager), side, name), offset_(0, 0), info_(*this, side, image_cache, font_cache), raise_on_talk_(false) {
+        prev_link_ = {
+            .hit_region_list = {},
+            .content = {
+                .is_anchor = false,
+                .text = "",
+                .event = "",
+                .args = {},
+            },
+        };
     }
 
     void Character::resetPosition(bool initialize) {
