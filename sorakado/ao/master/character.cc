@@ -414,10 +414,10 @@ namespace sorakado::ao::master {
             }
         }
         if (util::isWayland()) {
-            window_manager_->draw(getRect(), *info, current_surface_);
+            window_manager_->draw(getRect(), *info);
         }
         else {
-            window_manager_->draw({0, 0}, *info, current_surface_);
+            window_manager_->draw({0, 0}, *info);
         }
         if (!prev_info_ || *prev_info_ != *info) {
             prev_info_ = std::move(info);

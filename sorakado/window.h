@@ -93,7 +93,7 @@ namespace sorakado {
             bool focus(window_id_t id, bool focused);
             bool focused() const;
 
-            void draw(Position offset, const RenderInfo &render_info, region_t &region);
+            void draw(Position offset, const RenderInfo &render_info);
             void redrawn();
     };
 }

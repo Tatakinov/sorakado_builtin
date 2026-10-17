@@ -140,10 +140,10 @@ namespace sorakado::ai::master {
             }
         }
         if (util::isWayland()) {
-            window_manager_->draw(getRect(), info_, region_);
+            window_manager_->draw(getRect(), info_);
         }
         else {
-            window_manager_->draw({0, 0}, info_, region_);
+            window_manager_->draw({0, 0}, info_);
         }
         info_.update();
     }

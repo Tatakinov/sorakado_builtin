@@ -16,15 +16,12 @@ namespace sorakado::ai {
             return;
         }
         update();
-        if (info_.changed()) {
-            region_ = info_.getSurface();
-        }
         info_.update();
         if (util::isWayland()) {
-            window_manager_->draw(getRect(), info_, region_);
+            window_manager_->draw(getRect(), info_);
         }
         else {
-            window_manager_->draw({0, 0}, info_, region_);
+            window_manager_->draw({0, 0}, info_);
         }
     }
 

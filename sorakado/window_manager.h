@@ -28,7 +28,7 @@ namespace sorakado {
             virtual ~WindowManager();
             virtual void create(BaseCharacter &parent, display_t id, const std::string &name) = 0;
             virtual void destroy(display_t id) = 0;
-            virtual void draw(Position offset, const RenderInfo &render_info, region_t &region) = 0;
+            virtual void draw(Position offset, const RenderInfo &render_info) = 0;
             virtual bool swapBuffers() = 0;
 
             virtual Rect getMonitorRect(const Rect &r) const = 0;

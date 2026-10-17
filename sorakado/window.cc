@@ -185,7 +185,7 @@ namespace sorakado {
         return focused_;
     }
 
-    void Window::draw(Position offset, const RenderInfo &render_info, region_t &region) {
+    void Window::draw(Position offset, const RenderInfo &render_info) {
         if (!util::isWayland() && !render_info.changed() && texture_ && texture_->isUpconverted()) {
             return;
         }
@@ -210,9 +210,7 @@ namespace sorakado {
                 r = { offset.x - m.x, offset.y - m.y, texture_->width(), texture_->height() };
             }
             SDL_RenderTexture(renderer_, texture_->texture(), nullptr, (util::isWayland() ? &r : nullptr));
-        }
-        if (region) {
-            Rect rect = {offset.x, offset.y, region->width(), region->height()};
+            Rect rect = {offset.x, offset.y, texture_->width(), texture_->height()};
             auto m = getMonitorRect(rect);
             Region shape = translate(render_info.getRegion(), offset.x, offset.y);
             if (!shape_ || shape_ != shape) {
@@ -229,7 +227,17 @@ namespace sorakado {
                 else
 #endif // Linux/Unix
                 {
-                    SDL_SetWindowShape(window_, region->surface());
+                    std::vector<uint32_t> src;
+                    src.reserve(texture_->width() * texture_->height());
+                    for (auto &v : shape) {
+                        for (int x = v.x; x < v.x + v.len; x++) {
+                            int index = (v.y * texture_->width() + x);
+                            src[index] = 0xffffffff;
+                        }
+                    }
+                    SDL_Surface *s = SDL_CreateSurfaceFrom(texture_->width(), texture_->height(), SDL_PIXELFORMAT_ABGR8888, src.data(), texture_->width() * 4);
+                    SDL_SetWindowShape(window_, s);
+                    SDL_DestroySurface(s);
                 }
                 shape_ = shape;
             }

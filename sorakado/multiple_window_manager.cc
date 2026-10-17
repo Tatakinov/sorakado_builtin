@@ -20,9 +20,9 @@ namespace sorakado {
         }
     }
 
-    void MultipleWindowManager::draw(Position offset, const RenderInfo &render_info, region_t &region) {
+    void MultipleWindowManager::draw(Position offset, const RenderInfo &render_info) {
         for (auto &[_, window] : windows_) {
-            window->draw(offset, render_info, region);
+            window->draw(offset, render_info);
         }
     }
 

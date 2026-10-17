@@ -13,8 +13,7 @@ namespace sorakado::ao {
     }
 
     void AoMenuWindow::draw() {
-        auto region = menu_->getSurface();
-        Window::draw({0, 0}, *menu_, region);
+        Window::draw({0, 0}, *menu_);
     }
 
     bool AoMenuWindow::key(sorakado::window_id_t id, sorakado::key_t key, bool down) {

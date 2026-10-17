@@ -27,7 +27,7 @@ namespace sorakado {
 
             void create(BaseCharacter &parent, display_t id, const std::string &name) override;
             void destroy(display_t id) override;
-            void draw(Position offset, const RenderInfo &render_info, region_t &region) override;
+            void draw(Position offset, const RenderInfo &render_info) override;
             bool swapBuffers() override;
 
             Rect getMonitorRect(const Rect &r) const override;

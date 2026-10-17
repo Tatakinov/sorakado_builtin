@@ -20,11 +20,11 @@ namespace sorakado {
         window_.reset();
     }
 
-    void SingleWindowManager::draw(Position offset, const RenderInfo &render_info, region_t &region) {
+    void SingleWindowManager::draw(Position offset, const RenderInfo &render_info) {
         if (!window_) {
             return;
         }
-        window_->draw(offset, render_info, region);
+        window_->draw(offset, render_info);
     }
 
     bool SingleWindowManager::swapBuffers() {
