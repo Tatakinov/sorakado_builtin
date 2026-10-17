@@ -430,6 +430,12 @@ namespace sorakado::ao::master {
 
     void Character::setSurfaceID(const std::string &id) {
         if (seriko_->setSurfaceID(id)) {
+            switch (seriko_->getSurfaceID()) {
+                case -1:
+                    hide();
+                default:
+                    show();
+            }
             static_cast<Ao &>(parent_).surfaceChanged(side(), getSurfaceID());
         }
     }
