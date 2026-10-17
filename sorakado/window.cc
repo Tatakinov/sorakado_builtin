@@ -177,6 +177,7 @@ namespace sorakado {
     void Window::resize(int w, int h) {
         if (!util::isWayland()) {
             SDL_SetWindowSize(window_, w, h);
+            SDL_SyncWindow(window_);
         }
     }
 
@@ -199,14 +200,16 @@ namespace sorakado {
         SDL_SetRenderDrawColor(renderer_, 0x00, 0x00, 0x00, 0x00);
         SDL_RenderClear(renderer_);
         if (texture_) {
-            Rect rect = {offset.x, offset.y, texture_->width(), texture_->height()};
-            auto m = getMonitorRect(rect);
             SDL_SetRenderTarget(renderer_, nullptr);
             SDL_BlendMode mode = SDL_ComposeCustomBlendMode(SDL_BLENDFACTOR_ONE, SDL_BLENDFACTOR_ONE_MINUS_SRC_ALPHA, SDL_BLENDOPERATION_ADD, SDL_BLENDFACTOR_ONE, SDL_BLENDFACTOR_ONE, SDL_BLENDOPERATION_ADD);
             SDL_SetTextureBlendMode(texture_->texture(), mode);
-            SDL_FRect r = { offset.x - m.x, offset.y - m.y, texture_->width(), texture_->height() };
-            Logger::log("window.draw", r.x, r.y, r.w, r.h);
-            SDL_RenderTexture(renderer_, texture_->texture(), nullptr, &r);
+            SDL_FRect r = { 0, 0, texture_->width(), texture_->height() };
+            if (util::isWayland()) {
+                Rect rect = { offset.x, offset.y, texture_->width(), texture_->height() };
+                auto m = getMonitorRect(rect);
+                r = { offset.x - m.x, offset.y - m.y, texture_->width(), texture_->height() };
+            }
+            SDL_RenderTexture(renderer_, texture_->texture(), nullptr, (util::isWayland() ? &r : nullptr));
         }
         if (region) {
             Rect rect = {offset.x, offset.y, region->width(), region->height()};
