@@ -186,9 +186,6 @@ namespace sorakado {
     }
 
     void Window::draw(Position offset, const RenderInfo &render_info) {
-        if (!util::isWayland() && !render_info.changed() && texture_ && texture_->isUpconverted()) {
-            return;
-        }
         if (!texture_ || render_info.changed()) {
             texture_ = render_info.getTexture(renderer_, *texture_cache_);
         }
