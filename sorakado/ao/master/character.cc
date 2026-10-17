@@ -406,12 +406,9 @@ namespace sorakado::ao::master {
         update();
         if (!prev_info_ || *prev_info_ != *info) {
             info->change();
-            current_surface_ = info->getSurface();
-            if (current_surface_) {
-                setSize(current_surface_->width(), current_surface_->height());
-                auto o = info->getRect();
-                setOffset(o.x, o.y);
-            }
+            auto o = info->getRect();
+            setSize(o.w, o.h);
+            setOffset(o.x, o.y);
         }
         if (util::isWayland()) {
             window_manager_->draw(getRect(), *info);
