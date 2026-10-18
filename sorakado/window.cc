@@ -200,15 +200,15 @@ namespace sorakado {
             SDL_SetRenderTarget(renderer_, nullptr);
             SDL_BlendMode mode = SDL_ComposeCustomBlendMode(SDL_BLENDFACTOR_ONE, SDL_BLENDFACTOR_ONE_MINUS_SRC_ALPHA, SDL_BLENDOPERATION_ADD, SDL_BLENDFACTOR_ONE, SDL_BLENDFACTOR_ONE, SDL_BLENDOPERATION_ADD);
             SDL_SetTextureBlendMode(texture_->texture(), mode);
-            SDL_FRect r = { 0, 0, texture_->width(), texture_->height() };
-            if (util::isWayland()) {
-                Rect rect = { offset.x, offset.y, texture_->width(), texture_->height() };
-                auto m = getMonitorRect(rect);
-                r = { offset.x - m.x, offset.y - m.y, texture_->width(), texture_->height() };
-            }
-            SDL_RenderTexture(renderer_, texture_->texture(), nullptr, (util::isWayland() ? &r : nullptr));
             Rect rect = {offset.x, offset.y, texture_->width(), texture_->height()};
             auto m = getMonitorRect(rect);
+            if (util::isWayland()) {
+                SDL_FRect r = { offset.x - m.x, offset.y - m.y, texture_->width(), texture_->height() };
+                SDL_RenderTexture(renderer_, texture_->texture(), nullptr, &r);
+            }
+            else {
+                SDL_RenderTexture(renderer_, texture_->texture(), nullptr, nullptr);
+            }
             Region shape = translate(render_info.getRegion(), offset.x, offset.y);
             if (!shape_ || shape_ != shape) {
 #if defined(IS__NIX)
