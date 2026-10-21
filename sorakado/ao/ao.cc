@@ -49,6 +49,11 @@ namespace sorakado::ao {
             util::to_x(args[1], side);
             show(side);
         }
+        else if (args[0] == "Hide" && args.size() == 2) {
+            int side;
+            util::to_x(args[1], side);
+            hide(side);
+        }
         else if (args[0] == "SetSurfaceID") {
             int side;
             util::to_x(args[1], side);
