@@ -284,8 +284,8 @@ namespace sorakado::ai::master {
         info_.appendLinkEnd();
     }
 
-    void Character::appendImage(const std::string &path, int x, int y, bool _inline, bool opaque, bool use_self_alpha, std::optional<Rect> &clipping, bool scaling, bool fixed, bool foreground, const std::optional<std::string> &source) {
-        info_.appendImage(path, x, y, _inline, opaque, use_self_alpha, clipping, scaling, fixed, foreground, source);
+    void Character::appendImage(const std::string &path, int x, int y, bool as_char, bool opaque, bool use_self_alpha, std::optional<Rect> &clipping, bool scaling, bool fixed, bool foreground, const std::optional<std::string> &source) {
+        info_.appendImage(path, x, y, as_char, opaque, use_self_alpha, clipping, scaling, fixed, foreground, source);
     }
 
     void Character::setCursorPosition(std::string axis, double value, bool is_absolute, MoveUnit unit) {

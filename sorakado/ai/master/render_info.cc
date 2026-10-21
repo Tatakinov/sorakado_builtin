@@ -157,7 +157,7 @@ namespace sorakado::ai::master {
                         .underline = "default",
                         .sup = "default",
                         .sub = "default",
-                        ._inline = false,
+                        .as_char = false,
                         .opaque = false,
                         .use_self_alpha = false,
                         .fixed = false,
@@ -195,7 +195,7 @@ namespace sorakado::ai::master {
                         .underline = "default",
                         .sup = "default",
                         .sub = "default",
-                        ._inline = false,
+                        .as_char = false,
                         .opaque = false,
                         .use_self_alpha = false,
                         .fixed = false,
@@ -217,7 +217,7 @@ namespace sorakado::ai::master {
                 }
             };
             for (auto it = post_.data.rbegin(); it != post_.data.rend(); it++) {
-                if (it->head.valid || it->content.type == post::ContentType::Text || (it->content.type == post::ContentType::Image && it->content.attr._inline)) {
+                if (it->head.valid || it->content.type == post::ContentType::Text || (it->content.type == post::ContentType::Image && it->content.attr.as_char)) {
                     last = *it;
                     break;
                 }
@@ -581,7 +581,7 @@ namespace sorakado::ai::master {
         last.head.link_end = std::make_optional<post::LinkEnd>(link);
     }
 
-    void RenderInfo::appendImage(const std::string &path, int x, int y, bool _inline, bool opaque, bool use_self_alpha, std::optional<Rect> &clipping, bool scaling, bool fixed, bool foreground, const std::optional<std::string> &source) {
+    void RenderInfo::appendImage(const std::string &path, int x, int y, bool as_char, bool opaque, bool use_self_alpha, std::optional<Rect> &clipping, bool scaling, bool fixed, bool foreground, const std::optional<std::string> &source) {
         auto info = image_cache_.get(path, std::nullopt, use_self_alpha);
         if (!info) {
             return;
@@ -593,7 +593,7 @@ namespace sorakado::ai::master {
             }
         }
         auto &last = post_.data.back();
-        if (!_inline) {
+        if (!as_char) {
             last.position.x = x;
             last.position.y = y;
         }
@@ -601,7 +601,7 @@ namespace sorakado::ai::master {
         last.position.h = info->height();
         last.content.type = post::ContentType::Image;
         last.content.data = path;
-        last.content.attr._inline = _inline;
+        last.content.attr.as_char = as_char;
         last.content.attr.opaque = opaque;
         last.content.attr.use_self_alpha = use_self_alpha;
         last.content.attr.fixed = fixed;
@@ -638,7 +638,7 @@ namespace sorakado::ai::master {
                         if (it == post_.data.rbegin() && it->content.type == post::ContentType::Undefined) {
                             continue;
                         }
-                        if (it->content.type == post::ContentType::Text || (it->content.type == post::ContentType::Image && it->content.attr._inline)) {
+                        if (it->content.type == post::ContentType::Text || (it->content.type == post::ContentType::Image && it->content.attr.as_char)) {
                             if (height < it->position.h) {
                                 height = it->position.h;
                             }

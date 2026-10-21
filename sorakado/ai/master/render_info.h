@@ -26,13 +26,13 @@ namespace sorakado::ai::master {
             std::optional<int> height;
             Color color;
             BoolString bold, italic, strike, underline, sup, sub;
-            bool _inline, opaque, use_self_alpha, fixed, foreground, is_sstp_marker;
+            bool as_char, opaque, use_self_alpha, fixed, foreground, is_sstp_marker;
             std::optional<Rect> clipping;
             bool operator==(const Attribute &l) const {
                 return font == l.font && height == l.height && color == l.color &&
                     bold == l.bold && italic == l.italic && strike == l.strike &&
                     underline == l.underline && sup == l.sup && sub == l.sub &&
-                    _inline == l._inline && opaque == l.opaque &&
+                    as_char == l.as_char && opaque == l.opaque &&
                     use_self_alpha == l.use_self_alpha && fixed == l.fixed &&
                     foreground == l.foreground &&
                     is_sstp_marker == l.is_sstp_marker && clipping == l.clipping;
@@ -179,7 +179,7 @@ namespace sorakado::ai::master {
             void appendText(const std::string &text);
             void appendLinkBegin(bool is_anchor, const std::string &event, const std::vector<std::string> &args);
             void appendLinkEnd();
-            void appendImage(const std::string &path, int x, int y, bool _inline, bool opaque, bool use_self_alpha, std::optional<Rect> &clipping, bool scaling, bool fixed, bool foreground, const std::optional<std::string> &source);
+            void appendImage(const std::string &path, int x, int y, bool as_char, bool opaque, bool use_self_alpha, std::optional<Rect> &clipping, bool scaling, bool fixed, bool foreground, const std::optional<std::string> &source);
             void setCursorPosition(std::string axis, double value, bool is_absolute, MoveUnit unit);
 
             Region getRegion() const override;

@@ -356,11 +356,11 @@ namespace sorakado::ai::master {
         characters_.at(side)->appendLinkEnd();
     }
 
-    void Ai::appendImage(int side, const std::string &path, int x, int y, bool _inline, bool opaque, bool use_self_alpha, std::optional<Rect> &clipping, bool scaling, bool fixed, bool foreground, const std::optional<std::string> &source) {
+    void Ai::appendImage(int side, const std::string &path, int x, int y, bool as_char, bool opaque, bool use_self_alpha, std::optional<Rect> &clipping, bool scaling, bool fixed, bool foreground, const std::optional<std::string> &source) {
         if (!characters_.contains(side)) {
             return;
         }
-        characters_.at(side)->appendImage(path, x, y, _inline, opaque, use_self_alpha, clipping, scaling, fixed, foreground, source);
+        characters_.at(side)->appendImage(path, x, y, as_char, opaque, use_self_alpha, clipping, scaling, fixed, foreground, source);
     }
 
     void Ai::setCursorPosition(int side, std::string axis, double value, bool is_absolute, MoveUnit unit) {
