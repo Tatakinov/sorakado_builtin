@@ -134,12 +134,19 @@ namespace util {
         std::ostringstream oss;
         std::string buffer;
         std::string charset = "Shift_JIS";
+        bool once = true;
         while (std::getline(ifs, buffer, '\n')) {
             if (buffer.ends_with('\r')) {
-                oss << buffer.substr(0, buffer.length() - 1) << '\n';
+                buffer = buffer.substr(0, buffer.length() - 1);
             }
-            else {
-                oss << buffer << '\n';
+            oss << buffer << '\n';
+            if (once) {
+                once = false;
+                if (buffer.starts_with("\xef\xbb\xbf")) {
+                    buffer = buffer.substr(3);
+                    charset = "UTF-8";
+                    continue;
+                }
             }
             if (buffer.starts_with("charset,")) {
                 int begin = 8;
@@ -151,7 +158,7 @@ namespace util {
                     break;
                 }
                 for (; end > 0; end--) {
-                    if (buffer[begin] == ' ') {
+                    if (buffer[end] == ' ') {
                         continue;
                     }
                     break;
