@@ -279,7 +279,9 @@ namespace sorakado::ai::master {
             if (data.content.type != post::ContentType::Image || data.content.attr.foreground) {
                 continue;
             }
-            auto info = image_cache_.get(data.content.data, std::nullopt, data.content.attr.use_self_alpha);
+            std::u8string u8p(data.content.data.begin(), data.content.data.end());
+            std::filesystem::path path = u8p;
+            auto info = image_cache_.get(path, std::nullopt, data.content.attr.use_self_alpha);
             if (!info) {
                 continue;
             }
@@ -320,7 +322,9 @@ namespace sorakado::ai::master {
             if (data.content.type != post::ContentType::Image || !data.content.attr.foreground) {
                 continue;
             }
-            auto info = image_cache_.get(data.content.data, std::nullopt, data.content.attr.use_self_alpha);
+            std::u8string u8p(data.content.data.begin(), data.content.data.end());
+            std::filesystem::path path = u8p;
+            auto info = image_cache_.get(path, std::nullopt, data.content.attr.use_self_alpha);
             if (!info) {
                 continue;
             }
@@ -597,10 +601,12 @@ namespace sorakado::ai::master {
             last.position.x = x;
             last.position.y = y;
         }
+        std::u8string u8p = path.u8string();
+        std::string p(u8p.begin(), u8p.end());
         last.position.w = info->width();
         last.position.h = info->height();
         last.content.type = post::ContentType::Image;
-        last.content.data = path;
+        last.content.data = p;
         last.content.attr.as_char = as_char;
         last.content.attr.opaque = opaque;
         last.content.attr.use_self_alpha = use_self_alpha;
