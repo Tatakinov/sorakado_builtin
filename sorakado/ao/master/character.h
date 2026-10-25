@@ -37,6 +37,8 @@ namespace sorakado::ao::master {
         public:
             Character(sorakado::Sorakado &parent, std::unique_ptr<WindowManager> window_manager, int side, const std::string &name, std::unique_ptr<Seriko> seriko);
 
+            void reload(std::unique_ptr<Seriko> seriko);
+
             void create(display_t id) override;
             void destroy(display_t id) override;
             void draw() override;

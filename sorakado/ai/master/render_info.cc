@@ -581,7 +581,7 @@ namespace sorakado::ai::master {
         last.head.link_end = std::make_optional<post::LinkEnd>(link);
     }
 
-    void RenderInfo::appendImage(const std::string &path, int x, int y, bool as_char, bool opaque, bool use_self_alpha, std::optional<Rect> &clipping, bool scaling, bool fixed, bool foreground, const std::optional<std::string> &source) {
+    void RenderInfo::appendImage(const std::filesystem::path &path, int x, int y, bool as_char, bool opaque, bool use_self_alpha, std::optional<Rect> &clipping, bool scaling, bool fixed, bool foreground, const std::optional<std::string> &source) {
         auto info = image_cache_.get(path, std::nullopt, use_self_alpha);
         if (!info) {
             return;

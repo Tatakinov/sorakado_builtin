@@ -179,7 +179,7 @@ namespace sorakado::ai::master {
             void appendText(const std::string &text);
             void appendLinkBegin(bool is_anchor, const std::string &event, const std::vector<std::string> &args);
             void appendLinkEnd();
-            void appendImage(const std::string &path, int x, int y, bool as_char, bool opaque, bool use_self_alpha, std::optional<Rect> &clipping, bool scaling, bool fixed, bool foreground, const std::optional<std::string> &source);
+            void appendImage(const std::filesystem::path &path, int x, int y, bool as_char, bool opaque, bool use_self_alpha, std::optional<Rect> &clipping, bool scaling, bool fixed, bool foreground, const std::optional<std::string> &source);
             void setCursorPosition(std::string axis, double value, bool is_absolute, MoveUnit unit);
 
             Region getRegion() const override;

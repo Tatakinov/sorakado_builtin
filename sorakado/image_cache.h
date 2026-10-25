@@ -112,6 +112,7 @@ namespace sorakado {
             : alive_(true), use_self_alpha_(use_self_alpha), scale_(100), sorakado_dir_(sorakado_dir) {}
 #endif // USE_ONNX
             ~ImageCache();
+            void setUseSelfAlpha(bool use);
             void setScale(int scale);
             std::shared_ptr<ImageInfo> get(const std::filesystem::path &path, const std::optional<int> index = std::nullopt, const std::optional<bool> use_self_alpha = std::nullopt);
             std::shared_ptr<ImageInfo> getOriginal(const std::filesystem::path &path, const std::optional<int> index = std::nullopt, const std::optional<bool> use_self_alpha = std::nullopt);

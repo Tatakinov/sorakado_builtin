@@ -5,6 +5,7 @@
 
 namespace sorakado::ao {
     Ao::Ao(sorakado::Application *parent, std::filesystem::path dir) : sorakado::Sorakado(parent, dir) {
+        reload();
     }
 
     std::optional<lib_skeleton::sorakado::Response> Ao::sorakadoEventImmediately(const lib_skeleton::sorakado::Request &req) {

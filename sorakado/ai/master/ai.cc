@@ -39,6 +39,12 @@ namespace sorakado::ai::master {
         font_cache_->setDefaultFont(family);
     }
 
+    void Ai::reload() {
+        Sorakado::reload();
+        image_cache_->clearCache();
+        image_cache_->setUseSelfAlpha(getInfo("seriko.use_self_alpha", false) == "1");
+    }
+
     void Ai::create(int side) {
         auto window_factory = std::make_unique<AiMasterWindowFactory>();
         auto s = util::side2str(side);
@@ -356,7 +362,7 @@ namespace sorakado::ai::master {
         characters_.at(side)->appendLinkEnd();
     }
 
-    void Ai::appendImage(int side, const std::string &path, int x, int y, bool as_char, bool opaque, bool use_self_alpha, std::optional<Rect> &clipping, bool scaling, bool fixed, bool foreground, const std::optional<std::string> &source) {
+    void Ai::appendImage(int side, const std::filesystem::path &path, int x, int y, bool as_char, bool opaque, bool use_self_alpha, std::optional<Rect> &clipping, bool scaling, bool fixed, bool foreground, const std::optional<std::string> &source) {
         if (!characters_.contains(side)) {
             return;
         }

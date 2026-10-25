@@ -6,8 +6,13 @@
 #include "sorakado/util.h"
 
 namespace sorakado {
-    Sorakado::Sorakado(Application *parent, std::filesystem::path dir) : parent_(parent) {
-        std::string descript = util::readDescript(dir / "descript.txt");
+    Sorakado::Sorakado(Application *parent, std::filesystem::path dir) : parent_(parent), dir_(dir) {
+        reload();
+    }
+
+    void Sorakado::reload() {
+        descript_info_.clear();
+        std::string descript = util::readDescript(dir_ / "descript.txt");
         std::istringstream iss(descript);
         std::string value;
         while (std::getline(iss, value, '\n')) {

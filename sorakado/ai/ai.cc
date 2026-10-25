@@ -96,7 +96,9 @@ namespace sorakado::ai {
         else if (args[0] == "AppendImage" && args.size() >= 13) {
             int side, x, y;
             util::to_x(args[1], side);
-            std::filesystem::path path = args[2];
+            std::string p = args[2];
+            std::u8string u8p(p.begin(), p.end());
+            std::filesystem::path path = u8p;
             util::to_x(args[3], x);
             util::to_x(args[4], y);
             bool as_char = args[5] == "true";

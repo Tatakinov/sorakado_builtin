@@ -27,6 +27,8 @@ namespace sorakado::ai::master {
             Ai(sorakado::Application *parent, std::filesystem::path dir);
             ~Ai() {}
 
+            void reload() override;
+
             void display(const display_t display, const bool added) override;
             void key(sorakado::window_id_t id, sorakado::key_t key, bool down) override;
             void input(window_id_t id, const std::string &text) override;
@@ -62,7 +64,7 @@ namespace sorakado::ai::master {
             void appendText(int side, const std::string &text) override;
             void appendLinkBegin(int side, bool is_anchor, const std::string &event, const std::vector<std::string> &args) override;
             void appendLinkEnd(int side) override;
-            void appendImage(int side, const std::string &path, int x, int y, bool as_char, bool opaque, bool use_self_alpha, std::optional<Rect> &clipping, bool scaling, bool fixed, bool foreground, const std::optional<std::string> &source) override;
+            void appendImage(int side, const std::filesystem::path &path, int x, int y, bool as_char, bool opaque, bool use_self_alpha, std::optional<Rect> &clipping, bool scaling, bool fixed, bool foreground, const std::optional<std::string> &source) override;
             void setCursorPosition(int side, std::string axis, double value, bool is_absolute, MoveUnit unit) override;
             void newLine(int side) override;
             void openInputBox(const std::string &id) override;

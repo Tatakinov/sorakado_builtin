@@ -22,6 +22,30 @@
 
 namespace sorakado::ao::master {
     Ao::Ao(Application *parent, std::filesystem::path dir) : sorakado::ao::Ao(parent, dir), menu_initializer_({nullptr, -1, {0, 0}, {0, 0, 0, 0}}) {
+#ifdef IS_WINDOWS
+        std::wstring exe_path;
+        exe_path.resize(1024);
+        GetModuleFileName(nullptr, exe_path.data(), 1023);
+#else
+        std::string exe_path;
+        exe_path.resize(1024);
+        readlink("/proc/self/exe", exe_path.data(), 1023);
+#endif // OS
+        std::filesystem::path exe_dir = exe_path;
+        exe_dir = exe_dir.parent_path();
+
+        image_cache_ = std::make_unique<ImageCache>(dir, exe_dir, getInfo("seriko.use_self_alpha", false) == "1");
+        font_cache_ = std::make_unique<FontCache>();
+        auto family = fontlist::get_default_font();
+        font_cache_->setDefaultFont(family);
+        reload();
+    }
+
+    void Ao::reload() {
+        Sorakado::reload();
+        image_cache_->clearCache();
+        image_cache_->setUseSelfAlpha(getInfo("seriko.use_self_alpha", false) == "1");
+        bind_id_.clear();
         for (auto &[key, value] : descript_info_) {
             std::string tmp, group, name, category, part;
             int side = -1, id = -1;
@@ -64,23 +88,10 @@ namespace sorakado::ao::master {
             auto bind_key = category + "," + part;
             bind_id_[side][bind_key] = id;
         }
-#ifdef IS_WINDOWS
-        std::wstring exe_path;
-        exe_path.resize(1024);
-        GetModuleFileName(nullptr, exe_path.data(), 1023);
-#else
-        std::string exe_path;
-        exe_path.resize(1024);
-        readlink("/proc/self/exe", exe_path.data(), 1023);
-#endif // OS
-        std::filesystem::path exe_dir = exe_path;
-        exe_dir = exe_dir.parent_path();
-
-        image_cache_ = std::make_unique<ImageCache>(dir, exe_dir, getInfo("seriko.use_self_alpha", false) == "1");
-        surfaces_ = std::make_unique<Surfaces>(dir);
-        font_cache_ = std::make_unique<FontCache>();
-        auto family = fontlist::get_default_font();
-        font_cache_->setDefaultFont(family);
+        surfaces_ = std::make_unique<Surfaces>(dir_);
+        for (auto &[k, v] : characters_) {
+            v->reload(surfaces_->getSeriko(*image_cache_, k));
+        }
     }
 
     void Ao::create(int side) {

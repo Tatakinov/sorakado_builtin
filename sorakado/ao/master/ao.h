@@ -32,6 +32,8 @@ namespace sorakado::ao::master {
             Ao(sorakado::Application *parent, std::filesystem::path dir);
             ~Ao() {}
 
+            void reload() override;
+
             void display(const display_t display, const bool added) override;
             void key(sorakado::window_id_t id, sorakado::key_t key, bool down) override;
             void input(window_id_t id, const std::string &text) override;

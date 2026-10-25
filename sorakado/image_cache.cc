@@ -252,6 +252,10 @@ namespace sorakado {
         }
     }
 
+    void ImageCache::setUseSelfAlpha(bool use) {
+        use_self_alpha_ = use;
+    }
+
     void ImageCache::setScale(int scale) {
         std::unique_lock<std::mutex> lock(mutex_);
         if (scale != scale_) {

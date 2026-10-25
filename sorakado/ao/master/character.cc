@@ -56,6 +56,11 @@ namespace sorakado::ao::master {
         seriko_->setParent(this);
     }
 
+    void Character::reload(std::unique_ptr<Seriko> seriko) {
+        seriko_ = std::move(seriko);
+        seriko_->setParent(this);
+    }
+
     void Character::notifyRectInfo() {
         SDL_Rect r;
         auto rect = getRect();

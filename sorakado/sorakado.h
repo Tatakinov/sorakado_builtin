@@ -17,13 +17,15 @@ namespace sorakado {
 
     class Sorakado {
         private:
-            std::filesystem::path dir_;
         protected:
             Application *parent_;
+            std::filesystem::path dir_;
             std::unordered_map<std::string, std::string> descript_info_;
         public:
             Sorakado(Application *parent, std::filesystem::path dir);
             virtual ~Sorakado() {}
+
+            virtual void reload();
             std::string getInfo(std::string key, bool fallback, bool freeze = true);
 
             // sorakado event
