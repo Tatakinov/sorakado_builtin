@@ -11,7 +11,10 @@ namespace sorakado::ai {
     }
 
     void Ai::sorakadoEvent(const std::vector<std::string> &args) {
-        if (args[0] == "Create" && args.size() == 2) {
+        if (args[0] == "Reload") {
+            reload();
+        }
+        else if (args[0] == "Create" && args.size() == 2) {
             int side;
             util::to_x(args[1], side);
             create(side);

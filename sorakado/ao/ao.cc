@@ -5,7 +5,6 @@
 
 namespace sorakado::ao {
     Ao::Ao(sorakado::Application *parent, std::filesystem::path dir) : sorakado::Sorakado(parent, dir) {
-        reload();
     }
 
     std::optional<lib_skeleton::sorakado::Response> Ao::sorakadoEventImmediately(const lib_skeleton::sorakado::Request &req) {
@@ -40,7 +39,10 @@ namespace sorakado::ao {
     }
 
     void Ao::sorakadoEvent(const std::vector<std::string> &args) {
-        if (args[0] == "Create") {
+        if (args[0] == "Reload") {
+            reload();
+        }
+        else if (args[0] == "Create") {
             int side;
             util::to_x(args[1], side);
             create(side);

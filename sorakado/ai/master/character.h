@@ -33,6 +33,7 @@ namespace sorakado::ai::master {
         public:
             Character(sorakado::Sorakado &parent, std::unique_ptr<WindowManager> window_manager, int side, const std::string &name, ImageCache &image_cache, FontCache &font_cache);
 
+            void reload();
             std::string getInfo(int id, std::string key, std::string fallback);
             void resetPosition(bool initialize) override;
 

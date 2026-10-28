@@ -43,6 +43,9 @@ namespace sorakado::ai::master {
         Sorakado::reload();
         image_cache_->clearCache();
         image_cache_->setUseSelfAlpha(getInfo("seriko.use_self_alpha", false) == "1");
+        for (auto &[_, v] : characters_) {
+            v->reload();
+        }
     }
 
     void Ai::create(int side) {

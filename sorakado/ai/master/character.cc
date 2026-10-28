@@ -63,6 +63,11 @@ namespace sorakado::ai::master {
         };
     }
 
+    void Character::reload() {
+        default_color_ = std::nullopt;
+        disable_color_ = std::nullopt;
+    }
+
     void Character::resetPosition(bool initialize) {
         offset_ = {0, 0};
         std::vector<std::string> args = {util::to_s(side()), util::to_s(offset_.x), util::to_s(offset_.y)};
