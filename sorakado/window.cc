@@ -186,7 +186,7 @@ namespace sorakado {
     }
 
     void Window::draw(Position offset, const RenderInfo &render_info) {
-        if (!texture_ || render_info.changed()) {
+        if (!texture_ || !texture_->isUpConverted() || render_info.changed()) {
             texture_ = render_info.getTexture(renderer_, *texture_cache_);
         }
         // render next frame unless texture is up-converted
@@ -235,6 +235,7 @@ namespace sorakado {
                     SDL_Surface *s = SDL_CreateSurfaceFrom(texture_->width(), texture_->height(), SDL_PIXELFORMAT_ABGR8888, src.data(), texture_->width() * 4);
                     SDL_SetWindowShape(window_, s);
                     SDL_DestroySurface(s);
+                    Logger::log("shape changed")
                 }
                 shape_ = shape;
             }
