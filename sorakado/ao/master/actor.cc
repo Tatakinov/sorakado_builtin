@@ -15,6 +15,7 @@
 namespace sorakado::ao::master {
     namespace {
         const std::unordered_set<Interval> from_system = {
+            Interval::Bind,
             Interval::Sometimes,
             Interval::Rarely,
             Interval::Random,
@@ -70,13 +71,16 @@ namespace sorakado::ao::master {
         inactivate();
     }
 
-    void Actor::activate(From from) {
+    bool Actor::activate(From from) {
+        if (active()) {
+            return false;
+        }
         if (anim_.pattern.size() == 0) {
             LOG("0-sized pattern");
-            return;
+            return false;
         }
         if (anim_.interval.contains(Interval::Bind) && !parent_->isBinding(id_)) {
-            return;
+            return false;
         }
         bool start = false;
         switch (from) {
@@ -105,13 +109,14 @@ namespace sorakado::ao::master {
                 break;
         }
         if (!start) {
-            return;
+            return false;
         }
         inactivate();
         active_ = true;
         index_ = 0;
         auto &p = anim_.pattern[index_];
         wait_ = wait(p.wait_min, p.wait_max);
+        return true;
     }
 
     void Actor::inactivate() {
@@ -132,100 +137,106 @@ namespace sorakado::ao::master {
 
     void Actor::update(int elapsed) {
         if (!active_) {
+            parent_->push_front(id_);
+            return;
+        }
+        if (anim_.interval.size() == 1 && anim_.interval.contains(Interval::Bind)) {
+            parent_->push_front(id_);
             return;
         }
         if (wait_ > elapsed) {
             wait_ -= elapsed;
+            parent_->push_front(id_);
             return;
         }
         else {
-            elapsed -= wait_;
-            if (synthesis.contains(anim_.pattern[index_].method)) {
-                pattern_ = anim_.pattern[index_];
-            }
-            else {
-                auto &p = anim_.pattern[index_];
-                switch (p.method) {
-                    case Method::Move:
-                        // TODO stub
-                        break;
-                    case Method::Insert:
-                        // TODO stub
-                        break;
-                    case Method::Start:
-                        assert(p.ids.size() == 1);
-                        parent_->activate(From::Seriko, p.ids[0], elapsed);
-                        break;
-                    case Method::Stop:
-                        assert(p.ids.size() == 1);
-                        parent_->inactivate(p.ids[0]);
-                        break;
-                    case Method::AlternativeStart:
-                        parent_->activate(From::Seriko, util::random(0, p.ids.size()), elapsed);
-                        break;
-                    case Method::AlternativeStop:
-                        parent_->inactivate(util::random(0, p.ids.size()));
-                        break;
-                    case Method::ParallelStart:
-                        for (auto id : p.ids) {
-                            parent_->activate(From::Seriko, id, elapsed);
-                        }
-                        break;
-                    case Method::ParallelStop:
-                        for (auto id : p.ids) {
-                            parent_->inactivate(id);
-                        }
-                        break;
-                    default:
-                        break;
+            while (elapsed > wait_) {
+                elapsed -= wait_;
+                if (synthesis.contains(anim_.pattern[index_].method)) {
+                    pattern_ = anim_.pattern[index_];
                 }
-            }
-            index_++;
-            if (index_ == anim_.pattern.size()) {
-                double x;
-                do {
-                    x = util::random();
-                } while (x == 0);
-                if (anim_.interval.contains(Interval::Always)) {
-                    index_ = 0;
+                else {
+                    auto &p = anim_.pattern[index_];
+                    switch (p.method) {
+                        case Method::Move:
+                            // TODO stub
+                            break;
+                        case Method::Insert:
+                            // TODO stub
+                            break;
+                        case Method::Start:
+                            assert(p.ids.size() == 1);
+                            parent_->activate(From::Seriko, p.ids[0], elapsed);
+                            break;
+                        case Method::Stop:
+                            assert(p.ids.size() == 1);
+                            parent_->inactivate(p.ids[0]);
+                            break;
+                        case Method::AlternativeStart:
+                            parent_->activate(From::Seriko, util::random(0, p.ids.size()), elapsed);
+                            break;
+                        case Method::AlternativeStop:
+                            parent_->inactivate(util::random(0, p.ids.size()));
+                            break;
+                        case Method::ParallelStart:
+                            for (auto id : p.ids) {
+                                parent_->activate(From::Seriko, id, elapsed);
+                            }
+                            break;
+                        case Method::ParallelStop:
+                            for (auto id : p.ids) {
+                                parent_->inactivate(id);
+                            }
+                            break;
+                        default:
+                            break;
+                    }
+                }
+                index_++;
+                if (index_ == anim_.pattern.size()) {
+                    double x;
+                    do {
+                        x = util::random();
+                    } while (x == 0);
+                    if (anim_.interval.contains(Interval::Always)) {
+                        index_ = 0;
+                        auto &p = anim_.pattern[index_];
+                        wait_ = wait(p.wait_min, p.wait_max);
+                    }
+                    else if (anim_.interval.contains(Interval::Sometimes)) {
+                        index_ = 0;
+                        wait_ = std::ceil(-log(2) / log(x)) * 1000;
+                    }
+                    else if (anim_.interval.contains(Interval::Rarely)) {
+                        index_ = 0;
+                        wait_ = std::ceil(-log(4) / log(x)) * 1000;
+                    }
+                    else if (anim_.interval.contains(Interval::Random)) {
+                        index_ = 0;
+                        wait_ = std::ceil(-log(anim_.interval_factor) / log(x)) * 1000;
+                    }
+                    else if (anim_.interval.contains(Interval::Periodic)) {
+                        index_ = 0;
+                        wait_ = anim_.interval_factor * 1000;
+                    }
+                    else {
+                        if (!anim_.interval.contains(Interval::Bind)) {
+                            //inactivate();
+                            active_ = false;
+                        }
+                        parent_->push_front(id_);
+                        return;
+                    }
+                }
+                else {
                     auto &p = anim_.pattern[index_];
                     wait_ = wait(p.wait_min, p.wait_max);
                 }
-                else if (anim_.interval.contains(Interval::Sometimes)) {
-                    index_ = 0;
-                    wait_ = std::ceil(-log(2) / log(x)) * 1000;
-                }
-                else if (anim_.interval.contains(Interval::Rarely)) {
-                    index_ = 0;
-                    wait_ = std::ceil(-log(4) / log(x)) * 1000;
-                }
-                else if (anim_.interval.contains(Interval::Random)) {
-                    index_ = 0;
-                    wait_ = std::ceil(-log(anim_.interval_factor) / log(x)) * 1000;
-                }
-                else if (anim_.interval.contains(Interval::Periodic)) {
-                    index_ = 0;
-                    wait_ = anim_.interval_factor * 1000;
-                }
-                else {
-                    if (!anim_.interval.contains(Interval::Bind)) {
-                        //inactivate();
-                        active_ = false;
-                    }
-                    return;
+                if (loop0_) {
+                    elapsed--;
                 }
             }
-            else {
-                auto &p = anim_.pattern[index_];
-                wait_ = wait(p.wait_min, p.wait_max);
-            }
-            if (loop0_) {
-                elapsed--;
-                if (elapsed < 0) {
-                    return;
-                }
-            }
-            parent_->push(id_, elapsed);
+            parent_->push_front(id_);
         }
     }
 }

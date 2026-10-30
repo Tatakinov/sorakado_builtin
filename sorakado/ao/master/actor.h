@@ -23,7 +23,7 @@ namespace sorakado::ao::master {
         public:
             Actor(const int id, const Animation &anim, Seriko *parent);
             ~Actor() {}
-            void activate(From from);
+            bool activate(From from);
             bool active() const {
                 return active_;
             }

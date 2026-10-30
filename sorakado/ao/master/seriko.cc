@@ -14,32 +14,34 @@ namespace sorakado::ao::master {
     void Seriko::update(bool change) {
         auto now = std::chrono::system_clock::now();
         int elapsed = (change) ? (0) : (std::chrono::duration_cast<std::chrono::milliseconds>(now - prev_time_).count());
-        while (!process_.empty()) {
-            process_.pop();
-        }
-        for (auto &[k, v] : actors_) {
-            if (change) {
-                v.activate(From::System);
+        if (change) {
+            process_.clear();
+            for (auto &[k, v] : actors_) {
+                if (v.activate(From::System)) {
+                    push_back(k);
+                }
             }
-            push(k, elapsed);
         }
-        while (!process_.empty()) {
-            auto [k, t] = process_.top();
-            process_.pop();
-            actors_.at(k).update(t);
+        for (auto it = process_.begin(); it != process_.end(); it = process_.erase(it)) {
+            actors_.at(*it).update(elapsed);
         }
         prev_time_ = now;
     }
 
-    void Seriko::push(int id, int elapsed) {
+    void Seriko::push_front(int id) {
         if (!actors_.contains(id)) {
             return;
         }
         auto &actor = actors_.at(id);
-        if (!actor.active()) {
+        process_.push_front(id);
+    }
+
+    void Seriko::push_back(int id) {
+        if (!actors_.contains(id)) {
             return;
         }
-        process_.push({id, elapsed});
+        auto &actor = actors_.at(id);
+        process_.push_back(id);
     }
 
     bool Seriko::active(const std::string &id) {
@@ -88,8 +90,10 @@ namespace sorakado::ao::master {
             LOG("animation id: ", id , " already active");
             return;
         }
-        actor.activate(from);
-        push(id, elapsed);
+        if (actor.activate(from)) {
+            actors_.at(id).update(elapsed);
+            push_back(id);
+        }
     }
 
     void Seriko::inactivate(const std::string &id) {
@@ -188,23 +192,21 @@ namespace sorakado::ao::master {
         }
         list.clear();
         int allocate = ret->children.size();
-        for (auto &[k, v] : actors_) {
-            list.emplace_back(k);
-            allocate += v.patterns().size();
+        for (auto id : process_) {
+            list.push_back(id);
+            allocate += actors_.at(id).patterns().size();
         }
         ret->children.reserve(allocate);
         std::sort(list.begin(), list.end());
         std::unordered_set<int> done = {id};
-        for (auto i : list) {
-            auto &actor = actors_.at(i);
+        for (auto id : list) {
+            auto &actor = actors_.at(id);
             auto &interval = actor.interval();
             if (interval.size() == 1 && interval.contains(Interval::Bind)) {
-                if (isBinding(i)) {
-                    auto ps = actor.patterns();
-                    for (auto &p : ps) {
-                        ElementWithChildren e(image_cache_, p.method, p.x * scale_ / 100.0, p.y * scale_ / 100.0, getElements(p.id, done));
-                        ret->children.emplace_back(e);
-                    }
+                auto ps = actor.patterns();
+                for (auto &p : ps) {
+                    ElementWithChildren e(image_cache_, p.method, p.x * scale_ / 100.0, p.y * scale_ / 100.0, getElements(p.id, done));
+                    ret->children.emplace_back(e);
                 }
             }
 #if 0
@@ -214,9 +216,11 @@ namespace sorakado::ao::master {
                 ret->children.emplace_back(e);
             }
 #else
-            auto p = actor.currentPattern();
-            ElementWithChildren e(image_cache_, p.method, p.x * scale_ / 100.0, p.y * scale_ / 100.0, getElements(p.id, done));
-            ret->children.emplace_back(e);
+            else {
+                auto p = actor.currentPattern();
+                ElementWithChildren e(image_cache_, p.method, p.x * scale_ / 100.0, p.y * scale_ / 100.0, getElements(p.id, done));
+                ret->children.emplace_back(e);
+            }
 #endif
         }
         return ret;
@@ -322,10 +326,18 @@ namespace sorakado::ao::master {
         binds_[id] = enable;
         if (enable) {
             LOG("bind enable", id);
-            actors_.at(id).activate(From::System);
+            if (actors_.at(id).activate(From::System)) {
+                push_front(id);
+            }
         }
         else {
             actors_.at(id).inactivate();
+            for (auto it = process_.begin(); it != process_.end(); it++) {
+                if (*it == id) {
+                    process_.erase(it);
+                    break;
+                }
+            }
         }
         auto addids = getBindAddIDs(id);
         for (auto e : addids) {

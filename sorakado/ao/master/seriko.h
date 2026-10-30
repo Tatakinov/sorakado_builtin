@@ -1,6 +1,7 @@
 #ifndef SORAKADO_AO_SERIKO_H_
 #define SORAKADO_AO_SERIKO_H_
 
+#include <list>
 #include <queue>
 #include <unordered_set>
 #include <variant>
@@ -17,17 +18,6 @@ namespace sorakado {
 namespace sorakado::ao::master {
     class Actor;
 
-    struct ActorWithPriority {
-        int id;
-        int remain;
-    };
-
-    struct Compare {
-        bool operator()(const ActorWithPriority &a, const ActorWithPriority &b) const {
-            return a.remain > b.remain;
-        }
-    };
-
     struct CollisionInfo {
         int x, y;
         std::vector<Collision> list;
@@ -41,8 +31,9 @@ namespace sorakado::ao::master {
             std::unordered_map<int, Surface> surfaces_;
             std::unordered_map<std::string, std::vector<int>> alias_;
             std::unordered_map<int, Actor> actors_;
+            std::unordered_set<int> active_actors_;
             std::chrono::system_clock::time_point prev_time_;
-            std::priority_queue<ActorWithPriority, std::vector<ActorWithPriority>, Compare> process_;
+            std::list<int> process_;
             Character *parent_;
             std::unordered_map<int, bool> binds_;
             std::unordered_map<int, std::unordered_set<int>> bind_addids_;
@@ -55,7 +46,8 @@ namespace sorakado::ao::master {
                 parent_ = parent;
             }
             void update(bool change = false);
-            void push(int id, int elapsed);
+            void push_front(int id);
+            void push_back(int id);
             bool active(int id);
             bool active(const std::string &id);
             std::unordered_set<int> getActiveAnimationList();
