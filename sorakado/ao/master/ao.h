@@ -42,6 +42,8 @@ namespace sorakado::ao::master {
             void button(sorakado::window_id_t id, float x, float y, sorakado::button_t button, bool down, click_t clicks) override;
             void wheel(sorakado::window_id_t id, float x, float y) override;
             void drop(sorakado::window_id_t id, const std::vector<std::string> &list) override;
+            void moved(sorakado::window_id_t id) override;
+            void resized(sorakado::window_id_t id) override;
             void maximized(sorakado::window_id_t id) override;
             void focus(sorakado::window_id_t id, bool focused) override;
 

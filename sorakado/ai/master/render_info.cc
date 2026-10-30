@@ -251,7 +251,7 @@ namespace sorakado::ai::master {
         auto filename = util::balloonSide2str(side_, balloon_id_, direction_);
         auto info = image_cache_.get(filename);
         if (!info) {
-            Logger::log("not found: ", filename);
+            LOG("not found: ", filename);
             return {};
         }
         return info->region();
@@ -265,7 +265,7 @@ namespace sorakado::ai::master {
         auto filename = util::balloonSide2str(side_, balloon_id_, direction_);
         auto info = image_cache_.get(filename);
         if (!info) {
-            Logger::log("not found: ", filename);
+            LOG("not found: ", filename);
             std::unique_ptr<WrapSurface> invalid;
             return invalid;
         }
@@ -374,7 +374,7 @@ namespace sorakado::ai::master {
         auto filename = util::balloonSide2str(side_, tmp_id, direction_);
         auto info = image_cache_.get(filename);
         if (!info) {
-            Logger::log("balloon.set:", filename, "not found");
+            LOG("balloon.set:", filename, "not found");
             return;
         }
         balloon_id_ = tmp_id;
@@ -495,7 +495,7 @@ namespace sorakado::ai::master {
             }
         }
         if (list != link_.hit_region_list) {
-            Logger::log("hit!");
+            LOG("hit!");
             link_.hit_region_list = list;
             link_.content = content;
             change();
@@ -558,7 +558,7 @@ namespace sorakado::ai::master {
         auto filename = util::balloonSide2str(side_, balloon_id_, direction_);
         auto info = image_cache_.get(filename);
         if (!info) {
-            Logger::log("not found: ", filename);
+            LOG("not found: ", filename);
             return;
         }
         int h_max = 0;

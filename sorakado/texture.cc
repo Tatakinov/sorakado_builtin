@@ -34,7 +34,7 @@ namespace sorakado {
         {
             std::string err(SDL_GetError());
             if (!err.empty()) {
-                Logger::log("TextureError", err);
+                LOG("TextureError", err);
                 assert(false);
             }
         }

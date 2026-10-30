@@ -193,7 +193,7 @@ namespace sorakado {
                             session_.Run(run_options, input_names, &input_tensor, 1, output_names, &output_tensor, 1);
                         }
                         catch (Ort::Exception &e) {
-                            Logger::log(e.what());
+                            LOG(e.what());
                             auto &tmp = cache_.at(p);
                             cache_[p] = std::make_shared<ImageInfo>(tmp->get(), tmp->width(), tmp->height(), true);
                         }
@@ -230,12 +230,12 @@ namespace sorakado {
                             cache_[p] = std::make_shared<ImageInfo>(dest, w, h, true);
                         }
                     }
-                    Logger::log("upconverted!");
+                    LOG("upconverted!");
                 }
             });
         }
         catch (Ort::Exception &e) {
-            Logger::log(e.what());
+            LOG(e.what());
         }
     }
 #endif // USE_ONNX
@@ -387,14 +387,14 @@ namespace sorakado {
 
     std::shared_ptr<ImageInfo> ImageCache::getOriginal(const std::filesystem::path &path, const std::optional<int> index, const std::optional<bool> use_self_alpha) {
         std::shared_ptr<ImageInfo> invalid;
-        Logger::log("scale => ", scale_);
-        Logger::log("file: ", path.string());
+        LOG("scale => ", scale_);
+        LOG("file: ", path.string());
         ImagePath key = {path, index, ((use_self_alpha) ? (use_self_alpha.value()) : use_self_alpha_)};
         if (cache_orig_.contains(key)) {
             return cache_orig_.at(key);
         }
         if (index.has_value()) {
-            Logger::log("load animation!", path);
+            LOG("load animation!", path);
             IMG_Animation *anim = IMG_LoadAnimation(path.string().c_str());
             if (anim == nullptr) {
                 return invalid;

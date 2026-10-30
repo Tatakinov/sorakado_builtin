@@ -73,6 +73,14 @@ namespace sorakado {
         window_manager_->drop(id, list);
     }
 
+    void Character::moved(window_id_t id) {
+        change();
+    }
+
+    void Character::resized(window_id_t id) {
+        change();
+    }
+
     void Character::maximized(window_id_t id) {
         window_manager_->maximized(id);
     }
@@ -86,7 +94,7 @@ namespace sorakado {
     }
 
     bool Character::setPosition(int x, int y) {
-        Logger::log("position", rect_.x, rect_.y, x, y, side());
+        LOG("position", rect_.x, rect_.y, x, y, side());
         if (rect_.x == x && rect_.y == y) {
             return false;
         }
@@ -101,7 +109,7 @@ namespace sorakado {
     }
 
     bool Character::setSize(int w, int h) {
-        Logger::log("resize", rect_.w, rect_.h, w, h, side());
+        LOG("resize", rect_.w, rect_.h, w, h, side());
         if (rect_.w == w && rect_.h == h) {
             return false;
         }

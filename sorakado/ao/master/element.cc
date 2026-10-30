@@ -45,7 +45,7 @@ namespace sorakado::ao::master {
     std::unique_ptr<WrapSurface> ElementWithNoChildren::getSurface() const {
         auto info = image_cache_.get(filename, index);
         if (!info) {
-            Logger::log("invalid info");
+            LOG("invalid info");
             std::unique_ptr<WrapSurface> invalid;
             return invalid;
         }
@@ -77,7 +77,7 @@ namespace sorakado::ao::master {
 
     Rect ElementWithChildren::getRect() const {
         auto r = getRect(false);
-        Logger::log("getRect.middle", r.x, r.y, r.w, r.h);
+        LOG("getRect.middle", r.x, r.y, r.w, r.h);
         if (r.w == 0 || r.h == 0) {
             return getRect(true);
         }
@@ -169,7 +169,7 @@ namespace sorakado::ao::master {
         auto rect = getRect();
         if (rect.w <= 0 || rect.h <= 0) {
             std::unique_ptr<WrapSurface> invalid;
-            //Logger::log("no valid children");
+            //LOG("no valid children");
             return invalid;
         }
         std::vector<std::optional<std::unique_ptr<WrapSurface>>> list;
@@ -196,8 +196,8 @@ namespace sorakado::ao::master {
                     return;
                 }
                 SDL_SetSurfaceBlendMode(t->surface(), SDL_BLENDMODE_BLEND);
-                Logger::log("getSurface.rect", rect.x, rect.y, rect.w, rect.h);
-                Logger::log("getSurface.e", e.x, e.y);
+                LOG("getSurface.rect", rect.x, rect.y, rect.w, rect.h);
+                LOG("getSurface.e", e.x, e.y);
                 SDL_BlitSurface(t->surface(), nullptr, surface->surface(), &r);
             }, children[i]);
         }
@@ -208,7 +208,7 @@ namespace sorakado::ao::master {
         auto rect = getRect();
         if (rect.w <= 0 || rect.h <= 0) {
             std::unique_ptr<WrapTexture> invalid;
-            //Logger::log("no valid children");
+            //LOG("no valid children");
             return invalid;
         }
         bool upconverted = true;

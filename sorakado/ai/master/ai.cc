@@ -194,6 +194,30 @@ namespace sorakado::ai::master {
         }
     }
 
+    void Ai::moved(sorakado::window_id_t id) {
+        if (script_inputbox_) {
+            script_inputbox_->moved(id);
+        }
+        for (auto &[_, v] : inputboxes_) {
+            v->moved(id);
+        }
+        for (auto &[_, v] : characters_) {
+            v->moved(id);
+        }
+    }
+
+    void Ai::resized(sorakado::window_id_t id) {
+        if (script_inputbox_) {
+            script_inputbox_->resized(id);
+        }
+        for (auto &[_, v] : inputboxes_) {
+            v->resized(id);
+        }
+        for (auto &[_, v] : characters_) {
+            v->resized(id);
+        }
+    }
+
     void Ai::maximized(sorakado::window_id_t id) {
         if (script_inputbox_) {
             script_inputbox_->maximized(id);
@@ -472,7 +496,7 @@ namespace sorakado::ai::master {
         if (script_inputbox_) {
             return;
         }
-        Logger::log("script-input");
+        LOG("script-input");
         int r, g, b, a = 0xff;
         std::string s;
         s = getInfo("communicatebox.font.color.r", false);

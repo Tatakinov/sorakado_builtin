@@ -53,18 +53,18 @@ namespace sorakado {
     Socket::Socket(const std::string &path) : state_(SocketState::End), res_({500, "Internal Server Error"}) {
         sockaddr_un addr = {};
         if (path.length() >= sizeof(addr.sun_path)) {
-            Logger::log("socket", "too long path");
+            LOG("socket", "too long path");
             return;
         }
         soc_ = ::socket(AF_UNIX, SOCK_STREAM, 0);
         if (soc_ == INVALID_SOCKET) {
-            Logger::log("socket", "socket() failed");
+            LOG("socket", "socket() failed");
             return;
         }
 #if defined(IS_WINDOWS)
         u_long iMode = 1; // non-zero for non-blocking IO
         if (ioctlsocket(soc_, FIONBIO, &iMode) != NO_ERROR) {
-            Logger::log("socket", "ioctlsocket() failed");
+            LOG("socket", "ioctlsocket() failed");
             closesocket(soc_);
             soc_ = INVALID_SOCKET;
             return;
@@ -72,13 +72,13 @@ namespace sorakado {
 #elif defined(IS__NIX)
         int flags = fcntl(soc_, F_GETFL, 0);
         if (flags == -1) {
-            Logger::log("socket", "fcntl() failed");
+            LOG("socket", "fcntl() failed");
             closesocket(soc_);
             soc_ = INVALID_SOCKET;
             return;
         }
         if (fcntl(soc_, F_SETFL, flags | O_NONBLOCK) == -1) {
-            Logger::log("socket", "fcntl() failed");
+            LOG("socket", "fcntl() failed");
             closesocket(soc_);
             soc_ = INVALID_SOCKET;
             return;
@@ -92,7 +92,7 @@ namespace sorakado {
             if (WSAGetLastError() !=  WSAEWOULDBLOCK)
 #endif
             {
-                Logger::log("socket", "connect() failed");
+                LOG("socket", "connect() failed");
                 closesocket(soc_);
                 soc_ = INVALID_SOCKET;
                 return;
@@ -117,7 +117,7 @@ namespace sorakado {
 
     void Socket::next() {
         if (queue_.size() == 0) {
-            Logger::log("socket", "no item exists");
+            LOG("socket", "no item exists");
             state_ = SocketState::End;
             return;
         }
@@ -134,7 +134,7 @@ namespace sorakado {
         char buf[BUFFER_SIZE] = {};
         auto len = ::recv(soc_, buf, BUFFER_SIZE, 0);
         if (len <= 0) {
-            Logger::log("socket", ((len == 0) ? "connection closed" : "recv() failed"));
+            LOG("socket", ((len == 0) ? "connection closed" : "recv() failed"));
             closesocket(soc_);
             soc_ = INVALID_SOCKET;
             state_ = SocketState::End;
@@ -169,7 +169,7 @@ namespace sorakado {
         }
         auto len = ::send(soc_, remain_.data(), remain_.size(), 0);
         if (len < 0) {
-            Logger::log("socket", "send() failed");
+            LOG("socket", "send() failed");
             closesocket(soc_);
             soc_ = INVALID_SOCKET;
             state_ = SocketState::End;

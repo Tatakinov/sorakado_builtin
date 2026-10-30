@@ -164,7 +164,7 @@ namespace util {
                     break;
                 }
                 charset = buffer.substr(begin, end - begin);
-                Logger::log("charset in ", path, ": ", charset);
+                LOG("charset in ", path, ": ", charset);
             }
         }
         buffer = oss.str();
@@ -181,7 +181,7 @@ namespace util {
             size_t out_length = converted.length();
             SDL_iconv_t cd = SDL_iconv_open("UTF-8", charset.c_str());
             if (reinterpret_cast<size_t>(cd) == SDL_ICONV_ERROR) {
-                Logger::log("iconv_open error");
+                LOG("iconv_open error");
                 return buffer;
             }
             auto err = SDL_iconv(cd, &in, &in_length, &out, &out_length);
@@ -190,7 +190,7 @@ namespace util {
                 continue;
             }
             else if (err < 0) {
-                Logger::log("iconv error");
+                LOG("iconv error");
                 return buffer;
             }
             else {

@@ -2,6 +2,7 @@
 #include "os_preprocess.h"
 
 #include <cassert>
+#include <chrono>
 #include <cstdint>
 #include <filesystem>
 #include <fstream>
@@ -94,7 +95,7 @@ namespace sorakado {
                 break;
             }
             auto req = lib_skeleton::sorakado::Request::parse(request);
-            //Logger::log(request);
+            //LOG(request);
             auto event = req().value();
 
             lib_skeleton::sorakado::Response res {204, "No Content"};
@@ -160,7 +161,7 @@ namespace sorakado {
             res["Charset"] = "UTF-8";
 
             std::string response = res;
-            //Logger::log(response);
+            //LOG(response);
             len = response.size();
             std::cout.write(reinterpret_cast<char *>(&len), sizeof(uint32_t));
             std::cout.write(response.c_str(), len);
@@ -217,7 +218,7 @@ namespace sorakado {
                 }
                 running++;
             }
-            Logger::log("application", running, remain_queue.size(), cache.size());
+            LOG("application", running, remain_queue.size(), cache.size());
             {
                 std::unique_lock<std::mutex> lock(send_mutex_);
                 cond_.wait(lock, [&] { return !event_queue_.empty() || !alive_ || running > 0 || !remain_queue.empty() || !cache.empty(); });
@@ -254,7 +255,7 @@ namespace sorakado {
                     break;
                 }
                 if (!found) {
-                    Logger::log("application", list[0].side, list[0].command);
+                    LOG("application", list[0].side, list[0].command);
                     cache.push_back({list[0].side, list[0].command, list});
                 }
                 queue.pop();
@@ -319,64 +320,88 @@ namespace sorakado {
     }
 
     void Application::run() {
+        auto a = std::chrono::system_clock::now();
         SDL_Event event;
         std::vector<std::string> filelist;
         while ((is_idle_) ? (SDL_WaitEventTimeout(&event, 10)) : (SDL_PollEvent(&event))) {
+            auto a = std::chrono::system_clock::now();
             std::unique_lock<std::mutex> lock(recv_mutex_);
             is_idle_ = false;
             switch (event.type) {
-                case SDL_EVENT_WINDOW_MOVED:
-                    Logger::log("window.moved", event.window.windowID, event.window.data1, event.window.data2);
-                    break;
                 case SDL_EVENT_QUIT:
                     alive_ = false;
                     return;
                 case SDL_EVENT_DISPLAY_ADDED:
+                    LOG("display add");
                     sorakado_instance_->display(event.display.displayID, true);
                     break;
                 case SDL_EVENT_DISPLAY_REMOVED:
+                    LOG("display remove");
                     sorakado_instance_->display(event.display.displayID, false);
                     break;
                 case SDL_EVENT_KEY_DOWN:
                 case SDL_EVENT_KEY_UP:
+                    LOG("key");
                     sorakado_instance_->key(event.key.windowID, event.key.key, event.key.down);
                     break;
                 case SDL_EVENT_TEXT_INPUT:
+                    LOG("input");
                     sorakado_instance_->input(event.text.windowID, event.text.text);
                     break;
                 case SDL_EVENT_TEXT_EDITING:
+                    LOG("edit");
                     sorakado_instance_->edit(event.edit.windowID, event.edit.text);
                     break;
                 case SDL_EVENT_MOUSE_MOTION:
+                    LOG("motion");
                     sorakado_instance_->motion(event.motion.windowID, event.motion.x, event.motion.y);
                     break;
                 case SDL_EVENT_MOUSE_BUTTON_DOWN:
                 case SDL_EVENT_MOUSE_BUTTON_UP:
+                    LOG("button");
                     sorakado_instance_->button(event.button.windowID, event.button.x, event.button.y, event.button.button, event.button.down, event.button.clicks);
                     break;
                 case SDL_EVENT_MOUSE_WHEEL:
+                    LOG("wheel");
                     sorakado_instance_->wheel(event.wheel.windowID, event.wheel.x, event.wheel.y);
                     break;
                 case SDL_EVENT_DROP_COMPLETE:
+                    LOG("drop complete");
                     sorakado_instance_->drop(event.drop.windowID, filelist);
                     break;
                 case SDL_EVENT_DROP_FILE:
+                    LOG("drop file");
                     filelist.push_back(event.drop.data);
                     break;
+                case SDL_EVENT_WINDOW_MOVED:
+                    LOG("window.moved");
+                    sorakado_instance_->moved(event.window.windowID);
+                    break;
+                case SDL_EVENT_WINDOW_RESIZED:
+                    LOG("window.resized");
+                    sorakado_instance_->resized(event.window.windowID);
+                    break;
                 case SDL_EVENT_WINDOW_FOCUS_GAINED:
+                    LOG("focus gain");
                     sorakado_instance_->focus(event.window.windowID, true);
                     break;
                 case SDL_EVENT_WINDOW_FOCUS_LOST:
+                    LOG("focus lost");
                     sorakado_instance_->focus(event.window.windowID, false);
                     break;
                 case SDL_EVENT_WINDOW_MAXIMIZED:
-                    Logger::log("maximized");
+                    LOG("maximized");
                     sorakado_instance_->maximized(event.window.windowID);
                     break;
                 default:
                     break;
             }
+            auto b = std::chrono::system_clock::now();
+            LOG("SDL event", std::chrono::duration_cast<std::chrono::microseconds>(b - a).count());
         }
+        auto b = std::chrono::system_clock::now();
+        LOG("SDL events", std::chrono::duration_cast<std::chrono::microseconds>(b - a).count());
+        a = b;
         {
             std::unique_lock<std::mutex> lock(recv_mutex_);
             sorakado_instance_->run();
@@ -384,7 +409,7 @@ namespace sorakado {
         {
             std::string err(SDL_GetError());
             if (!err.empty()) {
-                Logger::log("Error", err);
+                LOG("Error", err);
                 assert(false);
             }
         }
@@ -402,7 +427,12 @@ namespace sorakado {
             queue.pop();
             sorakado_instance_->sorakadoEvent(args);
         }
+        b = std::chrono::system_clock::now();
+        LOG("SORAKADO event", std::chrono::duration_cast<std::chrono::microseconds>(b - a).count());
+        a = b;
         is_idle_ = !sorakado_instance_->draw();
+        b = std::chrono::system_clock::now();
+        LOG("draw", std::chrono::duration_cast<std::chrono::microseconds>(b - a).count());
     }
 
     lib_skeleton::sstp::Response Application::sendDirectSSTP(const directsstp::Request req) {
@@ -413,7 +443,7 @@ namespace sorakado {
             return socket->response();
         }
         socket->enqueue(queue);
-        Logger::log("application", "blocking", "begin", socket->socket());
+        LOG("application", "blocking", "begin", socket->socket());
         fd_set fds;
         while (socket->state() == SocketState::Write) {
             FD_ZERO(&fds);
@@ -433,7 +463,7 @@ namespace sorakado {
             }
             socket->recv();
         }
-        Logger::log("application", "blocking", "end");
+        LOG("application", "blocking", "end");
         return socket->response();
     }
 

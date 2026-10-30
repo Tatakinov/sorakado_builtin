@@ -31,4 +31,10 @@ class Logger {
         }
 };
 
+#ifdef NDEBUG
+#define LOG(...)
+#else
+#define LOG(...) Logger::log(__VA_ARGS__)
+#endif
+
 #endif // LOGGER_H_

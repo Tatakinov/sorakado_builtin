@@ -72,7 +72,7 @@ namespace sorakado::ao::master {
 
     void Actor::activate(From from) {
         if (anim_.pattern.size() == 0) {
-            Logger::log("0-sized pattern");
+            LOG("0-sized pattern");
             return;
         }
         if (anim_.interval.contains(Interval::Bind) && !parent_->isBinding(id_)) {

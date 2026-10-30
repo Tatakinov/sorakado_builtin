@@ -40,6 +40,8 @@ namespace sorakado {
             virtual void button(sorakado::window_id_t id, float x, float y, sorakado::button_t button, bool down, click_t clicks) = 0;
             virtual void wheel(sorakado::window_id_t id, float x, float y) = 0;
             virtual void drop(sorakado::window_id_t id, const std::vector<std::string> &list) = 0;
+            virtual void moved(sorakado::window_id_t id) = 0;
+            virtual void resized(sorakado::window_id_t id) = 0;
             virtual void maximized(sorakado::window_id_t id) = 0;
             virtual void focus(sorakado::window_id_t id, bool focused) = 0;
 

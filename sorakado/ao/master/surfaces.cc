@@ -196,7 +196,7 @@ namespace sorakado::ao::master {
             max = std::max(max, size);
         }
         std::vector<int> delays;
-        Logger::log("surfaces.import:", anim->count);
+        LOG("surfaces.import:", anim->count);
         delays.reserve(anim->count);
         for (int i = 0; i < anim->count; i++) {
             delays.push_back(anim->delays[i]);
@@ -239,7 +239,7 @@ namespace sorakado::ao::master {
         std::unordered_map<std::string, std::vector<int>> alias_map;
         for (int line_count = 1; std::getline(iss, line, '\x0a'); line_count++) {
             line = trimSpace(line);
-            Logger::log(line);
+            LOG(line);
             if (once && line.starts_with("charset,")) {
                 // TODO
             }
@@ -324,7 +324,7 @@ namespace sorakado::ao::master {
                         util::to_x(tmp, id);
                         std::getline(l, tmp, ',');
                         if (!s2method_synthesize.contains(tmp)) {
-                            Logger::log("Error(", line_count, "): invalid method in element");
+                            LOG("Error(", line_count, "): invalid method in element");
                             continue;
                         }
                         element.method = s2method_synthesize.at(tmp);
@@ -346,7 +346,7 @@ namespace sorakado::ao::master {
                         std::getline(l, tmp, ',');
                         if (tmp == "interval") {
                             if (surface->animation.contains(id)) {
-                                Logger::log("Error(", line_count, "): invalid method in animation");
+                                LOG("Error(", line_count, "): invalid method in animation");
                                 continue;
                             }
                             Animation animation;
@@ -354,7 +354,7 @@ namespace sorakado::ao::master {
                             std::istringstream l2(tmp);
                             while (std::getline(l2, tmp, '+')) {
                                 if (!s2interval.contains(tmp)) {
-                                    Logger::log("Error(", line_count, "): invalid interval in animation");
+                                    LOG("Error(", line_count, "): invalid interval in animation");
                                     continue;
                                 }
                                 animation.interval.emplace(s2interval.at(tmp));
@@ -368,7 +368,7 @@ namespace sorakado::ao::master {
                         }
                         else if (tmp.starts_with("pattern")) {
                             if (!surface->animation.contains(id)) {
-                                Logger::log("Error(", line_count, "): animation id not found");
+                                LOG("Error(", line_count, "): animation id not found");
                                 continue;
                             }
                             int n;
@@ -377,11 +377,11 @@ namespace sorakado::ao::master {
                             p.index = n;
                             std::getline(l, tmp, ',');
                             if (surface->animation[id].interval.size() == 1 && surface->animation[id].interval.contains(Interval::Bind) && !s2method_synthesize.contains(tmp)) {
-                                Logger::log("Error(", line_count, "): invalid method in bind");
+                                LOG("Error(", line_count, "): invalid method in bind");
                                 continue;
                             }
                             if (!s2method.contains(tmp)) {
-                                Logger::log("Error(", line_count, "): invalid method");
+                                LOG("Error(", line_count, "): invalid method");
                                 continue;
                             }
                             p.method = s2method.at(tmp);
@@ -448,7 +448,7 @@ namespace sorakado::ao::master {
                                 filename = shell_dir / u;
                                 importAnimatedSurface(filename);
                                 if (!path2import_info.contains(filename)) {
-                                    Logger::log("failed to import:", filename);
+                                    LOG("failed to import:", filename);
                                     continue;
                                 }
                                 auto &info = path2import_info.at(filename);
@@ -460,7 +460,7 @@ namespace sorakado::ao::master {
                                 std::getline(l, tmp, ',');
                                 util::to_x(tmp, y);
                                 for (int i = 0; i < info.delays.size(); i++) {
-                                    Logger::log("surfaces.import", i);
+                                    LOG("surfaces.import", i);
                                     surface->animation[id].pattern.push_back({
                                         .index = n,
                                         .id = -(info.offset + i),
@@ -605,7 +605,7 @@ namespace sorakado::ao::master {
             }
         }
         if (state != State::Root) {
-            Logger::log("Error: invalid state");
+            LOG("Error: invalid state");
         }
     }
 
@@ -615,18 +615,18 @@ namespace sorakado::ao::master {
 
     void Surfaces::dump() const {
         for (auto &[k, v] : surfaces_) {
-            Logger::log("surface: ", k);
+            LOG("surface: ", k);
             for (auto &[k, e] : v.element) {
-                Logger::log("  element", k, e.filename);
+                LOG("  element", k, e.filename);
             }
             for (auto &[k, a] : v.animation) {
-                Logger::log("  animation: ", k);
+                LOG("  animation: ", k);
                 for (auto &p : a.pattern) {
-                    Logger::log("    pattern:", p.id);
+                    LOG("    pattern:", p.id);
                 }
             }
             for (auto &[k, c] : v.collision) {
-                Logger::log("  collision: ", k);
+                LOG("  collision: ", k);
             }
         }
     }

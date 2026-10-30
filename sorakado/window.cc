@@ -186,9 +186,10 @@ namespace sorakado {
     }
 
     void Window::draw(Position offset, const RenderInfo &render_info) {
-        if (!texture_ || !texture_->isUpconverted() || render_info.changed()) {
-            texture_ = render_info.getTexture(renderer_, *texture_cache_);
+        if (texture_ && texture_->isUpconverted() && !render_info.changed()) {
+            return;
         }
+        texture_ = render_info.getTexture(renderer_, *texture_cache_);
         // render next frame unless texture is up-converted
         if (!(texture_ && texture_->isUpconverted())) {
             parent_.change();
@@ -235,7 +236,7 @@ namespace sorakado {
                     SDL_Surface *s = SDL_CreateSurfaceFrom(texture_->width(), texture_->height(), SDL_PIXELFORMAT_ABGR8888, src.data(), texture_->width() * 4);
                     SDL_SetWindowShape(window_, s);
                     SDL_DestroySurface(s);
-                    Logger::log("shape changed");
+                    LOG("shape changed");
                 }
                 shape_ = shape;
             }
@@ -302,7 +303,7 @@ namespace sorakado {
         if (id != SDL_GetWindowID(window_)) {
             return false;
         }
-        Logger::log("window.maximized");
+        LOG("window.maximized");
         if (util::isWayland()) {
             int w, h;
             SDL_GetWindowSize(window_, &w, &h);
@@ -327,7 +328,7 @@ namespace sorakado {
     }
 
     bool Window::button(sorakado::window_id_t id, float x, float y, button_t button, bool down, click_t clicks) {
-        Logger::log("window.button");
+        LOG("window.button");
         if (id != SDL_GetWindowID(window_)) {
             return false;
         }
@@ -335,7 +336,7 @@ namespace sorakado {
             x = x + monitor_rect_.x;
             y = y + monitor_rect_.y;
         }
-        Logger::log("window.click");
+        LOG("window.click");
         parent_.click(this, x, y, button, down, clicks);
         return true;
     }

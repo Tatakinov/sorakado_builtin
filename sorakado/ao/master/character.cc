@@ -72,8 +72,8 @@ namespace sorakado::ao::master {
             auto id = util::getNearestDisplay(rect.x + rect.w / 2, rect.y + rect.h / 2);
             SDL_GetDisplayBounds(id, &r);
         }
-        Logger::log("monitor_rect:", r.x,",", r.y,",", r.w, ",",r.h);
-        Logger::log("surface_rect:", rect.x,",", rect.y,",", rect.w, ",",rect.h);
+        LOG("monitor_rect:", r.x,",", r.y,",", r.w, ",",r.h);
+        LOG("surface_rect:", rect.x,",", rect.y,",", rect.w, ",",rect.h);
         std::vector<std::string> args = {util::to_s(side()), util::to_s(r.x), util::to_s(r.y), util::to_s(r.w), util::to_s(r.h)};
         directsstp::Request umr = {"EXECUTE", "UpdateMonitorRect", args};
         args = {util::to_s(side()), util::to_s(rect.x), util::to_s(rect.y), util::to_s(rect.w), util::to_s(rect.h)};
@@ -119,7 +119,7 @@ namespace sorakado::ao::master {
         if (!sorakado::Character::setSize(w, h)) {
             return false;
         }
-        Logger::log("setSize");
+        LOG("setSize");
         change();
         notifyRectInfo();
         return true;
@@ -128,8 +128,8 @@ namespace sorakado::ao::master {
     void Character::resetPosition(bool initialize) {
         auto r = getRect();
         auto m = window_manager_->getMonitorRect(r);
-        Logger::log("resetPosition.rect", r.x, r.y, r.w, r.h, side());
-        Logger::log("resetPosition.monitor", m.x, m.y, m.w, m.h);
+        LOG("resetPosition.rect", r.x, r.y, r.w, r.h, side());
+        LOG("resetPosition.monitor", m.x, m.y, m.w, m.h);
         int origin_x = r.x;
         if (initialize || origin_x < m.x || origin_x + r.w > m.x + m.w) {
             origin_x = m.x + m.w;
@@ -151,7 +151,7 @@ namespace sorakado::ao::master {
             origin_y = m.y + m.h;
             origin_y -= r.h;
         }
-        Logger::log("resetPosition", initialize, origin_x, origin_y);
+        LOG("resetPosition", initialize, origin_x, origin_y);
         setPosition(origin_x, origin_y);
         alignmentPosition();
     }
@@ -168,7 +168,7 @@ namespace sorakado::ao::master {
         f(x, dst.x);
         f(y, dst.y);
         auto now = std::chrono::system_clock::now();
-        Logger::log("character.move.start");
+        LOG("character.move.start");
         move_info_ = {is_async, {dst.x - src.x, dst.y - src.y}, time, now, 0};
     }
 
@@ -219,9 +219,9 @@ namespace sorakado::ao::master {
         auto o = getOffset();
         switch (align) {
             case Alignment::Bottom:
-                Logger::log("alignmentPosition.surface", rect.x, rect.y, rect.w, rect.h);
-                Logger::log("alignmentPosition.monitor", r.x, r.y, r.w, r.h);
-                Logger::log("alignmentPosition", side(), rect.x, r.y + r.h - rect.h);
+                LOG("alignmentPosition.surface", rect.x, rect.y, rect.w, rect.h);
+                LOG("alignmentPosition.monitor", r.x, r.y, r.w, r.h);
+                LOG("alignmentPosition", side(), rect.x, r.y + r.h - rect.h);
                 setPosition(rect.x, r.y + r.h + o.y - rect.h);
                 break;
             case Alignment::Top:
@@ -302,7 +302,7 @@ namespace sorakado::ao::master {
     }
 
     void Character::click(Window *window, float x, float y, button_t button, bool down, click_t clicks) {
-        Logger::log("character.click");
+        LOG("character.click");
         if (down) {
             directsstp::Request req = {"EXECUTE", "RaiseBalloon", {util::to_s(side())}};
             parent_.enqueueDirectSSTP({req});
@@ -341,7 +341,7 @@ namespace sorakado::ao::master {
 
             std::vector<std::string> args;
             args = {util::to_s(surface_x), util::to_s(surface_y), util::to_s(0), util::to_s(side()), name, util::to_s(b)};
-            Logger::log("clicks.", button == MOUSE_BUTTON_RIGHT, clicks);
+            LOG("clicks.", button == MOUSE_BUTTON_RIGHT, clicks);
 
             if (clicks % 2 == 0) {
                 directsstp::Request req = {"NOTIFY", "OnMouseDoubleClick", args};
@@ -364,7 +364,7 @@ namespace sorakado::ao::master {
                 parent_.enqueueDirectSSTP({up, click});
 #endif
                 Rect r = {x, y, 0, 0};
-                Logger::log("reserve", x, y);
+                LOG("reserve", x, y);
                 static_cast<Ao &>(parent_).reserveMenu(window->getBackendWindow(), side(), r, window->getMonitorRect(r));
             }
         }
@@ -477,7 +477,7 @@ namespace sorakado::ao::master {
             for (auto c : info.list) {
                 if (c.type == CollisionType::Rect) {
                     if (c.point.size() != 4) {
-                        Logger::log("invalid collision type: rect");
+                        LOG("invalid collision type: rect");
                         continue;
                     }
                     int x1 = c.point[0];
@@ -490,7 +490,7 @@ namespace sorakado::ao::master {
                 }
                 else if (c.type == CollisionType::Ellipse) {
                     if (c.point.size() != 4) {
-                        Logger::log("invalid collision type: ellipse");
+                        LOG("invalid collision type: ellipse");
                         continue;
                     }
                     int x1 = c.point[0];
@@ -509,7 +509,7 @@ namespace sorakado::ao::master {
                 }
                 else if (c.type == CollisionType::Circle) {
                     if (c.point.size() != 3) {
-                        Logger::log("invalid collision type: circle");
+                        LOG("invalid collision type: circle");
                         continue;
                     }
                     int cx = c.point[0] - x;
@@ -521,7 +521,7 @@ namespace sorakado::ao::master {
                 }
                 else if (c.type == CollisionType::Polygon) {
                     if (c.point.size() % 2 == 1 && c.point.size() >= 6) {
-                        Logger::log("invalid collision type: polygon");
+                        LOG("invalid collision type: polygon");
                         continue;
                     }
                     c.point.push_back(c.point[0]);
@@ -654,7 +654,7 @@ namespace sorakado::ao::master {
                 move_info_->prev = diff;
             }
             auto post = getRect();
-            Logger::log("character.move: ", r.x, r.y , post.x, post.y);
+            LOG("character.move: ", r.x, r.y , post.x, post.y);
         }
     }
 }

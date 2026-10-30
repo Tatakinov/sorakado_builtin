@@ -5,6 +5,7 @@ if (ONLY_FONTLIST)
     add_subdirectory(libfontlist)
 else()
     option(ENABLE_ONNXRUNTIME "Enable OnnxRuntime support if available" ON)
+    option(ENABLE_DEBUG "Enable debug log if --debug" ON)
 
     set(CMAKE_PREFIX_PATH "${CMAKE_PREFIX_PATH}" "${PROJECT_SOURCE_DIR}/cmake")
 
@@ -23,6 +24,9 @@ else()
 
     target_compile_options(sorakado_builtin PUBLIC -O2 -Wall)
     target_compile_features(sorakado_builtin PUBLIC cxx_std_20)
+    if (!ENABLE_DEBUG)
+        target_compile_definitions(sorakado_builtin PRIVATE NDEBUG)
+    endif()
 
     target_include_directories(sorakado_builtin PUBLIC ${PROJECT_SOURCE_DIR})
 

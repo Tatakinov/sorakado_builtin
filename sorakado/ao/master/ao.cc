@@ -209,6 +209,18 @@ namespace sorakado::ao::master {
         }
     }
 
+    void Ao::moved(sorakado::window_id_t id) {
+        for (auto &[_, v] : characters_) {
+            v->maximized(id);
+        }
+    }
+
+    void Ao::resized(sorakado::window_id_t id) {
+        for (auto &[_, v] : characters_) {
+            v->maximized(id);
+        }
+    }
+
     void Ao::maximized(sorakado::window_id_t id) {
         for (auto &[_, v] : characters_) {
             v->maximized(id);
@@ -377,7 +389,7 @@ namespace sorakado::ao::master {
     }
 
     void Ao::move(int side, bool is_async, const std::string &x, const std::string &y, int time, const std::string &base, const std::string &base_offset, const std::string &move_offset, const std::vector<std::string> &options) {
-        Logger::log("master.ao.move", side, characters_.contains(side));
+        LOG("master.ao.move", side, characters_.contains(side));
         if (!characters_.contains(side)) {
             return;
         }
@@ -388,7 +400,7 @@ namespace sorakado::ao::master {
     }
     
     void Ao::reserveMenu(window_t parent, int side, Position pos, Rect r) {
-        Logger::log("reserve.ao", pos.x, pos.y);
+        LOG("reserve.ao", pos.x, pos.y);
         menu_initializer_ = {parent, side, pos, r};
     }
 }

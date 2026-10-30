@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <cassert>
+#include <chrono>
 #include <iostream>
 
 #include "logger.h"
@@ -49,7 +50,7 @@ namespace sorakado::ao::master {
 
     bool Seriko::active(int id) {
         if (!actors_.contains(id)) {
-            Logger::log("id: ", id, " not found");
+            LOG("id: ", id, " not found");
             return false;
         }
         return actors_.at(id).active();
@@ -67,7 +68,7 @@ namespace sorakado::ao::master {
                 list.emplace(k);
             }
         }
-        Logger::log("seriko.active.num", list.size());
+        LOG("seriko.active.num", list.size());
         return list;
     }
 
@@ -79,12 +80,12 @@ namespace sorakado::ao::master {
 
     void Seriko::activate(From from, int id, int elapsed) {
         if (!actors_.contains(id)) {
-            Logger::log("animation id: ", id , " not found");
+            LOG("animation id: ", id , " not found");
             return;
         }
         auto &actor = actors_.at(id);
         if (actor.active()) {
-            Logger::log("animation id: ", id , " already active");
+            LOG("animation id: ", id , " already active");
             return;
         }
         actor.activate(from);
@@ -320,7 +321,7 @@ namespace sorakado::ao::master {
         }
         binds_[id] = enable;
         if (enable) {
-            Logger::log("bind enable", id);
+            LOG("bind enable", id);
             actors_.at(id).activate(From::System);
         }
         else {
@@ -353,7 +354,7 @@ namespace sorakado::ao::master {
         for (auto &[k, _] : actors_) {
             if (!binds_.contains(k)) {
                 binds_[k] = getBindDefault(k);
-                Logger::log("updateBind: ", k, binds_[k]);
+                LOG("updateBind: ", k, binds_[k]);
                 assert(binds_.contains(k));
                 bind(k, binds_.at(k));
             }

@@ -37,7 +37,7 @@ namespace sorakado {
                 descript_info_[key] = content;
             }
             if (content.empty()) {
-                Logger::log("info(", key, "): not found");
+                LOG("info(", key, "): not found");
                 return "";
             }
             return content;

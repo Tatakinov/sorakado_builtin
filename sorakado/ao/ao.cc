@@ -138,7 +138,7 @@ namespace sorakado::ao {
             for (int i = 9; i < args.size(); i++) {
                 options.push_back(args[i]);
             }
-            Logger::log("ao.move");
+            LOG("ao.move");
             move(side, is_async, x, y, time, base, base_offset, move_offset, options);
         }
     }

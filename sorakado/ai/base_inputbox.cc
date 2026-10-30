@@ -11,7 +11,7 @@ namespace sorakado::ai {
         if (!window_manager_->shown()) {
             return;
         }
-        Logger::log("draw2", info_.changed(), changed());
+        LOG("draw2", info_.changed(), changed());
         if (!info_.changed() && !changed()) {
             return;
         }
@@ -63,7 +63,7 @@ namespace sorakado::ai {
     }
 
     void BaseInputbox::hover(float x, float y) {
-        Logger::log("input.hover", x, y);
+        LOG("input.hover", x, y);
         if (!drag_.has_value() && mouse_state_[MOUSE_BUTTON_LEFT].press) {
             if (util::isWayland()) {
                 drag_ = {x, y};

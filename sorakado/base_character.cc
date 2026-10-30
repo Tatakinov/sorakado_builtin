@@ -8,7 +8,7 @@ namespace sorakado {
         if (offset_.x == x && offset_.y == y) {
             return false;
         }
-        Logger::log("offset", x, y);
+        LOG("offset", x, y);
         offset_ = {x, y};
         return true;
     }

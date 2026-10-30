@@ -106,7 +106,7 @@ namespace sorakado::ai::master {
         }
         info_.hit(x, y);
         auto link = info_.getLink();
-        Logger::log("hover", x, y, link.content.event);
+        LOG("hover", x, y, link.content.event);
         if (prev_link_ != link) {
             prev_link_ = link;
             if (link.content.event.empty()) {
@@ -249,13 +249,13 @@ namespace sorakado::ai::master {
                     args.insert(args.begin(), link.content.event);
                     args.insert(args.begin(), link.content.text);
                     if (link.content.is_anchor) {
-                        Logger::log("anchor.", link.content.event);
+                        LOG("anchor.", link.content.event);
                         directsstp::Request anchor_ex = {"NOTIFY", "OnAnchorSelectEx", args};
                         directsstp::Request anchor = {"NOTIFY", "OnAnchorSelect", {link.content.event}, {}, true};
                         parent_.enqueueDirectSSTP({anchor_ex, anchor});
                     }
                     else {
-                        Logger::log("choice.", link.content.event);
+                        LOG("choice.", link.content.event);
                         directsstp::Request choice_ex = {"NOTIFY", "OnChoiceSelectEx", args};
                         directsstp::Request choice = {"NOTIFY", "OnChoiceSelect", {link.content.event}, {}, true};
                         parent_.enqueueDirectSSTP({choice_ex, choice});
