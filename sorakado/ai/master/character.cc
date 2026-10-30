@@ -78,6 +78,11 @@ namespace sorakado::ai::master {
         enqueueDirectSSTP({req});
     }
 
+    void Character::resized(window_id_t id) {
+        sorakado::Character::resized(id);
+        info_.change();
+    }
+
     void Character::press(key_t key, bool down) {
         if (!down) {
             return;

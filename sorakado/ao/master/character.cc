@@ -234,6 +234,13 @@ namespace sorakado::ao::master {
         notifyRectInfo();
     }
 
+    void Character::resized(window_id_t id) {
+        sorakado::Character::resized(id);
+        if (prev_info_) {
+            prev_info_->change();
+        }
+    }
+
     void Character::press(key_t key, bool down) {
         if (!down) {
             return;
@@ -405,11 +412,11 @@ namespace sorakado::ao::master {
             return;
         }
         auto info = seriko_->get();
-        if (prev_info_ && *prev_info_ == *info && !changed()) {
+        if (prev_info_ && *prev_info_ == *info && !prev_info_->changed() && !changed()) {
             return;
         }
         update();
-        if (!prev_info_ || *prev_info_ != *info) {
+        if (!prev_info_ || *prev_info_ != *info || prev_info_->changed()) {
             info->change();
             auto o = info->getRect();
             setSize(o.w, o.h);
@@ -423,6 +430,7 @@ namespace sorakado::ao::master {
         }
         if (!prev_info_ || *prev_info_ != *info) {
             prev_info_ = std::move(info);
+            prev_info_->update();
         }
     }
 
@@ -581,6 +589,9 @@ namespace sorakado::ao::master {
     void Character::setScale(int scale) {
         seriko_->setScale(scale);
         change();
+        if (prev_info_) {
+            prev_info_->change();
+        }
     }
 
     void Character::displayChanged() {

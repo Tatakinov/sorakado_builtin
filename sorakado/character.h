@@ -55,7 +55,7 @@ namespace sorakado {
             void wheel(window_id_t id, float x, float y);
             void drop(window_id_t id, const std::vector<std::string> &list);
             void moved(window_id_t id);
-            void resized(window_id_t id);
+            virtual void resized(window_id_t id);
             void maximized(window_id_t id);
             void focus(window_id_t id, bool focused);
             bool focused() const;

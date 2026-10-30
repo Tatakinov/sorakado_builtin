@@ -50,6 +50,8 @@ namespace sorakado::ao::master {
             void alignmentPosition();
             void move(bool is_async, const std::string &x, const std::string &y, int time, const std::string &base, const std::string &base_offset, const std::string &move_offset, const std::vector<std::string> &options);
 
+            void resized(window_id_t id) override;
+
             void press(key_t key, bool down) override;
             void dnd(const std::vector<std::string> &file_list) override;
             void hover(float x, float y) override;

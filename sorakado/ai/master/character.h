@@ -37,6 +37,8 @@ namespace sorakado::ai::master {
             std::string getInfo(int id, std::string key, std::string fallback);
             void resetPosition(bool initialize) override;
 
+            void resized(window_id_t id) override;
+
             void press(key_t key, bool down) override;
             void dnd(const std::vector<std::string> &file_list) override;
             void hover(float x, float y) override;
