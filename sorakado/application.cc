@@ -247,7 +247,7 @@ namespace sorakado {
                 }
                 running++;
             }
-            LOG("application", running, remain_queue.size(), cache.size());
+            //LOG("application", running, remain_queue.size(), cache.size());
             {
                 std::unique_lock<std::mutex> lock(send_mutex_);
                 cond_.wait(lock, [&] { return !event_queue_.empty() || !alive_ || running > 0 || !remain_queue.empty() || !cache.empty(); });

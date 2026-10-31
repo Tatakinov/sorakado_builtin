@@ -4,6 +4,7 @@
 
 #include "logger.h"
 #include "sorakado/ao/master/surface.h"
+#include "sorakado/ao/master/texture_cache.h"
 
 namespace {
     const int kInf = 1000000;
@@ -15,8 +16,9 @@ namespace sorakado::ao::master {
         return lhs.method == rhs.method && lhs.x == rhs.x && lhs.y == rhs.y && lhs.filename == rhs.filename && lhs.index == rhs.index;
     }
 
-    WrapTexture *ElementWithNoChildren::getTexture(renderer_t *renderer, TextureCache &texture_cache) const {
-        auto data = texture_cache.get({filename, index}, renderer, image_cache_);
+    WrapTexture *ElementWithNoChildren::getTexture(renderer_t *renderer, sorakado::TextureCache &texture_cache) const {
+        texture_cache_t key = {filename, index};
+        auto data = texture_cache.get(key, renderer, image_cache_);
         if (!data) {
             return nullptr;
         }
@@ -77,7 +79,7 @@ namespace sorakado::ao::master {
 
     Rect ElementWithChildren::getRect() const {
         auto r = getRect(false);
-        LOG("getRect.middle", r.x, r.y, r.w, r.h);
+        //LOG("getRect.middle", r.x, r.y, r.w, r.h);
         if (r.w == 0 || r.h == 0) {
             return getRect(true);
         }
@@ -204,68 +206,21 @@ namespace sorakado::ao::master {
         return surface;
     }
 
-    std::unique_ptr<WrapTexture> ElementWithChildren::getTexture(renderer_t *renderer, TextureCache &texture_cache) const {
-        auto rect = getRect();
-        if (rect.w <= 0 || rect.h <= 0) {
+    std::unique_ptr<WrapTexture> ElementWithChildren::getTexture(renderer_t *renderer, sorakado::TextureCache &texture_cache) const {
+        TextureCache cache(texture_cache);
+        auto src = cache.get(*this, renderer);
+        if (!src) {
             std::unique_ptr<WrapTexture> invalid;
-            //LOG("no valid children");
             return invalid;
         }
-        bool upconverted = true;
-        std::vector<std::variant<std::unique_ptr<WrapTexture>, WrapTexture *>> list;
-        for (auto &element : children) {
-            std::visit([&](const auto &e) {
-                auto t = e.getTexture(renderer, texture_cache);
-                if (t) {
-                    upconverted = upconverted && t->isUpconverted();
-                }
-                list.push_back(std::move(t));
-            }, element);
-        }
-        auto texture = std::make_unique<WrapTexture>(renderer, rect.w, rect.h, upconverted);
-        SDL_SetRenderTarget(renderer, texture->texture());
+        auto dst = std::make_unique<WrapTexture>(renderer, src->width(), src->height(), src->isUpconverted());
+        SDL_SetRenderTarget(renderer, dst->texture());
         SDL_SetRenderDrawColor(renderer, 0x00, 0x00, 0x00, 0x00);
         SDL_RenderClear(renderer);
-        for (int i = 0; i < children.size(); i++) {
-            SDL_BlendMode mode = SDL_ComposeCustomBlendMode(SDL_BLENDFACTOR_ONE, SDL_BLENDFACTOR_ONE_MINUS_SRC_ALPHA, SDL_BLENDOPERATION_ADD, SDL_BLENDFACTOR_ONE, SDL_BLENDFACTOR_ONE, SDL_BLENDOPERATION_ADD);
-            std::visit([&](const auto &e, const auto &t) {
-                if (!t) {
-                    return;
-                }
-                SDL_FRect r = { e.x - rect.x + x, e.y - rect.y + y, t->width(), t->height() };
-                if (r.x + r.w < 0 || r.x > rect.w || r.y + r.h < 0 || r.y > rect.h) {
-                    return;
-                }
-                switch (e.method) {
-                    case Method::Base:
-                    case Method::Add:
-                    case Method::Overlay:
-                        break;
-                    case Method::OverlayFast:
-                        mode = SDL_ComposeCustomBlendMode(SDL_BLENDFACTOR_DST_ALPHA, SDL_BLENDFACTOR_ONE_MINUS_SRC_ALPHA, SDL_BLENDOPERATION_ADD, SDL_BLENDFACTOR_ONE, SDL_BLENDFACTOR_ONE, SDL_BLENDOPERATION_ADD);
-                        break;
-                    case Method::OverlayMultiply:
-                        // FIXME
-                        mode = SDL_ComposeCustomBlendMode(SDL_BLENDFACTOR_ZERO, SDL_BLENDFACTOR_SRC_COLOR, SDL_BLENDOPERATION_ADD, SDL_BLENDFACTOR_ONE, SDL_BLENDFACTOR_ONE, SDL_BLENDOPERATION_ADD);
-                        break;
-                    case Method::Replace:
-                        mode = SDL_ComposeCustomBlendMode(SDL_BLENDFACTOR_ONE, SDL_BLENDFACTOR_ZERO, SDL_BLENDOPERATION_ADD, SDL_BLENDFACTOR_ONE, SDL_BLENDFACTOR_ONE, SDL_BLENDOPERATION_ADD);
-                        break;
-                    case Method::Interpolate:
-                        mode = SDL_ComposeCustomBlendMode(SDL_BLENDFACTOR_ONE_MINUS_DST_ALPHA, SDL_BLENDFACTOR_ONE_MINUS_SRC_ALPHA, SDL_BLENDOPERATION_ADD, SDL_BLENDFACTOR_ONE, SDL_BLENDFACTOR_ONE, SDL_BLENDOPERATION_ADD);
-                        break;
-                    case Method::Reduce:
-                        // FIXME
-                        mode = SDL_ComposeCustomBlendMode(SDL_BLENDFACTOR_ZERO, SDL_BLENDFACTOR_SRC_ALPHA, SDL_BLENDOPERATION_ADD, SDL_BLENDFACTOR_ZERO, SDL_BLENDFACTOR_ONE, SDL_BLENDOPERATION_ADD);
-                        break;
-                    default:
-                        break;
-                }
-                SDL_SetTextureBlendMode(t->texture(), mode);
-                SDL_RenderTexture(renderer, t->texture(), nullptr, &r);
-            }, children[i], list[i]);
-        }
+        auto mode = SDL_ComposeCustomBlendMode(SDL_BLENDFACTOR_ONE, SDL_BLENDFACTOR_ONE_MINUS_SRC_ALPHA, SDL_BLENDOPERATION_ADD, SDL_BLENDFACTOR_ONE, SDL_BLENDFACTOR_ONE, SDL_BLENDOPERATION_ADD);
+        SDL_SetTextureBlendMode(src->texture(), mode);
+        SDL_RenderTexture(renderer, src->texture(), nullptr, nullptr);
         SDL_SetRenderTarget(renderer, nullptr);
-        return texture;
+        return dst;
     }
 }
