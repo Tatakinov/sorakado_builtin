@@ -186,10 +186,17 @@ namespace sorakado {
     }
 
     void Window::draw(Position offset, const RenderInfo &render_info) {
-        if (texture_ && texture_->isUpconverted() && !render_info.changed()) {
-            return;
+        if (util::isWayland()) {
+            if (!(texture_ && texture_->isUpconverted() && !render_info.changed())) {
+                texture_ = render_info.getTexture(renderer_, *texture_cache_);
+            }
         }
-        texture_ = render_info.getTexture(renderer_, *texture_cache_);
+        else {
+            if (texture_ && texture_->isUpconverted() && !render_info.changed()) {
+                return;
+            }
+            texture_ = render_info.getTexture(renderer_, *texture_cache_);
+        }
         // render next frame unless texture is up-converted
         if (!(texture_ && texture_->isUpconverted())) {
             parent_.change();
