@@ -302,6 +302,7 @@ namespace sorakado {
             return false;
         }
         parent_.scroll(x, y, mouse_x, mouse_y);
+        return true;
     }
 
     bool Window::drop(window_id_t id, const std::vector<std::string> &file_list) {
