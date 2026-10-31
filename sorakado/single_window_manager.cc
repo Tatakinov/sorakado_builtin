@@ -125,11 +125,11 @@ namespace sorakado {
         window_->button(id, x, y, button, down, clicks);
     }
     
-    void SingleWindowManager::wheel(window_id_t id, float x, float y) {
+    void SingleWindowManager::wheel(window_id_t id, float x, float y, float mouse_x, float mouse_y) {
         if (!window_) {
             return;
         }
-        window_->wheel(id, x, y);
+        window_->wheel(id, x, y, mouse_x, mouse_y);
     }
 
     void SingleWindowManager::drop(window_id_t id, const std::vector<std::string> &list) {

@@ -44,7 +44,7 @@ namespace sorakado {
             void edit(window_id_t id, const std::string &text) override;
             void motion(window_id_t id, float x, float y) override;
             void button(window_id_t id, float x, float y, button_t button, bool down, click_t clicks) override;
-            void wheel(window_id_t id, float x, float y) override;
+            void wheel(window_id_t id, float x, float y, float mouse_x, float mouse_y) override;
             void drop(window_id_t id, const std::vector<std::string> &list) override;
             void maximized(window_id_t id) override;
             void focus(window_id_t id, bool focused) override;

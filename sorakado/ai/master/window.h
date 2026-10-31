@@ -27,7 +27,6 @@ namespace sorakado::ai::master {
 
             bool input(sorakado::window_id_t id, const std::string &text) override;
             bool edit(sorakado::window_id_t id, const std::string &text) override;
-            bool wheel(sorakado::window_id_t id, float x, float y) override;
     };
 }
 

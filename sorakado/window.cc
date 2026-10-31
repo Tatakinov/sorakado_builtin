@@ -291,6 +291,13 @@ namespace sorakado {
         return true;
     }
 
+    bool Window::wheel(window_id_t id, float x, float y, float mouse_x, float mouse_y) {
+        if (id != SDL_GetWindowID(window_)) {
+            return false;
+        }
+        parent_.scroll(x, y, mouse_x, mouse_y);
+    }
+
     bool Window::drop(window_id_t id, const std::vector<std::string> &file_list) {
         if (id != SDL_GetWindowID(window_)) {
             return false;

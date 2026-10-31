@@ -24,7 +24,6 @@ namespace sorakado::ao {
             bool key(sorakado::window_id_t id, sorakado::key_t key, bool down) override;
             bool input(sorakado::window_id_t id, const std::string &text) override;
             bool edit(sorakado::window_id_t id, const std::string &text) override;
-            bool wheel(sorakado::window_id_t id, float x, float y) override;
             bool drop(sorakado::window_id_t id, const std::vector<std::string> &list) override;
             bool motion(window_id_t id, float x, float y) override;
             bool button(window_id_t id, float x, float y, button_t button, bool down, click_t clicks) override;

@@ -405,6 +405,7 @@ namespace sorakado::ao::master {
     }
 
     void Character::scroll(float x, float y, float mouse_x, float mouse_y) {
+        // TODO stub
     }
 
     void Character::draw() {

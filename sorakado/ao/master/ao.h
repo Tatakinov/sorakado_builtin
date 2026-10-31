@@ -40,7 +40,7 @@ namespace sorakado::ao::master {
             void edit(window_id_t id, const std::string &text) override;
             void motion(sorakado::window_id_t id, float x, float y) override;
             void button(sorakado::window_id_t id, float x, float y, sorakado::button_t button, bool down, click_t clicks) override;
-            void wheel(sorakado::window_id_t id, float x, float y) override;
+            void wheel(sorakado::window_id_t id, float x, float y, float mouse_x, float mouse_y) override;
             void drop(sorakado::window_id_t id, const std::vector<std::string> &list) override;
             void moved(sorakado::window_id_t id) override;
             void resized(sorakado::window_id_t id) override;

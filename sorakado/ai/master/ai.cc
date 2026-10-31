@@ -182,9 +182,9 @@ namespace sorakado::ai::master {
         }
     }
 
-    void Ai::wheel(sorakado::window_id_t id, float x, float y) {
+    void Ai::wheel(sorakado::window_id_t id, float x, float y, float mouse_x, float mouse_y) {
         for (auto &[_, v] : characters_) {
-            v->wheel(id, x, y);
+            v->wheel(id, x, y, mouse_x, mouse_y);
         }
     }
 

@@ -38,13 +38,6 @@ namespace sorakado::ao {
         return true;
     }
 
-    bool AoMenuWindow::wheel(sorakado::window_id_t id, float x, float y) {
-        if (id != SDL_GetWindowID(Window::getBackendWindow())) {
-            return false;
-        }
-        return true;
-    }
-
     bool AoMenuWindow::drop(sorakado::window_id_t id, const std::vector<std::string> &list) {
         if (id != SDL_GetWindowID(Window::getBackendWindow())) {
             return false;

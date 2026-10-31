@@ -33,12 +33,4 @@ namespace sorakado::ai::master {
         }
         return true;
     }
-
-    bool AiMasterWindow::wheel(sorakado::window_id_t id, float x, float y) {
-        if (id != SDL_GetWindowID(window_)) {
-            return false;
-        }
-        // TODO stub
-        return true;
-    }
 }

@@ -363,7 +363,7 @@ namespace sorakado {
                     break;
                 case SDL_EVENT_MOUSE_WHEEL:
                     LOG("wheel");
-                    sorakado_instance_->wheel(event.wheel.windowID, event.wheel.x, event.wheel.y);
+                    sorakado_instance_->wheel(event.wheel.windowID, event.wheel.x, event.wheel.y, event.wheel.mouse_x, event.wheel.mouse_y);
                     break;
                 case SDL_EVENT_DROP_COMPLETE:
                     LOG("drop complete");

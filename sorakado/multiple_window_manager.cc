@@ -116,9 +116,9 @@ namespace sorakado {
         }
     }
     
-    void MultipleWindowManager::wheel(window_id_t id, float x, float y) {
+    void MultipleWindowManager::wheel(window_id_t id, float x, float y, float mouse_x, float mouse_y) {
         for (auto &[_, window] : windows_) {
-            window->wheel(id, x, y);
+            window->wheel(id, x, y, mouse_x, mouse_y);
         }
     }
 

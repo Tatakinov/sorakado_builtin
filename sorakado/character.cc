@@ -66,8 +66,8 @@ namespace sorakado {
         window_manager_->button(id, x, y, button, down, clicks);
     }
 
-    void Character::wheel(window_id_t id, float x, float y) {
-        window_manager_->wheel(id, x, y);
+    void Character::wheel(window_id_t id, float x, float y, float mouse_x, float mouse_y) {
+        window_manager_->wheel(id, x, y, mouse_x, mouse_y);
     }
     void Character::drop(const window_id_t id, const std::vector<std::string> &list) {
         window_manager_->drop(id, list);
@@ -119,8 +119,5 @@ namespace sorakado {
         window_manager_->resize(w, h);
         resetPosition(false);
         return true;
-    }
-
-    void Character::scroll(float x, float y, float mouse_x, float mouse_y) {
     }
 }

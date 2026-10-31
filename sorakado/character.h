@@ -45,14 +45,12 @@ namespace sorakado {
             virtual bool setSize(int w, int h);
             virtual void resetPosition(bool initialize) = 0;
 
-            virtual void scroll(float x, float y, float mouse_x, float mouse_y);
-
             void key(window_id_t id, key_t key, bool down);
             void input(window_id_t id, const std::string &text);
             void edit(window_id_t id, const std::string &text);
             void motion(window_id_t id, float x, float y);
             void button(window_id_t id, float x, float y, button_t button, bool down, click_t clicks);
-            void wheel(window_id_t id, float x, float y);
+            void wheel(window_id_t id, float x, float y, float mouse_x, float mouse_y);
             void drop(window_id_t id, const std::vector<std::string> &list);
             void moved(window_id_t id);
             virtual void resized(window_id_t id);

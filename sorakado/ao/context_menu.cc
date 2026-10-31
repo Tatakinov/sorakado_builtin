@@ -112,9 +112,9 @@ namespace sorakado::ao {
         }
     }
 
-    void ContextMenu::wheel(window_id_t id, float x, float y) {
+    void ContextMenu::wheel(window_id_t id, float x, float y, float mouse_x, float mouse_y) {
         for (auto &v : windows_) {
-            if (v->wheel(id, x, y)) {
+            if (v->wheel(id, x, y, mouse_x, mouse_y)) {
                 is_idle_ = false;
             }
         }

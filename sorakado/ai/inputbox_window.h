@@ -30,9 +30,6 @@ namespace sorakado::ai {
             AiInputboxWindow(sorakado::BaseCharacter &parent, display_t id, BackendWindowFactory &factory, const std::string &name, const Rect &inputbox_r, WrapFont *font);
             ~AiInputboxWindow() {}
 
-            bool wheel(sorakado::window_id_t id, float x, float y) override {
-                return false;
-            }
             bool maximized(window_id_t id) override;
             bool motion(window_id_t id, float x, float y) override;
             bool button(window_id_t id, float x, float y, button_t button, bool down, click_t clicks) override;

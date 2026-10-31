@@ -84,7 +84,7 @@ namespace sorakado {
             virtual void clearCache();
             virtual bool input(window_id_t id, const std::string &text);
             virtual bool edit(window_id_t id, const std::string &text);
-            virtual bool wheel(window_id_t id, float x, float y) = 0;
+            virtual bool wheel(window_id_t id, float x, float y, float mouse_x, float mouse_y);
 
             virtual bool drop(window_id_t id, const std::vector<std::string> &list);
             virtual bool maximized(window_id_t id);

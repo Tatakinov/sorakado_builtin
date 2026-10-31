@@ -34,6 +34,7 @@ namespace sorakado {
             virtual void dnd(const std::vector<std::string> &file_list);
             virtual void hover(float x, float y);
             virtual void click(Window *window, float x, float y, button_t button, bool down, click_t clicks);
+            virtual void scroll(float x, float y, float mouse_x, float mouse_y);
             virtual void inputText(const std::string &text);
             virtual void editText(const std::string &text);
 

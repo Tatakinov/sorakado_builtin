@@ -24,6 +24,9 @@ namespace sorakado {
     void BaseCharacter::click(Window *window, float x, float y, button_t button, bool down, click_t clicks) {
     }
 
+    void BaseCharacter::scroll(float x, float y, float mouse_x, float mouse_y) {
+    }
+
     void BaseCharacter::inputText(const std::string &text)  {
     }
 
