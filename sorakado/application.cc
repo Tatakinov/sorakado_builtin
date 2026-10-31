@@ -142,19 +142,48 @@ namespace sorakado {
                     res = r.value();
                 }
                 else {
-                    std::vector<std::string> args;
-                    args.reserve(std::count(request.begin(), request.end(), '\x0a'));
-                    args.push_back(event);
-                    for (int i = 0; ; i++) {
-                        auto v = req(i);
-                        if (v) {
-                            args.push_back(v.value());
+                    std::unordered_map<int, std::string> args;
+                    args[0] = event;
+                    for (const auto &[k, v] : req.header().headers()) {
+                        if (!v) {
+                            continue;
                         }
-                        else {
-                            break;
+                        if (!k.starts_with("Argument")) {
+                            continue;
+                        }
+                        if (k == "Argument") {
+                            continue;
+                        }
+                        if (k.length() > 8 + (sizeof(int) * 8 - 1) / 3.0) {
+                            continue;
+                        }
+                        int n = 0;
+                        for (int i = 8; i < k.length(); i++) {
+                            if (!isdigit(k[i]) || (i > 8 && n == 0)) {
+                                n = -1;
+                                break;
+                            }
+                            n *= 10;
+                            n += k[i] - '0';
+                        }
+                        if (n >= 0) {
+                            args[n + 1] = *v;
                         }
                     }
-                    queue_.push(args);
+                    // SORAKADOプロトコルではArgumentは0から連続した数字。
+                    bool valid = true;
+                    std::vector<std::string> list;
+                    list.reserve(args.size());
+                    for (int i = 0; i < args.size(); i++) {
+                        if (!args.contains(i)) {
+                            valid = false;
+                            break;
+                        }
+                        list.push_back(args.at(i));
+                    }
+                    if (valid) {
+                        queue_.push(list);
+                    }
                 }
             }
 
