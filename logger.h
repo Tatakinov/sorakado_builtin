@@ -20,7 +20,9 @@ class Logger {
         }
     public:
         static void configure(std::filesystem::path p) {
+#ifndef NDEBUG
             ofs_ = std::make_unique<std::ofstream>(p);
+#endif // !NDEBUG
         }
         template<typename... Args>
         static void log(Args&&... args) {
@@ -35,6 +37,6 @@ class Logger {
 #define LOG(...)
 #else
 #define LOG(...) Logger::log(__VA_ARGS__)
-#endif
+#endif // NDEBUG
 
 #endif // LOGGER_H_
