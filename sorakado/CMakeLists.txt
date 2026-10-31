@@ -39,9 +39,5 @@ if (ENABLE_ONNXRUNTIME)
     endif()
 endif()
 
-if (!ENABLE_DEBUG)
-    target_compile_definitions(sorakado PRIVATE NDEBUG)
-endif()
-
 target_include_directories(sorakado PUBLIC ${INCLUDEDIRS})
 target_link_libraries(sorakado ${DEPENDENCIES})
