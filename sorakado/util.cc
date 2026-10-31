@@ -145,7 +145,7 @@ namespace util {
                 if (buffer.starts_with("\xef\xbb\xbf")) {
                     buffer = buffer.substr(3);
                     charset = "UTF-8";
-                    continue;
+                    break;
                 }
             }
             if (buffer.starts_with("charset,")) {
@@ -163,7 +163,7 @@ namespace util {
                     }
                     break;
                 }
-                charset = buffer.substr(begin, end - begin);
+                charset = buffer.substr(begin, end + 1 - begin);
                 LOG("charset in ", path, ": ", charset);
             }
         }
