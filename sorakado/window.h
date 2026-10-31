@@ -19,6 +19,7 @@
 
 #include "sorakado/backend_window_factory.h"
 #include "sorakado/compatible.h"
+#include "sorakado/misc.h"
 #include "sorakado/texture.h"
 #include "sorakado/texture_cache.h"
 #include "sorakado/util.h"
