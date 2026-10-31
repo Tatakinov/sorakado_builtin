@@ -129,6 +129,7 @@ namespace sorakado::ao::master {
         }
         bool upconverted = true;
         std::vector<Region> list;
+        list.reserve(children.size());
         for (auto &element : children) {
             std::visit([&](const auto &e) {
                 list.push_back(e.getRegion());
