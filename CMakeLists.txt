@@ -5,7 +5,7 @@ if (ONLY_FONTLIST)
     add_subdirectory(libfontlist)
 else()
     option(ENABLE_ONNXRUNTIME "Enable OnnxRuntime support if available" ON)
-    option(ENABLE_DEBUG "Enable debug log if --debug" ON)
+    option(ENABLE_DEBUG "Enable debug log if --debug" OFF)
 
     set(CMAKE_PREFIX_PATH "${CMAKE_PREFIX_PATH}" "${PROJECT_SOURCE_DIR}/cmake")
 
