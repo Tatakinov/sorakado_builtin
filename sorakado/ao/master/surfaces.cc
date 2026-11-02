@@ -329,6 +329,11 @@ namespace sorakado::ao::master {
                         }
                         element.method = s2method_synthesize.at(tmp);
                         std::getline(l, tmp, ',');
+                        for (auto &c : tmp) {
+                            if (c == '\\') {
+                                c = '/';
+                            }
+                        }
                         std::u8string u(tmp.begin(), tmp.end());
                         element.filename = shell_dir / u;
                         std::getline(l, tmp, ',');
