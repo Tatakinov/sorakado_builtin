@@ -43,6 +43,7 @@ namespace sorakado::ao {
     };
 
     struct MenuModelDataSubMenu {
+        bool valid;
         std::string caption;
         std::vector<std::variant<MenuModelDataItem, MenuModelDataCheck, MenuModelDataDressUp, MenuModelDataSubMenu>> children;
     };
@@ -75,6 +76,7 @@ namespace sorakado::ao {
             SDL_Surface *surface();
             bool highlight(int y);
             void unhighlight();
+            bool valid() const;
     };
 
     class SubMenu : public sorakado::RenderInfo {

@@ -25,6 +25,7 @@ namespace sorakado::ao {
             auto type = v["type"].asString();
             if (type == "submenu") {
                 MenuModelDataSubMenu submenu = {
+                    .valid = v["valid"].asBool(),
                     .caption = v["caption"].asString(),
                     .children = parseMenuInfo(v["list"], dress_up_list),
                 };
@@ -51,6 +52,7 @@ namespace sorakado::ao {
             }
             if (type == "dressup") {
                 MenuModelDataSubMenu dressup = {
+                    .valid = v["valid"].asBool(),
                     .caption = v["caption"].asString(),
                     .children = dress_up_list,
                 };
@@ -101,6 +103,14 @@ namespace sorakado::ao {
 
     void MenuItem::unhighlight() {
         highlight_ = false;
+    }
+
+    bool MenuItem::valid() const {
+        bool ret;
+        std::visit([&](const auto &v) {
+            ret = v.valid;
+        }, data_);
+        return ret;
     }
 
     SubMenu::SubMenu(const std::vector<MenuModelData> &data, const Rect &display_r, ImageCache &cache, WrapFont *font) : RenderInfo(cache), r_({0, 0, 0, 0}), scroll_(0), prev_index_(invalid), index_(invalid) {
@@ -197,6 +207,9 @@ namespace sorakado::ao {
         }
         auto t = std::make_unique<WrapTexture>(renderer, s->surface(), true);
         if (index_ == invalid) {
+            return t;
+        }
+        if (!item_list_[index_]->valid()) {
             return t;
         }
         auto flip = std::make_unique<WrapTexture>(renderer, 1, 1, true);

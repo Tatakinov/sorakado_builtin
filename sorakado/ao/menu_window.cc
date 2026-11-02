@@ -76,6 +76,9 @@ namespace sorakado::ao {
             return false;
         }
         auto item = menu_->get<MenuModelDataItem>();
+        if (!item->valid) {
+            return false;
+        }
         if (item) {
             parent_.enqueueDirectSSTP({{"EXECUTE", item->command, item->args}});
         }
