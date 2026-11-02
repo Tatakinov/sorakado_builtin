@@ -46,6 +46,7 @@ namespace sorakado {
             SOCKET soc_;
             std::queue<lib_skeleton::sstp::Request> queue_;
             std::string remain_, buffer_;
+            std::string method_;
 
             void next();
         public:

@@ -123,6 +123,7 @@ namespace sorakado {
         }
         auto req = queue_.front();
         req["Connection"] = "keep-alive";
+        method_ = req.getCommand();
         remain_ = req;
         state_ = SocketState::Write;
     }
@@ -143,8 +144,13 @@ namespace sorakado {
         buffer_.append(buf, len);
         if (buffer_.ends_with("\r\n\r\n")) {
             auto res = lib_skeleton::sstp::Response::parse(buffer_);
-            if (res.getStatusCode() == 200 && res.getContent().empty()) {
-                return;
+            if (res.getStatusCode() == 200) {
+                if (method_ == "NOTIFY" && !res["Script"]) {
+                    return;
+                }
+                if (method_ != "NOTIFY" && res.getContent().empty()) {
+                    return;
+                }
             }
             buffer_.clear();
             if (res.getStatusCode() == 204 && queue_.size() >= 2) {
