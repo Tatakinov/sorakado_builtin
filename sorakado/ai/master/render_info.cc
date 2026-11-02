@@ -279,6 +279,9 @@ namespace sorakado::ai::master {
             if (data.content.type != post::ContentType::Image || data.content.attr.foreground) {
                 continue;
             }
+            if (outOfValidRect(data.position)) {
+                continue;
+            }
             std::u8string u8p(data.content.data.begin(), data.content.data.end());
             std::filesystem::path path = u8p;
             auto info = image_cache_.get(path, std::nullopt, data.content.attr.use_self_alpha);
@@ -286,14 +289,18 @@ namespace sorakado::ai::master {
                 continue;
             }
             auto s = std::make_unique<WrapSurface>(*info);
-            SDL_Rect r = {data.position.x * scale_ / 100, (data.position.y - scroll_) * scale_ / 100, data.position.w * scale_ / 100, data.position.h * scale_ / 100};
-            SDL_BlitSurface(s->surface(), nullptr, dst->surface(), &r);
+            SDL_Rect src_r = generateRect(data.position);
+            SDL_Rect dst_r = {(data.position.x + src_r.x) * scale_ / 100, (data.position.y - scroll_ + src_r.y) * scale_ / 100, src_r.w * scale_ / 100, src_r.h * scale_ / 100};
+            SDL_BlitSurface(s->surface(), &src_r, dst->surface(), &dst_r);
         }
         for (const auto &data : post_.data) {
             if (data.content.type != post::ContentType::Text) {
                 continue;
             }
             if (data.content.data.length() == 0) {
+                continue;
+            }
+            if (outOfValidRect(data.position)) {
                 continue;
             }
             auto *font = (font_cache_.get(data.content.attr.font)->font() != nullptr) ? font_cache_.get(data.content.attr.font) : font_cache_.get("default");
@@ -314,12 +321,16 @@ namespace sorakado::ai::master {
                 }
             }
             SDL_Surface *text = TTF_RenderText_Blended(font->font(), data.content.data.data(), data.content.data.length(), {c.r, c.g, c.b, c.a});
-            SDL_Rect r = {data.position.x * scale_ / 100, (data.position.y - scroll_) * scale_ / 100, text->w * scale_ / 100, text->h * scale_ / 100};
-            SDL_BlitSurface(text, nullptr, dst->surface(), &r);
+            SDL_Rect src_r = generateRect(data.position);
+            SDL_Rect dst_r = {(data.position.x + src_r.x) * scale_ / 100, (data.position.y - scroll_ + src_r.y) * scale_ / 100, src_r.w * scale_ / 100, src_r.h * scale_ / 100};
+            SDL_BlitSurface(text, &src_r, dst->surface(), &dst_r);
             SDL_DestroySurface(text);
         }
         for (const auto &data : post_.data) {
             if (data.content.type != post::ContentType::Image || !data.content.attr.foreground) {
+                continue;
+            }
+            if (outOfValidRect(data.position)) {
                 continue;
             }
             std::u8string u8p(data.content.data.begin(), data.content.data.end());
@@ -329,8 +340,9 @@ namespace sorakado::ai::master {
                 continue;
             }
             auto s = std::make_unique<WrapSurface>(*info);
-            SDL_Rect r = {data.position.x * scale_ / 100, (data.position.y - scroll_) * scale_ / 100, data.position.w * scale_ / 100, data.position.h * scale_ / 100};
-            SDL_BlitSurface(s->surface(), nullptr, dst->surface(), &r);
+            SDL_Rect src_r = generateRect(data.position);
+            SDL_Rect dst_r = {(data.position.x + src_r.x) * scale_ / 100, (data.position.y - scroll_ + src_r.y) * scale_ / 100, src_r.w * scale_ / 100, src_r.h * scale_ / 100};
+            SDL_BlitSurface(s->surface(), &src_r, dst->surface(), &dst_r);
         }
         return dst;
     }
@@ -380,29 +392,18 @@ namespace sorakado::ai::master {
         balloon_id_ = tmp_id;
         id = util::balloon2id(balloon_id_, direction_);
         int x = 0, y = 0, w = 0, h = 0;
-        std::string value = parent_->getInfo(id, "origin.x", "0");
-        util::to_x(value, x);
-        if (x < 0) {
-            x += info->width();
-        }
-        value = parent_->getInfo(id, "origin.y", "0");
-        util::to_x(value, y);
-        if (y < 0) {
-            y += info->height();
-        }
-        setOrigin(x, y);
 
-        value = parent_->getInfo(id, "validrect.left", "0");
-        util::to_x(value, x);
+        auto value_x = parent_->getInfo(id, "validrect.left", "0");
+        util::to_x(value_x, x);
         if (x < 0) {
             x += info->width();
         }
-        value = parent_->getInfo(id, "validrect.top", "0");
-        util::to_x(value, y);
+        auto value_y = parent_->getInfo(id, "validrect.top", "0");
+        util::to_x(value_y, y);
         if (y < 0) {
             y += info->height();
         }
-        value = parent_->getInfo(id, "validrect.right", "0");
+        auto value = parent_->getInfo(id, "validrect.right", "0");
         util::to_x(value, w);
         if (w <= 0) {
             w += info->width();
@@ -415,6 +416,18 @@ namespace sorakado::ai::master {
         }
         h -= y;
         setValidRect(x, y, w, h);
+
+        value = parent_->getInfo(id, "origin.x", value_x);
+        util::to_x(value, x);
+        if (x < 0) {
+            x += info->width();
+        }
+        value = parent_->getInfo(id, "origin.y", value_y);
+        util::to_x(value, y);
+        if (y < 0) {
+            y += info->height();
+        }
+        setOrigin(x, y);
 
         value = parent_->getInfo(id, "wordwrappoint.x", "0");
         util::to_x(value, x);
@@ -446,7 +459,7 @@ namespace sorakado::ai::master {
         }
         auto *font = font_cache_.get("default");
         scroll_ -= diff * (TTF_GetFontHeight(font->font()) + kLineSpace);
-        scroll_ = std::min(scroll_, h_max - info->height());
+        scroll_ = std::min(scroll_, h_max - valid_rect_.y - valid_rect_.h);
         scroll_ = std::max(scroll_, 0);
         change();
     }
@@ -565,7 +578,7 @@ namespace sorakado::ai::master {
         for (auto &data : post_.data) {
             h_max = std::max(h_max, data.position.y + data.position.h);
         }
-        scroll_ = std::max(0, h_max - info->height());
+        scroll_ = std::max(0, h_max - valid_rect_.y - valid_rect_.h);
     }
 
     void RenderInfo::appendLinkBegin(bool is_anchor, const std::string &event, const std::vector<std::string> &args) {
@@ -676,5 +689,46 @@ namespace sorakado::ai::master {
             }
         }
         calculatePosition();
+    }
+
+    bool RenderInfo::outOfValidRect(const Rect &r) const {
+        const auto x = valid_rect_.x;
+        const auto y = valid_rect_.y;
+        const auto w = valid_rect_.w;
+        const auto h = valid_rect_.h;
+        if (x > r.x + r.w) {
+            return true;
+        }
+        if (y > r.y + r.h - scroll_) {
+            return true;
+        }
+        if (x + w < r.x) {
+            return true;
+        }
+        if (y + h < r.y - scroll_) {
+            return true;
+        }
+        return false;
+    }
+
+    SDL_Rect RenderInfo::generateRect(const Rect &r) const {
+        SDL_Rect ret = {0, 0, r.w, r.h};
+        const auto x = valid_rect_.x;
+        const auto y = valid_rect_.y;
+        const auto w = valid_rect_.w;
+        const auto h = valid_rect_.h;
+        if (r.x < x) {
+            ret.x = x - r.x;
+        }
+        if (r.y - scroll_ < y) {
+            ret.y = y - (r.y - scroll_);
+        }
+        if (r.x + r.w > x + w) {
+            ret.w = r.w + (x + w - r.x - r.w);
+        }
+        if (r.y + r.h - scroll_ > y + h) {
+            ret.h = r.h + (y + h - (r.y + r.h - scroll_)) - ret.y;
+        }
+        return ret;
     }
 }

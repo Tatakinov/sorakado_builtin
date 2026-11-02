@@ -144,6 +144,8 @@ namespace sorakado::ai::master {
             FontCache &font_cache_;
 
             void calculatePosition();
+            bool outOfValidRect(const Rect &r) const;
+            SDL_Rect generateRect(const Rect &r) const;
         public:
             RenderInfo(Character &parent, int side, ImageCache &image_cache, FontCache &font_cache);
             ~RenderInfo();
