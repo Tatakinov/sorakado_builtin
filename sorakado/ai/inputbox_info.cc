@@ -100,6 +100,7 @@ namespace sorakado::ai {
         SDL_RenderClear(renderer);
         texture_cache_t key = {path_, std::nullopt, RenderType::PreMultiplied};
         auto background = texture_cache.get(key, renderer, image_cache_);
+        SDL_SetRenderTarget(renderer, dst->texture());
         if (background) {
             SDL_RenderTexture(renderer, (*background)->texture(), nullptr, nullptr);
         }
