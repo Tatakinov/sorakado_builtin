@@ -16,13 +16,13 @@ namespace sorakado::ai {
             return;
         }
         update();
-        info_.update();
         if (util::isWayland()) {
             window_manager_->draw(getRect(), info_);
         }
         else {
             window_manager_->draw({0, 0}, info_);
         }
+        info_.update();
     }
 
     void BaseInputbox::resetPosition(bool initialize) {
