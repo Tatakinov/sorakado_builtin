@@ -62,14 +62,14 @@ struct std::equal_to<sorakado::ao::master::ElementWithNoChildren> {
 template<>
 struct std::hash<sorakado::ao::master::ElementWithChildren> {
     size_t operator ()(const sorakado::ao::master::ElementWithChildren &e) const {
-        size_t hash = 0;
+        size_t h = 0;
         for (int i = 0; i < e.children.size(); i++) {
-            hash ^= std::rotl(std::hash<sorakado::ao::master::VElement>()(e.children[i]), i);
+            h ^= std::rotl(std::hash<sorakado::ao::master::VElement>()(e.children[i]), i);
             std::visit([&](const auto &v) {
-                hash ^= std::hash<int>()((i + 1) * v.x) ^ std::rotl(std::hash<int>()((i + 1) * v.y), 1);
+                h ^= std::hash<int>()((i + 1) * v.x) ^ std::rotl(std::hash<int>()((i + 1) * v.y), 1);
             }, e.children[i]);
         }
-        return hash;
+        return h;
     }
 };
 
