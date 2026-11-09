@@ -162,9 +162,7 @@ namespace sorakado {
     }
 
     void Window::raise() {
-        if (SDL_GetWindowFlags(window_) & SDL_WINDOW_HIDDEN) {
-            SDL_RaiseWindow(window_);
-        }
+        SDL_RaiseWindow(window_);
     }
 
     void Window::position(int x, int y) {
