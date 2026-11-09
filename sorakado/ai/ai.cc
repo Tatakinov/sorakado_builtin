@@ -171,6 +171,7 @@ namespace sorakado::ai {
             raiseOnTalk(side);
         }
         else if (args[0] == "OnScriptBegin") {
+            raiseOnTalk(-1);
         }
         else if (args[0] == "OnScriptEnd") {
         }

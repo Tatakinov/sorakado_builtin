@@ -295,10 +295,17 @@ namespace sorakado::ai::master {
     }
 
     void Ai::raiseOnTalk(int side) {
-        if (!characters_.contains(side)) {
-            return;
+        if (side == -1) {
+            for (auto &[_, v] : characters_) {
+                v->raiseOnTalk();
+            }
         }
-        characters_[side]->raiseOnTalk();
+        else {
+            if (!characters_.contains(side)) {
+                return;
+            }
+            characters_[side]->raiseOnTalk();
+        }
     }
 
     void Ai::setBalloonID(int side, int id) {

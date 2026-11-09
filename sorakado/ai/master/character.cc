@@ -280,6 +280,9 @@ namespace sorakado::ai::master {
         if (raise_on_talk_) {
             raise_on_talk_ = false;
             raise();
+            std::vector<std::string> args = {util::to_s(side())};
+            directsstp::Request req = {"EXECUTE", "RaiseSurface", args};
+            parent_.enqueueDirectSSTP({req});
         }
         info_.appendText(text);
         show();
@@ -295,6 +298,13 @@ namespace sorakado::ai::master {
     }
 
     void Character::appendImage(const std::filesystem::path &path, int x, int y, bool as_char, bool opaque, bool use_self_alpha, std::optional<Rect> &clipping, bool scaling, bool fixed, bool foreground, const std::optional<std::string> &source) {
+        if (raise_on_talk_) {
+            raise_on_talk_ = false;
+            raise();
+            std::vector<std::string> args = {util::to_s(side())};
+            directsstp::Request req = {"EXECUTE", "RaiseSurface", args};
+            parent_.enqueueDirectSSTP({req});
+        }
         info_.appendImage(path, x, y, as_char, opaque, use_self_alpha, clipping, scaling, fixed, foreground, source);
     }
 
