@@ -431,8 +431,8 @@ namespace sorakado::ao::master {
         }
         if (!prev_info_ || *prev_info_ != *info) {
             prev_info_ = std::move(info);
-            prev_info_->update();
         }
+        prev_info_->update();
     }
 
     int Character::getSurfaceID() const {
