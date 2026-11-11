@@ -144,6 +144,11 @@ namespace sorakado {
     ImageCache::ImageCache(const std::filesystem::path &sorakado_dir, const std::filesystem::path &exe_dir, bool use_self_alpha)
         : alive_(true), use_self_alpha_(use_self_alpha), scale_(100), sorakado_dir_(sorakado_dir), onnx_is_valid_(false), session_(nullptr) {
         std::filesystem::path model_path = exe_dir / "model.onnx";
+        if (getenv("NINIXW_MODEL_PATH") != nullptr) {
+            std::string p = getenv("NINIXW_MODEL_PATH");
+            model_path = p;
+            model_path /= "model.onnx";
+        }
         try {
             Ort::SessionOptions session_options;
             session_options.SetIntraOpNumThreads(1);
