@@ -142,7 +142,7 @@ namespace sorakado {
 
 #if defined(USE_ONNX)
     ImageCache::ImageCache(const std::filesystem::path &sorakado_dir, const std::filesystem::path &exe_dir, bool use_self_alpha)
-        : alive_(true), use_self_alpha_(use_self_alpha), scale_(100), sorakado_dir_(sorakado_dir), session_(nullptr) {
+        : alive_(true), use_self_alpha_(use_self_alpha), scale_(100), sorakado_dir_(sorakado_dir), onnx_is_valid_(false), session_(nullptr) {
         std::filesystem::path model_path = exe_dir / "model.onnx";
         try {
             Ort::SessionOptions session_options;
@@ -152,6 +152,7 @@ namespace sorakado {
 #else
             session_ = {env_, model_path.string().c_str(), session_options};
 #endif // Windows
+            onnx_is_valid_ = true;
             th_ = std::make_unique<std::thread>([&]() {
                 while (true) {
                     ImagePath p;
@@ -193,9 +194,14 @@ namespace sorakado {
                             session_.Run(run_options, input_names, &input_tensor, 1, output_names, &output_tensor, 1);
                         }
                         catch (Ort::Exception &e) {
+                            {
+                                std::unique_lock<std::mutex> lock(mutex_);
+                                const auto &img = cache_.at(p);
+                                cache_[p] = std::make_shared<ImageInfo>(img->get(), img->width(), img->height(), true);
+                                onnx_is_valid_ = false;
+                            }
                             LOG(e.what());
-                            auto &tmp = cache_.at(p);
-                            cache_[p] = std::make_shared<ImageInfo>(tmp->get(), tmp->width(), tmp->height(), true);
+                            return;
                         }
                         for (int i = 0; i < (2 * w) * (2 * h); i++) {
                             for (int c = 0; c < 4; c++) {
@@ -453,7 +459,8 @@ namespace sorakado {
         SDL_DestroySurface(in);
         SDL_DestroySurface(out);
 
-        if (scale_ <= 100 || !th_) {
+        LOG("image upconv:", onnx_is_valid_);
+        if (scale_ <= 100 || !onnx_is_valid_) {
             cache_[key] = std::make_shared<ImageInfo>(resize, w, h, true);
         }
         else {

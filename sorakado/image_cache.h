@@ -97,6 +97,7 @@ namespace sorakado {
             std::queue<ImagePath> queue_;
             std::unordered_map<ImagePath, std::shared_ptr<ImageInfo>> cache_orig_;
             std::unordered_map<ImagePath, std::shared_ptr<ImageInfo>> cache_;
+            bool onnx_is_valid_;
 #if defined(USE_ONNX)
             Ort::Env env_;
             Ort::Session session_;
@@ -109,7 +110,7 @@ namespace sorakado {
             ImageCache(const std::filesystem::path &sorakado_dir, const std::filesystem::path &exe_dir, bool use_self_alpha);
 #else
             ImageCache(const std::filesystem::path &sorakado_dir, const std::filesystem::path &exe_dir, bool use_self_alpha)
-            : alive_(true), use_self_alpha_(use_self_alpha), scale_(100), sorakado_dir_(sorakado_dir) {}
+            : alive_(true), use_self_alpha_(use_self_alpha), scale_(100), sorakado_dir_(sorakado_dir), onnx_is_valid_(false) {}
 #endif // USE_ONNX
             ~ImageCache();
             void setUseSelfAlpha(bool use);
