@@ -164,6 +164,9 @@ namespace sorakado {
                         queue_.pop();
                         scale = scale_;
                     }
+                    if (p.path == "") {
+                        return;
+                    }
                     int num_resize = std::ceil(std::log2(scale_ / 100.0));
                     auto info = cache_orig_.at(p);
                     int w = info->width();
@@ -435,7 +438,7 @@ namespace sorakado {
                 return cache_.at(key);
             }
         }
-        auto info = getOriginal(p, index);
+        auto info = getOriginal(p, index, key.use_self_alpha);
         if (!info) {
             std::shared_ptr<ImageInfo> invalid;
             return invalid;
