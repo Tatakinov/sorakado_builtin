@@ -304,21 +304,49 @@ namespace sorakado::ao::master {
         enqueueDirectSSTP({req});
     }
 
-    void Ao::setSurfaceID(int side, std::string id) {
+    void Ao::setSurfaceID(int side, const std::string &id) {
         if (!characters_.contains(side)) {
             return;
         }
         characters_.at(side)->setSurfaceID(id);
     }
 
-    void Ao::startAnimation(int side, std::string id) {
+    void Ao::startAnimation(int side, const std::string &id) {
         if (!characters_.contains(side)) {
             return;
         }
         characters_.at(side)->startAnimation(id);
     }
 
-    bool Ao::isPlayingAnimation(int side, std::string id) const {
+    void Ao::clearAnimation(int side, const std::string &id) {
+        if (!characters_.contains(side)) {
+            return;
+        }
+        characters_.at(side)->clearAnimation(id);
+    }
+
+    void Ao::pauseAnimation(int side, const std::string &id) {
+        if (!characters_.contains(side)) {
+            return;
+        }
+        characters_.at(side)->pauseAnimation(id);
+    }
+
+    void Ao::resumeAnimation(int side, const std::string &id) {
+        if (!characters_.contains(side)) {
+            return;
+        }
+        characters_.at(side)->resumeAnimation(id);
+    }
+
+    void Ao::offsetAnimation(int side, const std::string &id, int x, int y) {
+        if (!characters_.contains(side)) {
+            return;
+        }
+        characters_.at(side)->offsetAnimation(id, x, y);
+    }
+
+    bool Ao::isPlayingAnimation(int side, const std::string &id) const {
         if (!characters_.contains(side)) {
             return false;
         }
@@ -332,7 +360,7 @@ namespace sorakado::ao::master {
         return characters_.at(side)->getActiveAnimationList();
     }
 
-    void Ao::bind(int side, std::string category, std::string parts, std::string from, BindFlag flag) {
+    void Ao::bind(int side, const std::string &category, const std::string &parts, const std::string &from, BindFlag flag) {
         if (!characters_.contains(side)) {
             return;
         }

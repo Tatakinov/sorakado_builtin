@@ -53,7 +53,7 @@ namespace sorakado::ao::master {
             void run() override;
             bool draw() override;
 
-            bool isPlayingAnimation(int side, std::string id) const override;
+            bool isPlayingAnimation(int side, const std::string &id) const override;
             std::unordered_set<int> getActiveAnimationList(int side) const override;
             void create(int side) override;
             void show(int side) override;
@@ -64,9 +64,13 @@ namespace sorakado::ao::master {
             void createMenu(const std::vector<MenuModelData> &data) override;
             std::vector<MenuModelData> getDressUpList() override;
             void surfaceChanged(int side, int id);
-            void setSurfaceID(int side, std::string id) override;
-            void startAnimation(int side, std::string id) override;
-            void bind(int side, std::string category, std::string parts, std::string from, BindFlag flag) override;
+            void setSurfaceID(int side, const std::string &id) override;
+            void startAnimation(int side, const std::string &id) override;
+            void clearAnimation(int side, const std::string &id) override;
+            void pauseAnimation(int side, const std::string &id) override;
+            void resumeAnimation(int side, const std::string &id) override;
+            void offsetAnimation(int side, const std::string &id, int x, int y) override;
+            void bind(int side, const std::string &category, const std::string &parts, const std::string &from, BindFlag flag) override;
             std::optional<Position> getCharacterPosition(int side) const override;
             void move(int side, bool is_async, const std::string &x, const std::string &y, int time, const std::string &base, const std::string &base_offset, const std::string &move_offset, const std::vector<std::string> &options) override;
 

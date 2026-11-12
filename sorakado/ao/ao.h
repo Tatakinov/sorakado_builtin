@@ -22,7 +22,7 @@ namespace sorakado::ao {
             std::optional<lib_skeleton::sorakado::Response> sorakadoEventImmediately(const lib_skeleton::sorakado::Request &req) override;
             void sorakadoEvent(const std::vector<std::string> &args) override;
 
-            virtual bool isPlayingAnimation(int side, std::string id) const = 0;
+            virtual bool isPlayingAnimation(int side, const std::string &id) const = 0;
             virtual std::unordered_set<int> getActiveAnimationList(int side) const = 0;
             virtual void create(int side) = 0;
             virtual void show(int side) = 0;
@@ -32,9 +32,13 @@ namespace sorakado::ao {
             virtual void clearCache() = 0;
             virtual void createMenu(const std::vector<MenuModelData> &data) = 0;
             virtual std::vector<MenuModelData> getDressUpList() = 0;
-            virtual void setSurfaceID(int side, std::string id) = 0;
-            virtual void startAnimation(int side, std::string id) = 0;
-            virtual void bind(int side, std::string category, std::string parts, std::string from, BindFlag flag) = 0;
+            virtual void setSurfaceID(int side, const std::string &id) = 0;
+            virtual void startAnimation(int side, const std::string &id) = 0;
+            virtual void clearAnimation(int side, const std::string &id) = 0;
+            virtual void pauseAnimation(int side, const std::string &id) = 0;
+            virtual void resumeAnimation(int side, const std::string &id) = 0;
+            virtual void offsetAnimation(int side, const std::string &id, int x, int y) = 0;
+            virtual void bind(int side, const std::string &category, const std::string &parts, const std::string &from, BindFlag flag) = 0;
             virtual std::optional<Position> getCharacterPosition(int side) const = 0;
             virtual void move(int side, bool is_async, const std::string &x, const std::string &y, int time, const std::string &base, const std::string &base_offset, const std::string &move_offset, const std::vector<std::string> &options) = 0;
     };

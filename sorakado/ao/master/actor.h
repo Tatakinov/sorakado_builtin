@@ -20,6 +20,8 @@ namespace sorakado::ao::master {
             bool active_;
             bool loop0_;
             Seriko *parent_;
+            bool paused_;
+            int dx_, dy_;
         public:
             Actor(const int id, const Animation &anim, Seriko *parent);
             ~Actor() {}
@@ -28,6 +30,9 @@ namespace sorakado::ao::master {
                 return active_;
             }
             void inactivate();
+            void pause();
+            void resume();
+            void offset(int x, int y);
             const Pattern &currentPattern() const;
             void update(int elapsed);
             const std::unordered_set<Interval> &interval() const {

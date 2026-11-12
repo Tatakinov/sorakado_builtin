@@ -62,7 +62,7 @@ namespace sorakado::ao::master {
     }
 
     Actor::Actor(const int id, const Animation &anim, Seriko *parent)
-        : id_(id), anim_(anim), parent_(parent) {
+        : id_(id), anim_(anim), parent_(parent), paused_(false), dx_(0), dy_(0) {
         int total = 0;
         for (auto &p : anim_.pattern) {
             total += p.wait_max;
@@ -131,6 +131,26 @@ namespace sorakado::ao::master {
         };
     }
 
+    void Actor::pause() {
+        if (!active()) {
+            return;
+        }
+        paused_ = true;
+    }
+
+    void Actor::resume() {
+        if (!active()) {
+            return;
+        }
+        paused_ = false;
+    }
+
+    void Actor::offset(int x, int y) {
+        if (!active()) {
+            return;
+        }
+    }
+
     const Pattern &Actor::currentPattern() const {
         return pattern_;
     }
@@ -139,6 +159,9 @@ namespace sorakado::ao::master {
         if (!active_) {
             parent_->push_front(id_);
             return;
+        }
+        if (paused_) {
+            parent_->push_front(id_);
         }
         if (anim_.interval.size() == 1 && anim_.interval.contains(Interval::Bind)) {
             parent_->push_front(id_);
@@ -154,6 +177,8 @@ namespace sorakado::ao::master {
                 elapsed -= wait_;
                 if (synthesis.contains(anim_.pattern[index_].method)) {
                     pattern_ = anim_.pattern[index_];
+                    pattern_.x += dx_;
+                    pattern_.y += dy_;
                 }
                 else {
                     auto &p = anim_.pattern[index_];

@@ -63,6 +63,10 @@ namespace sorakado::ao::master {
             bool isPlayingAnimation(const std::string &id) const;
             std::unordered_set<int> getActiveAnimationList() const;
             void startAnimation(const std::string &id);
+            void clearAnimation(const std::string &id);
+            void pauseAnimation(const std::string &id);
+            void resumeAnimation(const std::string &id);
+            void offsetAnimation(const std::string &id, int x, int y);
             void bind(int id, std::string from, BindFlag flag);
 
             std::string getHitBoxName(int x, int y);

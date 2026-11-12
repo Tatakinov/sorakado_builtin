@@ -463,6 +463,22 @@ namespace sorakado::ao::master {
         seriko_->activate(From::User, id, 0);
     }
 
+    void Character::clearAnimation(const std::string &id) {
+        seriko_->inactivate(id);
+    }
+
+    void Character::pauseAnimation(const std::string &id) {
+        seriko_->pause(id);
+    }
+
+    void Character::resumeAnimation(const std::string &id) {
+        seriko_->resume(id);
+    }
+
+    void Character::offsetAnimation(const std::string &id, int x, int y) {
+        seriko_->offset(id, x, y);
+    }
+
     void Character::bind(int id, std::string from, BindFlag flag) {
         bool is_binding = seriko_->isBinding(id);
         if (flag == BindFlag::True && is_binding) {

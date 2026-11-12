@@ -55,6 +55,12 @@ namespace sorakado::ao::master {
             void activate(From from, int id, int elapsed);
             void inactivate(const std::string &id);
             void inactivate(int id);
+            void pause(const std::string &id);
+            void pause(int id);
+            void resume(const std::string &id);
+            void resume(int id);
+            void offset(const std::string &id, int x, int y);
+            void offset(int id, int x, int y);
             int getSurfaceID() const;
             bool setSurfaceID(const std::string &id);
             bool setSurfaceID(int id);

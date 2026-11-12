@@ -18,6 +18,7 @@ namespace sorakado::ao::master {
             process_.clear();
             for (auto &[k, v] : actors_) {
                 if (v.activate(From::System)) {
+                    v.offset(0, 0);
                     push_back(k);
                 }
             }
@@ -108,6 +109,48 @@ namespace sorakado::ao::master {
         }
         auto &actor = actors_.at(id);
         actor.inactivate();
+    }
+
+    void Seriko::pause(const std::string &id) {
+        int tmp;
+        util::to_x(id, tmp);
+        pause(tmp);
+    }
+
+    void Seriko::pause(int id) {
+        if (!actors_.contains(id)) {
+            return;
+        }
+        auto &actor = actors_.at(id);
+        actor.pause();
+    }
+
+    void Seriko::resume(const std::string &id) {
+        int tmp;
+        util::to_x(id, tmp);
+        resume(tmp);
+    }
+
+    void Seriko::resume(int id) {
+        if (!actors_.contains(id)) {
+            return;
+        }
+        auto &actor = actors_.at(id);
+        actor.resume();
+    }
+
+    void Seriko::offset(const std::string &id, int x, int y) {
+        int tmp;
+        util::to_x(id, tmp);
+        offset(tmp, x, y);
+    }
+
+    void Seriko::offset(int id, int x, int y) {
+        if (!actors_.contains(id)) {
+            return;
+        }
+        auto &actor = actors_.at(id);
+        actor.offset(x, y);
     }
 
     int Seriko::getSurfaceID() const {

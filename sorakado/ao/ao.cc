@@ -89,12 +89,22 @@ namespace sorakado::ao {
         else if (args[0] == "InvokeAnimation" && args.size() >= 4) {
             int side, x = 0, y = 0;
             util::to_x(args[1], side);
-            if (args.size() == 6) {
-                util::to_x(args[4], x);
-                util::to_x(args[5], y);
-            }
             if (args[3] == "start") {
                 startAnimation(side, args[2]);
+            }
+            else if (args[3] == "clear" || args[3] == "stop") {
+                clearAnimation(side, args[2]);
+            }
+            else if (args[3] == "pause") {
+                pauseAnimation(side, args[2]);
+            }
+            else if (args[3] == "resume") {
+                resumeAnimation(side, args[2]);
+            }
+            else if (args[3] == "offset" && args.size() == 6) {
+                util::to_x(args[4], x);
+                util::to_x(args[5], y);
+                offsetAnimation(side, args[2], x, y);
             }
         }
         else if (args[0] == "Bind") {
