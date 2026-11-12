@@ -93,7 +93,6 @@ namespace sorakado::ao::master {
         }
         if (actor.activate(from)) {
             actors_.at(id).update(elapsed);
-            push_back(id);
         }
     }
 
