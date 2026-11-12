@@ -12,8 +12,14 @@ namespace sorakado::ao {
             int side;
             util::to_x(req(0).value(), side);
             lib_skeleton::sorakado::Response res = {200, "OK"};
-            bool playing = isPlayingAnimation(side, req(1).value());
-            res() = static_cast<int>(playing);
+            animation_key_t key = {side, req(1).value()};
+            if (defer_animation_.contains(key)) {
+                res() = static_cast<int>(true);
+            }
+            else {
+                bool playing = isPlayingAnimation(side, req(1).value());
+                res() = static_cast<int>(playing);
+            }
             return res;
         }
         if (req().value() == "GetActiveAnimationList" && req(0)) {
@@ -33,6 +39,15 @@ namespace sorakado::ao {
                 lib_skeleton::sorakado::Response res = {200, "OK"};
                 res() = s.substr(0, s.length() - 1);
                 return res;
+            }
+        }
+        if (req().value() == "InvokeAnimation" && req(0) && req(1) && req(2)) {
+            int side;
+            util::to_x(req(0).value(), side);
+            auto id = req(1).value();
+            animation_key_t key = {side, id};
+            if (req(2).value() == "start") {
+                defer_animation_.emplace(key);
             }
         }
         return std::nullopt;
@@ -90,6 +105,8 @@ namespace sorakado::ao {
             int side, x = 0, y = 0;
             util::to_x(args[1], side);
             if (args[3] == "start") {
+                animation_key_t key = {side, args[2]};
+                defer_animation_.erase(key);
                 startAnimation(side, args[2]);
             }
             else if (args[3] == "clear" || args[3] == "stop") {

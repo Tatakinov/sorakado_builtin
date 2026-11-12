@@ -12,8 +12,20 @@
 #include "sorakado/ao/misc.h"
 
 namespace sorakado::ao {
+    using animation_key_t = std::pair<int, std::string>;
+}
+
+template<>
+struct std::hash<sorakado::ao::animation_key_t> {
+    size_t operator ()(const sorakado::ao::animation_key_t &key) const {
+        return std::hash<int>()(key.first) ^ std::hash<std::string>()(key.second);
+    }
+};
+
+namespace sorakado::ao {
     class Ao : public sorakado::Sorakado {
         private:
+            std::unordered_set<animation_key_t> defer_animation_;
         protected:
         public:
             Ao(sorakado::Application *parent, std::filesystem::path dir);
