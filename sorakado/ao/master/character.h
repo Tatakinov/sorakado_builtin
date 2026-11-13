@@ -68,6 +68,7 @@ namespace sorakado::ao::master {
             void resumeAnimation(const std::string &id);
             void offsetAnimation(const std::string &id, int x, int y);
             void bind(int id, std::string from, BindFlag flag);
+            bool isBinding(int id);
 
             std::string getHitBoxName(int x, int y);
             void setScale(int scale);

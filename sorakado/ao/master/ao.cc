@@ -375,6 +375,21 @@ namespace sorakado::ao::master {
         characters_.at(side)->bind(id, from, flag);
     }
 
+    bool Ao::isBinding(int side, const std::string &category, const std::string &parts) {
+        if (!characters_.contains(side)) {
+            return false;
+        }
+        auto key = category + "," + parts;
+        if (!bind_id_.contains(side)) {
+            return false;
+        }
+        if (!bind_id_.at(side).contains(key)) {
+            return false;
+        }
+        int id = bind_id_.at(side).at(key);
+        return characters_.at(side)->isBinding(id);
+    }
+
     void Ao::clearCache() {
         image_cache_->clearCache();
         for (auto &[_, v] : characters_) {

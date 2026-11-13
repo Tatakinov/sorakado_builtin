@@ -490,6 +490,9 @@ namespace sorakado::ao::master {
         seriko_->bind(id, !is_binding);
     }
 
+    bool Character::isBinding(int id) {
+        return seriko_->isBinding(id);
+    }
 
     std::string Character::getHitBoxName(int x, int y) {
         if (util::isWayland()) {

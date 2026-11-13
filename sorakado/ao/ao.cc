@@ -1,5 +1,7 @@
 #include "sorakado/ao/ao.h"
 
+#include <sstream>
+
 #include "sorakado/util.h"
 #include "logger.h"
 
@@ -125,6 +127,7 @@ namespace sorakado::ao {
             }
         }
         else if (args[0] == "Bind") {
+            std::vector<std::string> args;
             for (int i = 0; i + 5 < args.size(); i += 5) {
                 int side;
                 BindFlag flag = BindFlag::Toggle;
@@ -137,7 +140,24 @@ namespace sorakado::ao {
                 }
                 util::to_x(args[i + 1], side);
                 bind(side, args[i + 2], args[i + 3], args[i + 4], flag);
+                bool is_binding = isBinding(side, args[i + 2], args[i + 3]);
+                std::vector<std::string> a = {
+                    args[i + 1],
+                    args[i + 3],
+                    (is_binding ? "1" : "0"),
+                    args[i + 2],
+                    args[i + 4]
+                };
+                directsstp::Request req = {"NOTIFY", "OnDressupChanged", a};
+                enqueueDirectSSTP({req});
+                std::ostringstream oss;
+                oss << args[i + 1] << "\x01" << args[i + 2] << "\x01"
+                    << args[i + 3] << "\x01" << "\x01"
+                    << (is_binding ? "1" : "0") << "\x01" << "";
+                args.push_back(oss.str());
             }
+            directsstp::Request req = {"NOTIFY", "OnNotifyDressupInfo", args};
+            enqueueDirectSSTP({req});
         }
         else if (args[0] == "OnScopeChange") {
         }

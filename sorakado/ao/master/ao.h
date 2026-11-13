@@ -71,6 +71,7 @@ namespace sorakado::ao::master {
             void resumeAnimation(int side, const std::string &id) override;
             void offsetAnimation(int side, const std::string &id, int x, int y) override;
             void bind(int side, const std::string &category, const std::string &parts, const std::string &from, BindFlag flag) override;
+            bool isBinding(int side, const std::string &category, const std::string &parts) override;
             std::optional<Position> getCharacterPosition(int side) const override;
             void move(int side, bool is_async, const std::string &x, const std::string &y, int time, const std::string &base, const std::string &base_offset, const std::string &move_offset, const std::vector<std::string> &options) override;
 
