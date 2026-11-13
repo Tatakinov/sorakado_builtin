@@ -18,6 +18,7 @@ namespace sorakado::ao::master {
             process_.clear();
             for (auto &[k, v] : actors_) {
                 if (v.activate(From::System)) {
+                    v.resume();
                     v.offset(0, 0);
                     push_back(k);
                 }
