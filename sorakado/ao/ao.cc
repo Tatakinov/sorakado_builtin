@@ -127,7 +127,7 @@ namespace sorakado::ao {
             }
         }
         else if (args[0] == "Bind") {
-            std::vector<std::string> args;
+            std::vector<std::string> list;
             for (int i = 0; i + 5 < args.size(); i += 5) {
                 int side;
                 BindFlag flag = BindFlag::Toggle;
@@ -154,9 +154,9 @@ namespace sorakado::ao {
                 oss << args[i + 1] << "\x01" << args[i + 2] << "\x01"
                     << args[i + 3] << "\x01" << "\x01"
                     << (is_binding ? "1" : "0") << "\x01" << "";
-                args.push_back(oss.str());
+                list.push_back(oss.str());
             }
-            directsstp::Request req = {"NOTIFY", "OnNotifyDressupInfo", args};
+            directsstp::Request req = {"NOTIFY", "OnNotifyDressupInfo", list};
             enqueueDirectSSTP({req});
         }
         else if (args[0] == "OnScopeChange") {
