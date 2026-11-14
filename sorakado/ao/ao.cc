@@ -148,7 +148,7 @@ namespace sorakado::ao {
                     args[i + 2],
                     args[i + 4]
                 };
-                if (args[i + 6] != "false") {
+                if (args[i + 6] != "false" || (args.size() / 6) >= 100) {
                     continue;
                 }
                 directsstp::Request req = {"NOTIFY", "OnDressupChanged", a};
