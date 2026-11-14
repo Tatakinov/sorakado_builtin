@@ -243,7 +243,7 @@ namespace sorakado::ai::master {
             }
             if (!link.content.event.empty()) {
                 if (link.content.event.starts_with("On")) {
-                    directsstp::Request req = {"NOTIFY", link.content.event, link.content.args, {}, true};
+                    directsstp::Request req = {"NOTIFY", link.content.event, link.content.args, {}, {"hideon204"}};
                     parent_.enqueueDirectSSTP({req});
                 }
                 else if (link.content.event.starts_with("script:")) {
@@ -256,13 +256,13 @@ namespace sorakado::ai::master {
                     if (link.content.is_anchor) {
                         LOG("anchor.", link.content.event);
                         directsstp::Request anchor_ex = {"NOTIFY", "OnAnchorSelectEx", args};
-                        directsstp::Request anchor = {"NOTIFY", "OnAnchorSelect", {link.content.event}, {}, true};
+                        directsstp::Request anchor = {"NOTIFY", "OnAnchorSelect", {link.content.event}, {}, {"hideon204"}};
                         parent_.enqueueDirectSSTP({anchor_ex, anchor});
                     }
                     else {
                         LOG("choice.", link.content.event);
                         directsstp::Request choice_ex = {"NOTIFY", "OnChoiceSelectEx", args};
-                        directsstp::Request choice = {"NOTIFY", "OnChoiceSelect", {link.content.event}, {}, true};
+                        directsstp::Request choice = {"NOTIFY", "OnChoiceSelect", {link.content.event}, {}, {"hideon204"}};
                         parent_.enqueueDirectSSTP({choice_ex, choice});
                     }
                 }

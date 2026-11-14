@@ -1,6 +1,7 @@
 #include "sorakado/socket.h"
 
 #include <cassert>
+#include <sstream>
 
 #include "logger.h"
 
@@ -29,11 +30,16 @@ namespace sorakado {
                 break;
         }
         ret["Sender"] = "Sorakado_builtin";
-        if (req.hide_on_204) {
-            ret["Option"] = "nodescript,hideon204";
-        }
-        else {
-            ret["Option"] = "nodescript";
+        if (req.method == "NOTIFY") {
+            std::ostringstream oss;
+            for (const auto &v : req.option) {
+                oss << v << ",";
+            }
+            if (!req.option.contains("nodescript")) {
+                oss << "nodescript,";
+            }
+            auto s = oss.str();
+            ret["Option"] = s.substr(0, s.length() - 1);
         }
         if (req.method == "EXECUTE") {
             ret["Command"] = req.command;

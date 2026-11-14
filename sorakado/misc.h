@@ -2,6 +2,7 @@
 #define SORAKADO_MISC_H_
 
 #include <string>
+#include <unordered_set>
 #include <vector>
 
 #include "sorakado/compatible.h"
@@ -39,7 +40,7 @@ namespace sorakado {
             std::string command;
             std::vector<std::string> args;
             std::string script;
-            bool hide_on_204;
+            std::unordered_set<std::string> option;
             // use only on EXECUTE
             int side;
         };

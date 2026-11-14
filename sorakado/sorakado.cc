@@ -31,7 +31,7 @@ namespace sorakado {
             return descript_info_.at(key);
         }
         if (fallback) {
-            auto res = sendDirectSSTP({"EXECUTE", "GetDescript", {key}, {}, false});
+            auto res = sendDirectSSTP({"EXECUTE", "GetDescript", {key}, {}, {}});
             std::string content = res.getContent();
             if (freeze) {
                 descript_info_[key] = content;
