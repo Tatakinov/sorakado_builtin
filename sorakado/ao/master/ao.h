@@ -12,13 +12,6 @@
 #include "sorakado/ao/master/surfaces.h"
 
 namespace sorakado::ao::master {
-    struct MenuInitializer {
-        window_t parent;
-        int side;
-        Position pos;
-        Rect r;
-    };
-
     class Ao : public sorakado::ao::Ao {
         private:
             std::unique_ptr<ContextMenu> menu_;
@@ -27,7 +20,6 @@ namespace sorakado::ao::master {
             std::unique_ptr<ImageCache> image_cache_;
             std::unique_ptr<Surfaces> surfaces_;
             std::unique_ptr<FontCache> font_cache_;
-            MenuInitializer menu_initializer_;
         public:
             Ao(sorakado::Application *parent, std::filesystem::path dir);
             ~Ao() {}
@@ -75,7 +67,6 @@ namespace sorakado::ao::master {
             std::optional<Position> getCharacterPosition(int side) const override;
             void move(int side, bool is_async, const std::string &x, const std::string &y, int time, const std::string &base, const std::string &base_offset, const std::string &move_offset, const std::vector<std::string> &options) override;
 
-            void reserveMenu(window_t parent, int side, Position pos, Rect r);
     };
 }
 

@@ -13,6 +13,13 @@
 
 namespace sorakado::ao {
     using animation_key_t = std::pair<int, std::string>;
+
+    struct MenuInitializer {
+        window_t parent;
+        int side;
+        Position pos;
+        Rect r;
+    };
 }
 
 template<>
@@ -27,6 +34,7 @@ namespace sorakado::ao {
         private:
             std::unordered_set<animation_key_t> defer_animation_;
         protected:
+            MenuInitializer menu_initializer_;
         public:
             Ao(sorakado::Application *parent, std::filesystem::path dir);
             virtual ~Ao() {}
@@ -54,6 +62,7 @@ namespace sorakado::ao {
             virtual bool isBinding(int side, const std::string &category, const std::string &parts) = 0;
             virtual std::optional<Position> getCharacterPosition(int side) const = 0;
             virtual void move(int side, bool is_async, const std::string &x, const std::string &y, int time, const std::string &base, const std::string &base_offset, const std::string &move_offset, const std::vector<std::string> &options) = 0;
+            void reserveMenu(window_t parent, int side, Position pos, Rect r);
     };
 }
 

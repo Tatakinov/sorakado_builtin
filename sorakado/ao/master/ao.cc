@@ -21,7 +21,7 @@
 #include "logger.h"
 
 namespace sorakado::ao::master {
-    Ao::Ao(Application *parent, std::filesystem::path dir) : sorakado::ao::Ao(parent, dir), menu_initializer_({nullptr, -1, {0, 0}, {0, 0, 0, 0}}) {
+    Ao::Ao(Application *parent, std::filesystem::path dir) : sorakado::ao::Ao(parent, dir) {
 #ifdef IS_WINDOWS
         std::wstring exe_path;
         exe_path.resize(1024);
@@ -443,10 +443,5 @@ namespace sorakado::ao::master {
             time = 0;
         }
         characters_.at(side)->move(is_async, x, y, time, base, base_offset, move_offset, options);
-    }
-    
-    void Ao::reserveMenu(window_t parent, int side, Position pos, Rect r) {
-        LOG("reserve.ao", pos.x, pos.y);
-        menu_initializer_ = {parent, side, pos, r};
     }
 }

@@ -6,7 +6,7 @@
 #include "logger.h"
 
 namespace sorakado::ao {
-    Ao::Ao(sorakado::Application *parent, std::filesystem::path dir) : sorakado::Sorakado(parent, dir) {
+    Ao::Ao(sorakado::Application *parent, std::filesystem::path dir) : sorakado::Sorakado(parent, dir), menu_initializer_({nullptr, -1, {0, 0}, {0, 0, 0, 0}}) {
     }
 
     std::optional<lib_skeleton::sorakado::Response> Ao::sorakadoEventImmediately(const lib_skeleton::sorakado::Request &req) {
@@ -100,8 +100,36 @@ namespace sorakado::ao {
             Json::Reader reader;
             Json::Value value;
             reader.parse(args[1], value);
+#if 0
             auto data = parseMenuInfo(value, getDressUpList());
             createMenu(data);
+#else
+            Json::Value list(Json::arrayValue);
+            auto l = getDressUpList();
+            for (const auto &v : l) {
+                std::visit([&](const auto &e) {
+                    Json::Value item;
+                    item["type"] = "item";
+                    item["caption"] = e.caption;
+                    item["valid"] = true;
+                    item["command"] = "";
+                    item["args"] = e.caption;
+                    list.append(item);
+                }, v);
+            }
+            for (int i = 0; !value[i].isNull(); i++) {
+                if (value[i]["type"].asString() != "dressup") {
+                    continue;
+                }
+                value[i]["type"] = "submenu";
+                value[i]["list"] = list;
+            }
+            Json::StreamWriterBuilder builder;
+            builder["indentation"] = "";
+            std::vector<std::string> args = {Json::writeString(builder, value), util::to_s(menu_initializer_.pos.x), util::to_s(menu_initializer_.pos.y)};
+            directsstp::Request req = {"EXECUTE", "OpenDefaultMenu", args};
+            enqueueDirectSSTP({req});
+#endif
         }
         else if (args[0] == "InvokeAnimation" && args.size() >= 4) {
             int side, x = 0, y = 0;
@@ -193,5 +221,10 @@ namespace sorakado::ao {
             LOG("ao.move");
             move(side, is_async, x, y, time, base, base_offset, move_offset, options);
         }
+    }
+
+    void Ao::reserveMenu(window_t parent, int side, Position pos, Rect r) {
+        LOG("reserve.ao", pos.x, pos.y);
+        menu_initializer_ = {parent, side, pos, r};
     }
 }
