@@ -70,7 +70,7 @@ namespace sorakado::ao::master {
         }
         else {
             auto id = util::getNearestDisplay(rect.x + rect.w / 2, rect.y + rect.h / 2);
-            SDL_GetDisplayBounds(id, &r);
+            SDL_GetDisplayUsableBounds(id, &r);
         }
         LOG("monitor_rect:", r.x,",", r.y,",", r.w, ",",r.h);
         LOG("surface_rect:", rect.x,",", rect.y,",", rect.w, ",",rect.h);
@@ -214,7 +214,7 @@ namespace sorakado::ao::master {
         }
         else {
             auto id = util::getNearestDisplay(rect.x + rect.w / 2, rect.y + rect.h / 2);
-            SDL_GetDisplayBounds(id, &r);
+            SDL_GetDisplayUsableBounds(id, &r);
         }
         auto o = getOffset();
         switch (align) {
@@ -622,7 +622,7 @@ namespace sorakado::ao::master {
             auto *displays = SDL_GetDisplays(&count);
             for (int i = 0; i < count; i++) {
                 SDL_Rect r, usable;
-                SDL_GetDisplayBounds(displays[i], &r);
+                SDL_GetDisplayUsableBounds(displays[i], &r);
                 std::ostringstream oss;
                 oss << r.x << "," << r.y << "," << r.w << "," << r.h << ",32," << (primary == displays[i]) << ",";
                 SDL_GetDisplayUsableBounds(displays[i], &usable);

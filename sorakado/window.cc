@@ -121,7 +121,7 @@ namespace sorakado {
         else {
             auto id = util::getNearestDisplay(cr.x + cr.w / 2, cr.y + cr.h / 2);
             SDL_Rect r;
-            SDL_GetDisplayBounds(id, &r);
+            SDL_GetDisplayUsableBounds(id, &r);
             return {r.x, r.y, r.w, r.h};
         }
     }
