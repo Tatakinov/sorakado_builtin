@@ -371,8 +371,18 @@ namespace sorakado::ao::master {
                 parent_.enqueueDirectSSTP({up, click});
 #endif
                 Rect r = {x, y, 0, 0};
-                LOG("reserve", x, y);
-                static_cast<Ao &>(parent_).reserveMenu(window->getBackendWindow(), side(), r, window->getMonitorRect(r));
+                if (!util::isWayland()) {
+                    auto pos = getRect();
+                    r.x += pos.x;
+                    r.y += pos.y;
+                }
+                auto m = window->getMonitorRect(r);
+                if (!util::isWayland()) {
+                    r.x -= m.x;
+                    r.y -= m.y;
+                }
+                LOG("reserve", r.x, r.y);
+                static_cast<Ao &>(parent_).reserveMenu(window->getBackendWindow(), side(), r, m);
             }
         }
         else if (down) {
