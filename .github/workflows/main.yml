@@ -54,6 +54,6 @@ jobs:
       with:
           name: sorakado-builtin-windows
           path: |
-              build/Release/*.dll
-              build/Release/*.exe
+              build/Release/*
+              onnxruntime-win-x64/LICENSE
               onnxruntime-win-x64/lib/*.dll
