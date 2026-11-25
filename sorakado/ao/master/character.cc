@@ -362,10 +362,10 @@ namespace sorakado::ao::master {
             else {
                 directsstp::Request up = {"NOTIFY", "OnMouseUp", args};
                 directsstp::Request click = {"NOTIFY", "OnMouseClick", args};
-#if 0
+#if 1
                 // 右クリックメニューを呼び出す
-                args = {util::to_s(side()), util::to_s(surface_x), util::to_s(surface_y)};
-                directsstp::Request menu = {"EXECUTE", "OpenMenu", args};
+                args = {util::to_s(side())};
+                directsstp::Request menu = {"EXECUTE", "QueryMenuInfo", args};
                 parent_.enqueueDirectSSTP({up, click, menu});
 #else
                 parent_.enqueueDirectSSTP({up, click});
